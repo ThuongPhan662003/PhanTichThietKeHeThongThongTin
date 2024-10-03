@@ -6,10 +6,14 @@ import json
 
 views = Blueprint('views', __name__)
 
+@views.route('/users')
+def get_users():
+    users = NguoiDung.query.all()
+    results = [{"id": user.id, "name": user.name} for user in users]
+    return jsonify(results)
+@views.route('/', methods=['GET', 'POST'])
+@login_required
+def home():
 
-# @views.route('/', methods=['GET', 'POST'])
-# @login_required
-# def home():
-
-#     return render_template("home.html")
+    return render_template("home.html")
 
