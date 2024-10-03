@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 import os
@@ -14,7 +14,9 @@ DB_PATH = os.path.join("db", DB_NAME)
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+    # Cấu hình SQLAlchemy
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:thuong@localhost/qlnhahang'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
     from .views import views
@@ -28,13 +30,13 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-    # login_manager = LoginManager()
-    # login_manager.login_view = 'auth.login'
-    # login_manager.init_app(app)
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'
+    login_manager.init_app(app)
 
-    # @login_manager.user_loader
-    # def load_user(id):
-    #     return NguoiDung.query.get(int(id))
+    @login_manager.user_loader
+    def load_user(id):
+        return NguoiDung.query.get(int(id))
 
     return app
 

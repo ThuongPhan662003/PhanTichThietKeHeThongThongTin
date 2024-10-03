@@ -18,3 +18,5 @@ class NguoiDung(db.Model, UserMixin):
     MatKhau = db.Column(db.String(150))
     VerifyCode = db.Column(db.String(150))
     idNND = db.Column(db.Integer, db.ForeignKey("NhomNguoiDung.idNND"), nullable=False)
+    def get_id(self):
+        return self.idND
