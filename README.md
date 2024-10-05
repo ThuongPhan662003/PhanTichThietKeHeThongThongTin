@@ -32,23 +32,25 @@ Go to `http://127.0.0.1:5000/auth/login`
 ### Chú ý: ghi tên bảng them dạng capital (ví dụ: NhomNguoiDung)
 
 ### Chú ý: ghi tên thuộc tính giống như trong db(MySQL)
-
+### Đánh [X] là đã xong
 Thương:
 
-- dondathang
-- hoadon
-- monan
-- nguoidung
-- nguyenlieu
-- ct_dondathang
-- ct_monan
-- ban
-- nhomnguoidung
+- loaiban [x]
+- dondathang [x]
+- hoadon [x]
+- monan [x]
+- nguoidung [x]
+- nguyenlieu [x]
+- ct_dondathang [x]
+- ct_monan [x]
+- ban [x]
+- nhomnguoidung [x]
+- chucnang
   Long:
 - phieunhap
 - phieuxuat
-- nhanvien
-- khachhang
+- nhanvien [x]
+- khachhang [x]
 - voucher
 - loaivoucher
 - phanquyen
