@@ -16,7 +16,7 @@ def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "hjshjhdjah kjshkjdhjs"
     # Cấu hình SQLAlchemy
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:thuong@localhost/qlnh"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:long%40091103@localhost/qlnh"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
