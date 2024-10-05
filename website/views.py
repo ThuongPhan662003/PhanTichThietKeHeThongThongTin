@@ -9,7 +9,7 @@ views = Blueprint('views', __name__)
 @views.route('/users')
 def get_users():
     users = NguoiDung.query.all()
-    results = [{"id": user.id, "name": user.name} for user in users]
+    results = [{"id": user.MaND, "name": user.UserName} for user in users]
     return jsonify(results)
 @views.route('/', methods=['GET', 'POST'])
 @login_required
