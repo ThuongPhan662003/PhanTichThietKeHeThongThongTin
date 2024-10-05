@@ -33,7 +33,7 @@ Go to `http://127.0.0.1:5000/auth/login`
 
 ### Chú ý: ghi tên thuộc tính giống như trong db(MySQL)
 
-Thương:
+# Thương:
 
 - dondathang
 - hoadon
@@ -44,7 +44,7 @@ Thương:
 - ct_monan
 - ban
 - nhomnguoidung
-  Long:
+# Long:
 - phieunhap
 - phieuxuat
 - nhanvien
