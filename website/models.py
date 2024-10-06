@@ -15,6 +15,16 @@ __all__ = [
     "MonAn",
     "HoaDon",
     "ChucNang",
+    "PHANQUYEN",
+    "PHIEUXUAT",
+    "CT_PHIEUXUAT",
+    "PHIEUNHAP",
+    "CT_PHIEUNHAP",
+    "LOAIVOUCHER",
+    "VOUCHER",
+    "CT_VOUCHER",
+    "THAMSO",
+
 ]
 
 
@@ -276,3 +286,111 @@ class NguoiDung(db.Model, UserMixin):
 
     def get_id(self):
         return self.MaND
+    
+
+class PHANQUYEN(db.Model):
+    __tablename__ = 'PHANQUYEN'
+    idNND = db.Column(db.Integer, db.ForeignKey('NHOMNGUOIDUNG.MaNND', ondelete='CASCADE'), primary_key=True)
+    idCN = db.Column(db.Integer, db.ForeignKey('CHUCNANG.MaCN', ondelete='CASCADE'), primary_key=True)
+
+class PHIEUXUAT(db.Model):
+    __tablename__ = 'PHIEUXUAT'
+    SoPhieuXuat = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    idNV = db.Column(db.Integer, db.ForeignKey('NHANVIEN.MaNV', ondelete='CASCADE'), nullable=False)
+    NgayXuat = db.Column(db.DateTime, nullable=False)
+
+class CT_PHIEUXUAT(db.Model):
+    __tablename__ = 'CT_PHIEUXUAT'
+    idXuat = db.Column(db.Integer, db.ForeignKey('PHIEUXUAT.SoPhieuXuat', ondelete='CASCADE'), primary_key=True)
+    idNL = db.Column(db.Integer, db.ForeignKey('NGUYENLIEU.MaNL', ondelete='CASCADE'), primary_key=True)
+    SoLuong = db.Column(db.Float, nullable=False)
+    
+    @db.validates('SoLuong')
+    def validate_soluong(self, key, value):
+        if value <= 0:
+            raise ValueError("Số lượng xuất phải lớn hơn 0")
+        return value
+
+class PHIEUNHAP(db.Model):
+    __tablename__ = 'PHIEUNHAP'
+    SoPhieuNhap = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    idNV = db.Column(db.Integer, db.ForeignKey('NHANVIEN.MaNV', ondelete='CASCADE'), nullable=False)
+    NgayNhap = db.Column(db.DateTime, nullable=False)
+
+class CT_PHIEUNHAP(db.Model):
+    __tablename__ = 'CT_PHIEUNHAP'
+    idNhap = db.Column(db.Integer, db.ForeignKey('PHIEUNHAP.SoPhieuNhap', ondelete='CASCADE'), primary_key=True)
+    idNL = db.Column(db.Integer, db.ForeignKey('NGUYENLIEU.MaNL', ondelete='CASCADE'), primary_key=True)
+    SoLuong = db.Column(db.Float, nullable=False)
+    ThanhTien = db.Column(db.Float, nullable=False)
+    
+    @db.validates('SoLuong')
+    def validate_soluong(self, key, value):
+        if value <= 0:
+            raise ValueError("Số lượng nhập phải lớn hơn 0")
+        return value
+
+class LOAIVOUCHER(db.Model):
+    __tablename__ = 'LOAIVOUCHER'
+    MaLoaiVoucher = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TenLoaiVoucher = db.Column(db.String(50), nullable=False)
+    PhanTram = db.Column(db.Integer, nullable=False)
+    MoTa = db.Column(db.String(500))
+    SoLuong = db.Column(db.Integer, nullable=False)
+    SoLuongConLai = db.Column(db.Integer, nullable=False)
+    LoaiKH = db.Column(db.String(10), nullable=False)
+    NgayBatDau = db.Column(db.DateTime, nullable=False)
+    NgayKetThuc = db.Column(db.DateTime, nullable=False)
+    GiamToiDa = db.Column(db.Integer)
+    An = db.Column(db.Boolean, default=False, nullable=False)
+    
+    @db.validates('PhanTram')
+    def validate_phantram(self, key, value):
+        if not (0 < value < 100):
+            raise ValueError("Phần trăm giảm phải lớn hơn 0 và nhỏ hơn 100")
+        return value
+
+    @db.validates('NgayBatDau', 'NgayKetThuc')
+    def validate_ngay(self, key, value):
+        if key == 'NgayBatDau' and value >= self.NgayKetThuc:
+            raise ValueError("Ngày bắt đầu phải nhỏ hơn ngày kết thúc")
+        if key == 'NgayKetThuc' and value <= self.NgayBatDau:
+            raise ValueError("Ngày kết thúc phải lớn hơn ngày bắt đầu")
+        return value
+
+    @db.validates('GiamToiDa')
+    def validate_giamtoida(self, key, value):
+        if value is not None and value < 0:
+            raise ValueError("Giảm tối đa phải lớn hơn hoặc bằng 0")
+        return value
+
+    @db.validates('SoLuong', 'SoLuongConLai')
+    def validate_soluong(self, key, value):
+        if value < 0:
+            raise ValueError(f"{key} phải lớn hơn hoặc bằng 0")
+        return value
+
+class VOUCHER(db.Model):
+    __tablename__ = 'VOUCHER'
+    CodeVoucher = db.Column(db.String(10), primary_key=True)
+    idLoaiVoucher = db.Column(db.Integer, db.ForeignKey('LOAIVOUCHER.MaLoaiVoucher', ondelete='CASCADE'), nullable=False)
+    TrangThai = db.Column(db.Boolean, default=True)
+
+class CT_VOUCHER(db.Model):
+    __tablename__ = 'CT_VOUCHER'
+    CodeVoucher = db.Column(db.String(10), db.ForeignKey('VOUCHER.CodeVoucher', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
+    idHD = db.Column(db.Integer, db.ForeignKey('HOADON.MaHD', ondelete='CASCADE'), primary_key=True)
+
+class THAMSO(db.Model):
+    __tablename__ = 'THAMSO'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    TuoiToiDa = db.Column(db.Integer, nullable=False)
+    TuoiToiThieu = db.Column(db.Integer, nullable=False)
+    DiemChiaTichLuy = db.Column(db.Integer, nullable=False)
+    SoVoucherApDung_Ngay = db.Column(db.Integer, nullable=False)
+    SoNguyenLieuNhap = db.Column(db.Integer, nullable=False)
+    PhanTramGiamVoucherToiDa = db.Column(db.Integer, nullable=False)
+    Vang = db.Column(db.Integer, nullable=False)
+    Bac = db.Column(db.Integer, nullable=False)
+    Dong = db.Column(db.Integer, nullable=False)
+    PhanTramThue = db.Column(db.Integer, nullable=False)
