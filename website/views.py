@@ -134,7 +134,6 @@ def get_bills():
         for bill in bills
     ]
     return jsonify(results)
-
 # Route để xem dữ liệu bảng PHANQUYEN
 @views.route('/phanquyen')
 #@login_required
@@ -231,12 +230,7 @@ def get_thamso():
     } for ts in thamso]
     return jsonify(result)
 
-# @views.route("/", methods=["GET", "POST"])
-# # @login_required
-# def home():
-#     return render_template("home.html")
-
-
-# @views.route("/homepage", methods=["GET", "POST"])
-# def homepage():
-#     return render_template("home_test.html")
+@views.route("/", methods=["GET", "POST"])
+@login_required
+def home():
+    return render_template("home.html")
