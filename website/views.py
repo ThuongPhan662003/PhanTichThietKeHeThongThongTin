@@ -119,21 +119,21 @@ views = Blueprint("views", __name__)
 #     return jsonify(results)
 
 
-# @views.route("/bills")
-# def get_bills():
-#     bills = HoaDon.query.all()
-#     results = [
-#         {
-#             "idHD": bill.MaHD,
-#             "NgayXuat": bill.NgayXuat,
-#             "TongTien": str(bill.TongTien),
-#             "TrangThai": bill.TrangThai,
-#             "DiemCong": bill.DiemCong,
-#             "DiemTru": bill.DiemTru,
-#         }
-#         for bill in bills
-#     ]
-#     return jsonify(results)
+@views.route("/bills")
+def get_bills():
+    bills = HoaDon.query.all()
+    results = [
+        {
+            "idHD": bill.MaHD,
+            "NgayXuat": bill.NgayXuat,
+            "TongTien": str(bill.TongTien),
+            "TrangThai": bill.TrangThai,
+            "DiemCong": bill.DiemCong,
+            "DiemTru": bill.DiemTru,
+        }
+        for bill in bills
+    ]
+    return jsonify(results)
 
 # Route để xem dữ liệu bảng PHANQUYEN
 @views.route('/phanquyen')
