@@ -134,6 +134,7 @@ def get_bills():
         for bill in bills
     ]
     return jsonify(results)
+
 # Route để xem dữ liệu bảng PHANQUYEN
 @views.route('/phanquyen')
 #@login_required
