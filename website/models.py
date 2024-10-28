@@ -308,13 +308,14 @@ class CT_PHIEUXUAT(db.Model):
 class PHIEUNHAP(db.Model):
     __tablename__ = 'PHIEUNHAP'
     SoPhieuNhap = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    idNV = db.Column(db.Integer, db.ForeignKey('NHANVIEN.MaNV', ondelete='CASCADE'), nullable=False)
+    idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
     NgayNhap = db.Column(db.DateTime, nullable=False)
+    TongTien = db.Column(db.Float, nullable=False)
 
 class CT_PHIEUNHAP(db.Model):
     __tablename__ = 'CT_PHIEUNHAP'
     idNhap = db.Column(db.Integer, db.ForeignKey('PHIEUNHAP.SoPhieuNhap', ondelete='CASCADE'), primary_key=True)
-    idNL = db.Column(db.Integer, db.ForeignKey('NGUYENLIEU.MaNL', ondelete='CASCADE'), primary_key=True)
+    idNL = db.Column(db.Integer, db.ForeignKey('NguyenLieu.MaNL', ondelete='CASCADE'), primary_key=True)
     SoLuong = db.Column(db.Float, nullable=False)
     ThanhTien = db.Column(db.Float, nullable=False)
     

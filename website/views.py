@@ -1,8 +1,10 @@
-from flask import Blueprint, render_template, request, flash, jsonify
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from .models import *
+from .models import PHIEUNHAP, CT_PHIEUNHAP
 from . import db
 import json
+
 
 views = Blueprint("views", __name__)
 
@@ -140,3 +142,8 @@ def get_bills():
 @login_required
 def home():
     return render_template("home.html")
+
+
+
+
+

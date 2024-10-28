@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}
+Nguyên liệu
+{% endblock %}
+{% block content%}
+{% for category, message in get_flashed_messages(with_categories=True) %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+    <strong>{{ message }} </strong>
+    <a href="{{url_for('phieunhap.received_notes')}}" class="alert-link">Xem phiếu nhập</a>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+<!-- form thêm nguyên liệu có sẵn -->
+<h1>Thêm nguyên liệu đã có</h1>
+<br />
+<div class="shadow p-3 mb-5 bg-body rounded">
+    <form method="POST" action="{{ url_for('nguyenlieu.add_ingredients') }}" class="row g-3 needs-validation"
+        novalidate>
+        <div class="col-md-12">
+            <label for="ngayNhap" class="form-label">Ngày nhập<span style="color: red;">*</span></label>
+            <input type="date" class="form-control" id="ngayNhap" name="ngayNhap" required>
+            <div class="invalid-feedback">
+                Vui lòng nhập ngày!
+            </div>
+            <script>
+                flatpickr("#ngayNhap", {
+                    enableTime: true,
+                    dateFormat: "d-m-Y H:i",
+                });
+            </script>
+        </div>
+        <h3>Danh sách nguyên liệu</h3>
+
+        <div class="row justify-content-center">
+            <div class="col-8">
+                <table class="table table-bordered table-hover mx-auto" style="vertical-align: middle;">
+                    <caption>Nhập nguyên liệu và số lượng để thêm vào danh sách</caption>
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" scope="col">Tên nguyên liệu</th>
+                            <th class="text-center" scope="col">Số lượng</th>
+                            <th class="text-center" scope="col">Chức năng</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider" id="ingredientTableBody">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Tên nguyên liệu<span style="color: red;">*</span></label>
+
+            <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Nhập để tìm kiếm..."
+                name="ingredient_name" onchange="document.getElementById('selectedIngredientId').value=this.value">
+            <datalist id="datalistOptions">
+                {% for ingredient in ingredients %}
+                <option value="{{ ingredient.TenNguyenLieu }}" data-id="{{ ingredient.MaNL }}"></option>
+                {% endfor %}
+            </datalist>
+            <input type="hidden" id="selectedIngredientId" name="ingredient_id">
+            <div class="invalid-feedback">
+                Vui lòng chọn tên nguyên liệu!
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label for="soLuongNhap" class="form-label">Số lượng nhập<span style="color: red;">*</span></label>
+            <div data-mdb-input-init class="form-outline">
+                <input type="number" id="soLuongNhap" class="form-control" required />
+                <div class="invalid-feedback">
+                    Vui lòng nhập số lượng nguyên liệu!
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 text-end ">
+            <label for="soLuongNhap" class="form-label"><i>Bấm để thêm vào list</i></label>
+
+            <button class="btn btn-primary" id="addButton" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-bar-up mb-1" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M8 10a.5.5 0 0 0 .5-.5V3.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 3.707V9.5a.5.5 0 0 0 .5.5m-7 2.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5" />
+                </svg>
+                Thêm nguyên liệu
+            </button>
+        </div>
+        <!-- Trường ẩn để lưu danh sách nguyên liệu dưới dạng JSON -->
+        <input type="hidden" id="ingredientList" name="ingredientList">
+        <div class="col-2">
+            <button class="btn btn-primary " type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-floppy me-1 mb-1" viewBox="0 0 16 16">
+                    <path d="M11 2H9v3h2z" />
+                    <path
+                        d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                </svg>
+                Lưu
+            </button>
+        </div>
+    </form>
+</div>
+<script>
+    document.getElementById('addButton').addEventListener('click', function () {
+        const tenNguyenLieu = document.getElementById('exampleDataList').value;
+        const soLuongNhap = document.getElementById('soLuongNhap').value;
+
+        if (!tenNguyenLieu || !soLuongNhap) {
+            alert("Vui lòng nhập tên nguyên liệu và số lượng!");
+            return;
+        }
+
+        const tableBody = document.getElementById('ingredientTableBody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td class="text-center">${tenNguyenLieu}</td>
+            <td class="text-center">${soLuongNhap}</td>
+            <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">Xóa</button></td>
+        `;
+        tableBody.appendChild(newRow);
+
+        document.getElementById('exampleDataList').value = '';
+        document.getElementById('soLuongNhap').value = '';
+    });
+
+    function removeRow(button) {
+        const row = button.closest('tr');
+        row.remove();
+    }
+
+    // Khi nhấn nút "Lưu", tạo một chuỗi JSON từ bảng nguyên liệu và lưu vào input ẩn
+    document.querySelector('form').addEventListener('submit', function (event) {
+        const tableBody = document.getElementById('ingredientTableBody');
+        const rows = tableBody.querySelectorAll('tr');
+        const ingredients = [];
+
+        rows.forEach(row => {
+            const tenNguyenLieu = row.cells[0].innerText.trim();
+            const soLuong = parseFloat(row.cells[1].innerText.trim());
+            ingredients.push({ tenNguyenLieu, soLuong });
+        });
+
+        document.getElementById('ingredientList').value = JSON.stringify(ingredients);
+    });
+</script>
+
+{% endblock %}
