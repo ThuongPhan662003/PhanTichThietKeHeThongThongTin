@@ -15,6 +15,16 @@ __all__ = [
     "MonAn",
     "HoaDon",
     "ChucNang",
+    "PHANQUYEN",
+    "PHIEUXUAT",
+    "CT_PHIEUXUAT",
+    "PHIEUNHAP",
+    "CT_PHIEUNHAP",
+    "LOAIVOUCHER",
+    "VOUCHER",
+    "CT_VOUCHER",
+    "THAMSO",
+
 ]
 
 
