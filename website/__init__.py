@@ -24,11 +24,14 @@ def create_app():
     from .auth import auth
     from .controller.nguyenlieu import nguyenlieu
     from .controller.phieunhap import phieunhap
+    from .controller.phieuxuat import phieuxuat
+
 
     app.register_blueprint(views, url_prefix="/view")
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(nguyenlieu, url_prefix="/nguyenlieu")
     app.register_blueprint(phieunhap, url_prefix="/phieunhap")
+    app.register_blueprint(phieuxuat, url_prefix="/phieuxuat")
 
     from .models import NguoiDung, NhomNguoiDung
 

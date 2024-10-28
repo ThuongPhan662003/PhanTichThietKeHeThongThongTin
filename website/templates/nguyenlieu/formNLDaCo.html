@@ -3,13 +3,30 @@
 Nguyên liệu
 {% endblock %}
 {% block content%}
+
 {% for category, message in get_flashed_messages(with_categories=True) %}
 <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
     <strong>{{ message }} </strong>
-    <a href="{{url_for('phieunhap.received_notes')}}" class="alert-link">Xem phiếu nhập</a>
+    {% if category == 'success' %}
+    <a href="{{ url_for('phieunhap.received_notes') }}" class="alert-link">Xem phiếu nhập</a>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    {% endif %}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endfor %}
+<div id="ngayNhapError" class="alert alert-danger" role="alert" style="display: none;">Ngày nhập không được để trống!
+</div>
+
+<script>
+    setTimeout(function () {
+        let alertElement = document.querySelector('.alert');
+        if (alertElement) {
+            let bootstrapAlert = new bootstrap.Alert(alertElement);
+            bootstrapAlert.close();
+        }
+    }, 3000); 
+</script>
+
 <!-- form thêm nguyên liệu có sẵn -->
 <h1>Thêm nguyên liệu đã có</h1>
 <br />
@@ -33,11 +50,15 @@ Nguyên liệu
 
         <div class="row justify-content-center">
             <div class="col-8">
-                <table class="table table-bordered table-hover mx-auto" style="vertical-align: middle;">
+                <table class="table table-bordered table-hover mx-auto"
+                    style="vertical-align: middle; height: 200px; background-color:rgb(246, 246, 246);">
                     <caption>Nhập nguyên liệu và số lượng để thêm vào danh sách</caption>
                     <thead class="table-light">
                         <tr>
+                            <th class="text-center" scope="col">Mã nguyên liệu</th>
                             <th class="text-center" scope="col">Tên nguyên liệu</th>
+                            <th class="text-center" scope="col">Đơn giá</th>
+                            <th class="text-center" scope="col">Đơn vị tính</th>
                             <th class="text-center" scope="col">Số lượng</th>
                             <th class="text-center" scope="col">Chức năng</th>
                         </tr>
@@ -55,7 +76,9 @@ Nguyên liệu
                 name="ingredient_name" onchange="document.getElementById('selectedIngredientId').value=this.value">
             <datalist id="datalistOptions">
                 {% for ingredient in ingredients %}
-                <option value="{{ ingredient.TenNguyenLieu }}" data-id="{{ ingredient.MaNL }}"></option>
+                <option value="{{ ingredient.TenNguyenLieu }}" data-id="{{ ingredient.MaNL }}"
+                    data-dongia="{{ ingredient.DonGia }}" data-donvitinh="{{ ingredient.DonViTinh }}">
+                </option>
                 {% endfor %}
             </datalist>
             <input type="hidden" id="selectedIngredientId" name="ingredient_id">
@@ -88,7 +111,7 @@ Nguyên liệu
         <!-- Trường ẩn để lưu danh sách nguyên liệu dưới dạng JSON -->
         <input type="hidden" id="ingredientList" name="ingredientList">
         <div class="col-2">
-            <button class="btn btn-primary " type="submit">
+            <button class="btn btn-primary " type="submit" id="saveButton">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                     class="bi bi-floppy me-1 mb-1" viewBox="0 0 16 16">
                     <path d="M11 2H9v3h2z" />
@@ -101,8 +124,31 @@ Nguyên liệu
     </form>
 </div>
 <script>
+    document.getElementById('saveButton').addEventListener('click', function (event) {
+        const ngayNhap = document.getElementById('ngayNhap').value;
+        const errorDiv = document.getElementById('ngayNhapError');
+
+        if (!ngayNhap) {
+            event.preventDefault();
+            errorDiv.style.display = 'block';
+        } else {
+            errorDiv.style.display = 'none';
+        }
+    });
+
+
     document.getElementById('addButton').addEventListener('click', function () {
         const tenNguyenLieu = document.getElementById('exampleDataList').value;
+        const selectedOption = document.querySelector(`#datalistOptions option[value="${tenNguyenLieu}"]`);
+
+        if (!selectedOption) {
+            alert("Vui lòng chọn tên nguyên liệu từ danh sách!");
+            return;
+        }
+
+        const idNL = selectedOption.dataset.id;
+        const donGia = selectedOption.dataset.dongia;
+        const donViTinh = selectedOption.dataset.donvitinh;
         const soLuongNhap = document.getElementById('soLuongNhap').value;
 
         if (!tenNguyenLieu || !soLuongNhap) {
@@ -113,35 +159,49 @@ Nguyên liệu
         const tableBody = document.getElementById('ingredientTableBody');
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
+            <td class="text-center">${idNL}</td>
             <td class="text-center">${tenNguyenLieu}</td>
+            <td class="text-center">${donGia}</td>
+            <td class="text-center">${donViTinh}</td>
             <td class="text-center">${soLuongNhap}</td>
             <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">Xóa</button></td>
         `;
         tableBody.appendChild(newRow);
 
+        selectedOption.remove();
         document.getElementById('exampleDataList').value = '';
         document.getElementById('soLuongNhap').value = '';
     });
 
     function removeRow(button) {
         const row = button.closest('tr');
+        const ingredientName = row.cells[1].innerText;
         row.remove();
+
+        const dataList = document.getElementById('datalistOptions');
+        const originalOption = document.createElement('option');
+        originalOption.value = ingredientName;
+        originalOption.dataset.id = row.cells[0].innerText;
+        originalOption.dataset.dongia = row.cells[2].innerText;
+        originalOption.dataset.donvitinh = row.cells[3].innerText;
+        dataList.appendChild(originalOption);
     }
 
-    // Khi nhấn nút "Lưu", tạo một chuỗi JSON từ bảng nguyên liệu và lưu vào input ẩn
     document.querySelector('form').addEventListener('submit', function (event) {
         const tableBody = document.getElementById('ingredientTableBody');
         const rows = tableBody.querySelectorAll('tr');
         const ingredients = [];
 
         rows.forEach(row => {
-            const tenNguyenLieu = row.cells[0].innerText.trim();
-            const soLuong = parseFloat(row.cells[1].innerText.trim());
-            ingredients.push({ tenNguyenLieu, soLuong });
+            const idNL = row.cells[0].innerText.trim();
+            const tenNguyenLieu = row.cells[1].innerText.trim();
+            const donGia = parseFloat(row.cells[2].innerText.trim());
+            const donViTinh = row.cells[3].innerText.trim();
+            const soLuong = parseFloat(row.cells[4].innerText.trim());
+            ingredients.push({ idNL, tenNguyenLieu, donGia, donViTinh, soLuong });
         });
 
         document.getElementById('ingredientList').value = JSON.stringify(ingredients);
     });
 </script>
-
 {% endblock %}

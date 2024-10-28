@@ -51,6 +51,11 @@
     <hr>
     <p class="text-muted">Số lượng tồn</p>
     <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="stock" value="out_of_stock" id="out_of_stock" {%
+            if 'out_of_stock' in selected_stock %}checked{% endif %}>
+        <label class="form-check-label" for="outofStock">Đã hết</label>
+    </div>
+    <div class="form-check">
         <input class="form-check-input" type="checkbox" name="stock" value="under_10" id="stockUnder10" {% if 'under_10'
             in selected_stock %}checked{% endif %}>
         <label class="form-check-label" for="stockUnder10">Nhỏ hơn 10</label>
