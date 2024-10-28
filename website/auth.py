@@ -4,12 +4,22 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import db  ##means from __init__.py import db
 from flask_login import login_user, login_required, logout_user, current_user
 
-
 auth = Blueprint("auth", __name__)
-
 
 @auth.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        username = request.form.get("Username")
+        MatKhau = request.form.get("MatKhau")
+        user = NguoiDung.query.filter_by(UserName=username).first()
+        print(check_password_hash(user.MatKhau, MatKhau))
+        if user and user.MatKhau==MatKhau:
+            login_user(user)
+            return redirect(url_for("views.home")) 
+
+        else:
+            flash("Sai thông tin đăng nhập, vui lòng thử lại.", "error")
+
     return render_template("login.html", user=current_user)
 
 
@@ -33,7 +43,6 @@ def sign_up():
             flash("UserName must be greater than 2 characters.", category="error")
         else:
             new_user = NguoiDung(
-                idND=1,
                 UserName=UserName,
                 TrangThai=1,
                 MatKhau=MatKhau,

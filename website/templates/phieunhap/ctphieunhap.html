@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Chi Tiết Phiếu Nhập{% endblock %}
+
+{% block content %}
+<h1>Chi Tiết Phiếu Nhập Số {{ received_note.SoPhieuNhap }}</h1>
+<p><strong>Ngày Nhập:</strong> {{ received_note.NgayNhap.strftime('%d-%m-%Y %H:%M') }}</p>
+<p><strong>Tổng Tiền:</strong> {{ "{:,.2f}".format(tong_tien) }}</p>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="text-center">Tên Nguyên Liệu</th>
+            <th class="text-center">Đơn Vị Tính</th>
+            <th class="text-center">Số Lượng</th>
+            <th class="text-center">Đơn Giá</th>
+            <th class="text-center">Thành Tiền</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in details %}
+        <tr>
+            <td class="text-center">{{ item.ten_nguyen_lieu }}</td>
+            <td class="text-center">{{ item.don_vi_tinh }}</td>
+            <td class="text-center">{{ item.so_luong }}</td>
+            <td class="text-center">{{ "{:,.2f}".format(item.don_gia) }}</td>
+            <td class="text-center">{{ "{:,.2f}".format(item.thanh_tien) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('phieunhap.received_notes') }}" class="btn btn-secondary">Quay lại danh sách phiếu nhập</a>
+{% endblock %}
