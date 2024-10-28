@@ -59,7 +59,3 @@ Thương:
 - ct_voucher
 - thamso
 
-
-# Thảo's note :)))
-
-Ai có test branch nguyenlieu_phieunhap thì vào models tại PHIEUNHAP ẩn thuộc tính tổng tiền đi nha
