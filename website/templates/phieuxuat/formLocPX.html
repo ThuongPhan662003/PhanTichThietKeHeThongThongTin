@@ -1,0 +1,16 @@
+<form method="POST" action="{{ url_for('phieuxuat.filter_delivery_notes') }}">
+    <p class='text-muted'>Theo nhân viên</p>
+    <div class="input-group mb-3">
+        <input class="form-control" type="text" name="query_search" placeholder="Nhập tên nhân viên"
+            value="{{ query_search }}">
+    </div>
+    <hr>
+    <p class='text-muted'>Theo ngày xuất</p>
+    <div class="input-group input-group-sm mb-3">
+        <input type="date" class="form-control" name="start_date" placeholder="Từ ngày" value="{{ start_date }}">
+        <input type="date" class="form-control" name="end_date" placeholder="Đến ngày" value="{{ end_date }}">
+    </div>
+    <hr>
+    <button type="submit" class="btn btn-outline-success">Áp dụng</button>
+    <a href="{{ url_for('phieuxuat.delivery_notes') }}" class="btn btn-outline-secondary ms-2">Bỏ lọc</a>
+</form>

@@ -2,6 +2,9 @@ from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, UniqueConstraint, CheckConstraint, Boolean
+
+
 __all__ = [
     "NguoiDung",
     "KhachHang",
@@ -160,7 +163,7 @@ class NhanVien(db.Model):
     TinhTrang = db.Column(db.Boolean, nullable=False, default=False)
     NgayVaoLam = db.Column(db.Date, nullable=False)
     hoa_don = db.relationship("HoaDon", backref="nhan_vien")
-    nguoi_dung = db.relationship("NguoiDung", backref="nhan_vien")
+    nguoi_dung = db.relationship("NguoiDung", back_populates="nhan_vien")
 
     @db.validates("CCCD")
     def validate_cccd(self, key, value):
@@ -284,6 +287,16 @@ class NguoiDung(db.Model, UserMixin):
         "KhachHang", back_populates="nguoi_dung", uselist=False
     )
 
+    def get_id(self):
+        return self.MaND
+
+    nhan_vien = db.relationship("NhanVien", back_populates="nguoi_dung", uselist=False)
+    
+    # nhan_vien = db.relationship(
+    #     "NhanVien", back_populates="nguoi_dung", uselist=False
+    # )
+
+
 class PHANQUYEN(db.Model):
     __tablename__ = 'PHANQUYEN'
     idNND = db.Column(db.Integer, db.ForeignKey('NHOMNGUOIDUNG.MaNND', ondelete='CASCADE'), primary_key=True)
@@ -292,13 +305,13 @@ class PHANQUYEN(db.Model):
 class PHIEUXUAT(db.Model):
     __tablename__ = 'PHIEUXUAT'
     SoPhieuXuat = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    idNV = db.Column(db.Integer, db.ForeignKey('NHANVIEN.MaNV', ondelete='CASCADE'), nullable=False)
+    idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
     NgayXuat = db.Column(db.DateTime, nullable=False)
 
 class CT_PHIEUXUAT(db.Model):
     __tablename__ = 'CT_PHIEUXUAT'
     idXuat = db.Column(db.Integer, db.ForeignKey('PHIEUXUAT.SoPhieuXuat', ondelete='CASCADE'), primary_key=True)
-    idNL = db.Column(db.Integer, db.ForeignKey('NGUYENLIEU.MaNL', ondelete='CASCADE'), primary_key=True)
+    idNL = db.Column(db.Integer, db.ForeignKey('NguyenLieu.MaNL', ondelete='CASCADE'), primary_key=True)
     SoLuong = db.Column(db.Float, nullable=False)
     
     @db.validates('SoLuong')
@@ -310,13 +323,14 @@ class CT_PHIEUXUAT(db.Model):
 class PHIEUNHAP(db.Model):
     __tablename__ = 'PHIEUNHAP'
     SoPhieuNhap = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    idNV = db.Column(db.Integer, db.ForeignKey('NHANVIEN.MaNV', ondelete='CASCADE'), nullable=False)
+    idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
     NgayNhap = db.Column(db.DateTime, nullable=False)
+    TongTien = db.Column(db.Float, nullable=False)
 
 class CT_PHIEUNHAP(db.Model):
     __tablename__ = 'CT_PHIEUNHAP'
     idNhap = db.Column(db.Integer, db.ForeignKey('PHIEUNHAP.SoPhieuNhap', ondelete='CASCADE'), primary_key=True)
-    idNL = db.Column(db.Integer, db.ForeignKey('NGUYENLIEU.MaNL', ondelete='CASCADE'), primary_key=True)
+    idNL = db.Column(db.Integer, db.ForeignKey('NguyenLieu.MaNL', ondelete='CASCADE'), primary_key=True)
     SoLuong = db.Column(db.Float, nullable=False)
     ThanhTien = db.Column(db.Float, nullable=False)
     
@@ -390,9 +404,4 @@ class THAMSO(db.Model):
     Bac = db.Column(db.Integer, nullable=False)
     Dong = db.Column(db.Integer, nullable=False)
     PhanTramThue = db.Column(db.Integer, nullable=False)
-
-    def get_id(self):
-        return self.MaND
-    
-
 

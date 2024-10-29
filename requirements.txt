@@ -2,3 +2,5 @@ flask
 Flask-SQLAlchemy
 flask-login
 authlib
+flask_wtf
+flask_session

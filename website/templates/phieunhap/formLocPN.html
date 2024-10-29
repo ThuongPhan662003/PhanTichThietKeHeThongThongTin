@@ -1,0 +1,24 @@
+<form method="POST" action="{{ url_for('phieunhap.filter_received_notes') }}">
+    <p class='text-muted'>Theo nhân viên</p>
+    <div class="input-group mb-3">
+        <input class="form-control" type="text" name="query_search" placeholder="Nhập tên nhân viên"
+            value="{{ query_search }}">
+    </div>
+    <hr>
+    <p class='text-muted'>Theo ngày nhập</p>
+    <div class="input-group input-group-sm mb-3">
+        <input type="date" class="form-control" name="start_date" placeholder="Từ ngày" value="{{ start_date }}">
+        <input type="date" class="form-control" name="end_date" placeholder="Đến ngày" value="{{ end_date }}">
+    </div>
+    <hr>
+    <p class="text-muted">Tổng tiền</p>
+    <div class="input-group input-group-sm mb-3">
+        <input type="number" class="form-control" name="min_amount" placeholder="Từ" value="{{ min_amount }}"
+            step="100000">
+        <input type="number" class="form-control" name="max_amount" placeholder="Đến" value="{{ max_amount }}"
+            step="100000">
+    </div>
+    <hr>
+    <button type="submit" class="btn btn-outline-success">Áp dụng</button>
+    <a href="{{ url_for('phieunhap.received_notes') }}" class="btn btn-outline-secondary ms-2">Bỏ lọc</a>
+</form>

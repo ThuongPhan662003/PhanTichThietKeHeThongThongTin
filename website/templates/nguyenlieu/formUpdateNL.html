@@ -1,0 +1,38 @@
+<!-- form update nguyên liệu -->
+<div class="card">
+    <div class="card-header">
+        <b> Sửa thông tin nguyên liệu</b>
+    </div>
+    <div class="card-body">
+        <form method="POST" class="row g-3 needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="col-md-4">
+                {{ form.TenNguyenLieu.label(class="form-label") }}<span style="color: red;">*</span>
+                {{ form.TenNguyenLieu(class="form-control", required=True) }}
+                <div class="invalid-feedback">
+                    Vui lòng nhập tên nguyên liệu!
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                {{ form.DonGia.label(class="form-label") }}<span style="color: red;">*</span>
+                {{ form.DonGia(class="form-control", required=True) }}
+                <div class="invalid-feedback">
+                    Vui lòng nhập đơn giá hợp lệ!
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                {{ form.DonViTinh.label(class="form-label") }}<span style="color: red;">*</span>
+                {{ form.DonViTinh(class="form-select", required=True) }}
+                <div class="invalid-feedback">
+                    Vui lòng chọn đơn vị tính!
+                </div>
+            </div>
+            <div class="col-12">
+                {{form.submit(class="btn btn-secondary")}}
+            </div>
+        </form>
+    </div>
+</div>
