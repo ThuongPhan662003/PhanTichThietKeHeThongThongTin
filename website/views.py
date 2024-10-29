@@ -1,4 +1,4 @@
-# from .models import *
+from .models import *
 from flask import Blueprint, render_template, request, flash, jsonify
 from flask_login import login_required, current_user
 from . import db
@@ -159,12 +159,12 @@ views = Blueprint("views", __name__)
 #     return jsonify(result)
 
 # # Route để xem dữ liệu bảng PHIEUNHAP
-# @views.route('/phieunhap', methods=['GET'])
-# #@login_required
-# def get_phieunhap():
-#     phieunhap = PHIEUNHAP.query.all()
-#     result = [{'SoPhieuNhap': pn.SoPhieuNhap, 'idNV': pn.idNV, 'NgayNhap': pn.NgayNhap} for pn in phieunhap]
-#     return jsonify(result)
+@views.route('/phieunhap', methods=['GET'])
+#@login_required
+def get_phieunhap():
+    phieunhap = PHIEUNHAP.query.all()
+    result = [{'SoPhieuNhap': pn.SoPhieuNhap, 'idNV': pn.idNV, 'NgayNhap': pn.NgayNhap} for pn in phieunhap]
+    return jsonify(result)
 
 # # Route để xem dữ liệu bảng CT_PHIEUNHAP
 # @views.route('/ct_phieunhap', methods=['GET'])
@@ -195,12 +195,12 @@ views = Blueprint("views", __name__)
 #     return jsonify(result)
 
 # # Route để xem dữ liệu bảng VOUCHER
-# @views.route('/voucher', methods=['GET'])
-# #@login_required
-# def get_voucher():
-#     voucher = VOUCHER.query.all()
-#     result = [{'CodeVoucher': v.CodeVoucher, 'idLoaiVoucher': v.idLoaiVoucher, 'TrangThai': v.TrangThai} for v in voucher]
-#     return jsonify(result)
+@views.route('/voucher', methods=['GET'])
+#@login_required
+def get_voucher():
+    voucher = VOUCHER.query.all()
+    result = [{'CodeVoucher': v.CodeVoucher, 'idLoaiVoucher': v.idLoaiVoucher, 'TrangThai': v.TrangThai} for v in voucher]
+    return jsonify(result)
 
 # # Route để xem dữ liệu bảng CT_VOUCHER
 # @views.route('/ct_voucher', methods=['GET'])
@@ -210,27 +210,27 @@ views = Blueprint("views", __name__)
 #     result = [{'CodeVoucher': ct.CodeVoucher, 'idHD': ct.idHD} for ct in ct_voucher]
 #     return jsonify(result)
 
-# # Route để xem dữ liệu bảng THAMSO
-# @views.route('/thamso', methods=['GET'])
-# #@login_required
-# def get_thamso():
-#     thamso = THAMSO.query.all()
-#     result = [{
-#         'id': ts.id,
-#         'TuoiToiDa': ts.TuoiToiDa,
-#         'TuoiToiThieu': ts.TuoiToiThieu,
-#         'DiemChiaTichLuy': ts.DiemChiaTichLuy,
-#         'SoVoucherApDung_Ngay': ts.SoVoucherApDung_Ngay,
-#         'SoNguyenLieuNhap': ts.SoNguyenLieuNhap,
-#         'PhanTramGiamVoucherToiDa': ts.PhanTramGiamVoucherToiDa,
-#         'Vang': ts.Vang,
-#         'Bac': ts.Bac,
-#         'Dong': ts.Dong,
-#         'PhanTramThue': ts.PhanTramThue
-#     } for ts in thamso]
-#     return jsonify(result)
+# Route để xem dữ liệu bảng THAMSO
+@views.route('/thamso', methods=['GET'])
+#@login_required
+def get_thamso():
+    thamso = THAMSO.query.all()
+    result = [{
+        'id': ts.id,
+        'TuoiToiDa': ts.TuoiToiDa,
+        'TuoiToiThieu': ts.TuoiToiThieu,
+        'DiemChiaTichLuy': ts.DiemChiaTichLuy,
+        'SoVoucherApDung_Ngay': ts.SoVoucherApDung_Ngay,
+        'SoNguyenLieuNhap': ts.SoNguyenLieuNhap,
+        'PhanTramGiamVoucherToiDa': ts.PhanTramGiamVoucherToiDa,
+        'Vang': ts.Vang,
+        'Bac': ts.Bac,
+        'Dong': ts.Dong,
+        'PhanTramThue': ts.PhanTramThue
+    } for ts in thamso]
+    return jsonify(result)
 
 @views.route("/", methods=["GET", "POST"])
-@login_required
+# @login_required
 def home():
     return render_template("home.html")
