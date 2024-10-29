@@ -154,7 +154,7 @@ class NhanVien(db.Model):
     TinhTrang = db.Column(db.Boolean, nullable=False, default=False)
     NgayVaoLam = db.Column(db.Date, nullable=False)
     hoa_don = db.relationship("HoaDon", backref="nhan_vien")
-    nguoi_dung = db.relationship("NguoiDung", backref="nhan_vien")
+    nguoi_dung = db.relationship("NguoiDung", back_populates="nhan_vien")
 
     @db.validates("CCCD")
     def validate_cccd(self, key, value):
@@ -278,6 +278,12 @@ class NguoiDung(db.Model, UserMixin):
         "KhachHang", back_populates="nguoi_dung", uselist=False
     )
 
+    nhan_vien = db.relationship("NhanVien", back_populates="nguoi_dung", uselist=False)
+    
+    # nhan_vien = db.relationship(
+    #     "NhanVien", back_populates="nguoi_dung", uselist=False
+    # )
+
     def get_id(self):
         return self.MaND
 
@@ -310,7 +316,7 @@ class PHIEUNHAP(db.Model):
     SoPhieuNhap = db.Column(db.Integer, primary_key=True, autoincrement=True)
     idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
     NgayNhap = db.Column(db.DateTime, nullable=False)
-    TongTien = db.Column(db.Float, nullable=False)
+    # TongTien = db.Column(db.Float, nullable=False)
 
 class CT_PHIEUNHAP(db.Model):
     __tablename__ = 'CT_PHIEUNHAP'

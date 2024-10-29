@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, make_response, render_template, request, flash, redirect, url_for
 from .models import NguoiDung
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db  ##means from __init__.py import db
@@ -6,28 +6,32 @@ from flask_login import login_user, login_required, logout_user, current_user
 
 auth = Blueprint("auth", __name__)
 
+
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form.get("Username")
         MatKhau = request.form.get("MatKhau")
         user = NguoiDung.query.filter_by(UserName=username).first()
-        print(check_password_hash(user.MatKhau, MatKhau))
-        if user and user.MatKhau==MatKhau:
+        
+        if user and MatKhau == user.MatKhau:
             login_user(user)
-            return redirect(url_for("views.home")) 
-
+            # Tạo một phản hồi để lưu trữ thông tin vào cookie
+            response = make_response(redirect(url_for("views.home")))
+            response.set_cookie('username', user.UserName)  # Lưu tên người dùng vào cookie
+            return response
         else:
             flash("Sai thông tin đăng nhập, vui lòng thử lại.", "error")
 
     return render_template("login.html", user=current_user)
 
-
 @auth.route("/logout")
-@login_required
 def logout():
     logout_user()
-    return redirect(url_for("auth.login"))
+    response = make_response(redirect(url_for("views.home")))
+    response.delete_cookie('username')  # Xóa cookie
+    return response
+
 
 
 @auth.route("/sign-up", methods=["GET", "POST"])

@@ -16,7 +16,7 @@ def create_app():
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "hjshjhdjah kjshkjdhjs"
     # Cấu hình SQLAlchemy
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:28102003@localhost/qlnh"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:123456@localhost/qlnh"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
@@ -24,6 +24,7 @@ def create_app():
     from .auth import auth
     from .controller.nguyenlieu import nguyenlieu
     from .controller.phieunhap import phieunhap
+    from .controller.nguoidung import nguoidung
     from .controller.phieuxuat import phieuxuat
 
 
@@ -31,7 +32,6 @@ def create_app():
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(nguyenlieu, url_prefix="/nguyenlieu")
     app.register_blueprint(phieunhap, url_prefix="/phieunhap")
-    app.register_blueprint(phieuxuat, url_prefix="/phieuxuat")
 
     from .models import NguoiDung, NhomNguoiDung
 
