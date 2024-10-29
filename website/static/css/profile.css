@@ -1,0 +1,54 @@
+.header-box {
+    position: absolute; /* Đặt vị trí tuyệt đối để nó nằm trên cả hai khối */
+    top: 20px; /* Cách trên 20px (bạn có thể điều chỉnh) */
+    left: 20px; /* Cách bên trái 20px (bạn có thể điều chỉnh) */
+    z-index: 1; /* Đảm bảo nó nằm trên cùng */
+    /* background-color: rgba(255, 255, 255, 0.8); Màu nền mờ để dễ nhìn */
+    padding: 10px 20px; /* Thêm một chút đệm */
+    border-radius: 8px; /* Bo góc */
+}
+
+/* Đảm bảo .container có vị trí tương đối */
+.container {
+    position: relative; /* Đặt vị trí tương đối để header-box căn cứ vào nó */
+    display: flex;
+    width: 80vw;
+    height: 60vh;
+    margin: 0 auto;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--bs-body-tertiary);
+    border-radius: 8px;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+/* Khối bên trái chiếm 30% */
+.left-box {
+    width: 30%;
+    /* background-color: #f0f0f0; */
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.left-image {
+    width: 80%; /* Chiếm 80% chiều rộng của khối */
+    height: auto; /* Giữ tỷ lệ của ảnh */
+    border-radius: 8px;
+}
+
+/* Khối bên phải chiếm 70% */
+.right-box {
+    width: 70%;
+    /* display: flex; */
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */
+    padding: 20px;
+    /* background-color: #ffffff; */
+}

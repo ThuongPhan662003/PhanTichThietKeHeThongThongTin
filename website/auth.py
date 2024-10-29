@@ -1,5 +1,5 @@
 from .models import NguoiDung
-from flask import Blueprint, render_template, request, flash, redirect, session, url_for
+from flask import Blueprint, render_template, request, flash, redirect, session, url_for,make_response, render_template,
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
@@ -87,6 +87,7 @@ def init_oauth(app):
 
 
 
+
 @auth.route("/")
 def index():
     email = session.get("email")
@@ -97,6 +98,24 @@ def index():
 def login():
     redirect_uri = url_for("auth.authorize", _external=True)
     return google.authorize_redirect(redirect_uri)
+
+
+
+# @auth.route("/login", methods=["GET", "POST"])
+# def login():
+#     if request.method == "POST":
+#         username = request.form.get("Username")
+#         MatKhau = request.form.get("MatKhau")
+#         user = NguoiDung.query.filter_by(UserName=username).first()
+        
+#         if user and MatKhau == user.MatKhau:
+#             login_user(user)
+#             # Tạo một phản hồi để lưu trữ thông tin vào cookie
+#             response = make_response(redirect(url_for("views.home")))
+#             response.set_cookie('username', user.UserName)  # Lưu tên người dùng vào cookie
+#             return response
+#         else:
+#             flash("Sai thông tin đăng nhập, vui lòng thử lại.", "error")
 
 
 @auth.route("/authorize")
@@ -119,15 +138,18 @@ def protected_area():
     return f"Hello {session.get('name')}! <br/> <a href='/logout'><button>Logout</button></a>"
 
 
-
 @auth.route("/logout")
 def logout():
-
     session.pop("email", None)  # Xóa email khỏi session
     session.pop("name", None)  # Xóa tên khỏi session
     return redirect("/")
     # logout_user()
     # return redirect(url_for("auth.login"))
+#     logout_user()
+#     response = make_response(redirect(url_for("views.home")))
+#     response.delete_cookie('username')  # Xóa cookie
+#     return response
+
 
 
 @auth.route("/sign-up", methods=["GET", "POST"])
