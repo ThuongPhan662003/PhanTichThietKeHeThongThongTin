@@ -18,15 +18,24 @@ def create_app():
 
     app.config["SECRET_KEY"] = "hjshjhdjah kjshkjdhjs"
     # Cấu hình SQLAlchemy
-    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:long%40091103@localhost/qlnh"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:28102003@localhost/qlnh"
+
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
     from .views import views
     from .auth import auth
+    from .controller.nguyenlieu import nguyenlieu
+    from .controller.phieunhap import phieunhap
+    from .controller.phieuxuat import phieuxuat
+    from .controller.nguoidung import nguoidung
 
     app.register_blueprint(views, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/auth")
+    app.register_blueprint(nguyenlieu, url_prefix="/nguyenlieu")
+    app.register_blueprint(phieunhap, url_prefix="/phieunhap")
+    app.register_blueprint(phieuxuat, url_prefix="/phieuxuat")
+    app.register_blueprint(nguoidung, url_prefix="/nguoidung")
 
     with app.app_context():
         db.create_all()

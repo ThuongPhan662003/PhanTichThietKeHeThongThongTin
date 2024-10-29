@@ -1,10 +1,11 @@
-# from .models import NguoiDung
+from .models import NguoiDung
 from flask import Blueprint, render_template, request, flash, redirect, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
 from authlib.integrations.flask_client import OAuth
 import os
+
 
 auth = Blueprint("auth", __name__)
 oauth = OAuth()
@@ -85,6 +86,7 @@ def init_oauth(app):
 #     return render_template("sign_up.html", user=current_user)
 
 
+
 @auth.route("/")
 def index():
     email = session.get("email")
@@ -117,8 +119,41 @@ def protected_area():
     return f"Hello {session.get('name')}! <br/> <a href='/logout'><button>Logout</button></a>"
 
 
+
 @auth.route("/logout")
 def logout():
+
     session.pop("email", None)  # Xóa email khỏi session
     session.pop("name", None)  # Xóa tên khỏi session
     return redirect("/")
+    # logout_user()
+    # return redirect(url_for("auth.login"))
+
+
+@auth.route("/sign-up", methods=["GET", "POST"])
+def sign_up():
+    if request.method == "POST":
+        UserName = request.form.get("UserName")
+        MatKhau = request.form.get("MatKhau")
+        print(UserName, MatKhau)
+        user = NguoiDung.query.filter_by(UserName=UserName).first()
+        if user:
+            flash("Username already exists.", category="error")
+        elif len(UserName) < 2:
+            flash("UserName must be greater than 2 characters.", category="error")
+        else:
+            new_user = NguoiDung(
+                UserName=UserName,
+                TrangThai=1,
+                MatKhau=MatKhau,
+                VerifyCode=MatKhau,
+                idNND=1,
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            login_user(new_user, remember=True)
+            flash("Account created!", category="success")
+            return redirect(url_for("views.home"))
+
+    return render_template("sign_up.html", user=current_user)
+
