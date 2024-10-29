@@ -238,6 +238,11 @@ def homepage():
     return render_template("homepage.html")
 
 
+@views.route("/admin-home")
+def admin_home():
+    return render_template("admin/admin-home.html")
+
+
 
 
 

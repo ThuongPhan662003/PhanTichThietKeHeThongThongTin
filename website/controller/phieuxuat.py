@@ -45,7 +45,7 @@ def delivery_notes():
     
     results = get_delivery_notes(page)
     
-    return render_template('phieuxuat/phieuxuat.html', results=results)
+    return render_template('admin/phieuxuat/phieuxuat.html', results=results)
 
 @phieuxuat.route('/filter_delivery_notes', methods=['GET', 'POST'])
 @login_required
@@ -62,7 +62,7 @@ def filter_delivery_notes():
     results = get_delivery_notes(page, start_date=start_date, end_date=end_date, query_search=query_search)
 
     return render_template(
-        'phieuxuat/phieuxuat.html',
+        'admin/phieuxuat/phieuxuat.html',
         results=results,
         start_date=start_date,
         end_date=end_date,
@@ -90,7 +90,7 @@ def delivery_note_detail(note_id):
         })
     
     return render_template(
-        'phieuxuat/ctphieuxuat.html', delivery_note=delivery_note, details=details
+        'admin/phieuxuat/ctphieuxuat.html', delivery_note=delivery_note, details=details
     )
 
 @phieuxuat.route('/add_delivery_notes', methods=['GET', 'POST'])
@@ -162,4 +162,4 @@ def add_delivery_notes():
             return redirect(url_for('phieuxuat.add_delivery_notes'))
 
     ingredients = NguyenLieu.query.filter(NguyenLieu.SoLuongTon != 0).all()
-    return render_template('phieuxuat/formNhapPX.html', ingredients=ingredients)
+    return render_template('admin/phieuxuat/formNhapPX.html', ingredients=ingredients)
