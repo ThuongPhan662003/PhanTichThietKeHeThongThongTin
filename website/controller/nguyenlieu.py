@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
-
+from decimal import Decimal
 from website import db
-from sqlalchemy import func, cast, Date
+from sqlalchemy import func, cast, Date, or_, and_
 from datetime import datetime
 from website.models import *
 from website.models import PHIEUNHAP, CT_PHIEUNHAP
@@ -21,7 +21,12 @@ def ingredients(id=None):
     form = NguyenLieuForm(obj=ingredient)  
     if form.validate_on_submit():
         try:
+            # thêm
             if ingredient is None:
+                if not form.NgayNhap.data:
+                    flash('Ngày nhập không được để trống!', 'danger')
+                    return redirect(url_for('nguyenlieu.ingredients'))
+
                 ingredient_name = form.TenNguyenLieu.data
                 existing_ingredient = NguyenLieu.query.filter_by(TenNguyenLieu=ingredient_name).first()
                 if existing_ingredient:
@@ -42,13 +47,18 @@ def ingredients(id=None):
                     flash('Không tìm thấy nhân viên!', 'danger')
                     db.session.rollback()
                     return redirect(url_for('nguyenlieu.ingredients'))
-
-                new_phieunhap = PHIEUNHAP(
-                    NgayNhap=form.NgayNhap.data,
-                    idNV=nhan_vien.MaNV
-                )
-                db.session.add(new_phieunhap)
-                db.session.flush() 
+                
+                existing_phieunhap = PHIEUNHAP.query.filter_by(NgayNhap=form.NgayNhap.data, idNV=nhan_vien.MaNV).first()
+                if existing_phieunhap:
+                    new_phieunhap = existing_phieunhap
+                    flash('Phiếu nhập đã tồn tại cho ngày này, sẽ được cập nhật thông tin.', 'info')
+                else:
+                    new_phieunhap = PHIEUNHAP(
+                        NgayNhap=form.NgayNhap.data,
+                        idNV=nhan_vien.MaNV
+                    )
+                    db.session.add(new_phieunhap)
+                    db.session.flush()  
 
                 thanh_tien = form.SoLuongTon.data * form.DonGia.data
                 new_chitietphieunhap = CT_PHIEUNHAP(
@@ -58,6 +68,7 @@ def ingredients(id=None):
                     idNhap=new_phieunhap.SoPhieuNhap
                 )
                 db.session.add(new_chitietphieunhap)
+                new_phieunhap.TongTien = Decimal((new_phieunhap.TongTien or 0)) + thanh_tien
                 message = 'Nguyên liệu mới và thông tin phiếu nhập đã được thêm thành công!'
             
             else:
@@ -113,12 +124,21 @@ def filter_ingredients():
     if price_max:
         query = query.filter(NguyenLieu.DonGia <= float(price_max))
     
+    # Tạo một danh sách các điều kiện lọc
+    filters = []
+
+    if 'out_of_stock' in stock:
+        filters.append(NguyenLieu.SoLuongTon == 0)
     if 'under_10' in stock:
-        query = query.filter(NguyenLieu.SoLuongTon < 10)
-    elif '10_20' in stock:
-        query = query.filter(NguyenLieu.SoLuongTon >= 10, NguyenLieu.SoLuongTon <= 20)
-    elif 'over_20' in stock:
-        query = query.filter(NguyenLieu.SoLuongTon > 20)
+        filters.append(and_(NguyenLieu.SoLuongTon >= 1, NguyenLieu.SoLuongTon < 10))
+    if '10_20' in stock:
+        filters.append(and_(NguyenLieu.SoLuongTon >= 10, NguyenLieu.SoLuongTon <= 20))
+    if 'over_20' in stock:
+        filters.append(NguyenLieu.SoLuongTon > 20)
+
+    # Áp dụng tất cả các bộ lọc với or_
+    if filters:
+        query = query.filter(or_(*filters))
     
     filtered_ingredients = query.order_by(NguyenLieu.MaNL.desc()).paginate(page=page, per_page=9)
     
@@ -160,18 +180,27 @@ def add_ingredients():
     if request.method == 'POST':
         ngay_nhap = request.form.get("ngayNhap")
         ingredient_list_json = request.form.get("ingredientList")
-        total_amount = 0
-        print(ngay_nhap, ingredient_list_json)
+        total_amount = Decimal(0) 
+        # if not ngay_nhap:
+        #     flash('Ngày nhập không được để trống!', 'danger')
+        #     return redirect(url_for('nguyenlieu.add_ingredients'))
         try:
             ingredients = json.loads(ingredient_list_json)
+            existing_phieu_nhap = PHIEUNHAP.query.filter_by(
+                NgayNhap= datetime.strptime(ngay_nhap, '%d-%m-%Y %H:%M'),
+                idNV=current_user.MaND
+            ).first()
 
-            new_phieu_nhap = PHIEUNHAP(
-                idNV=current_user.MaND,
-                NgayNhap=datetime.strptime(ngay_nhap, '%d-%m-%Y %H:%M'),
-                TongTien=0
-            )
-            db.session.add(new_phieu_nhap)
-            db.session.flush()  
+            if existing_phieu_nhap:
+                new_phieu_nhap = existing_phieu_nhap
+            else:
+                new_phieu_nhap = PHIEUNHAP(
+                    idNV=current_user.MaND,
+                    NgayNhap=datetime.strptime(ngay_nhap, '%d-%m-%Y %H:%M'),
+                    TongTien=Decimal(0)
+                )
+                db.session.add(new_phieu_nhap)
+                db.session.flush() 
 
             for item in ingredients:
                 ten_nguyen_lieu = item.get("tenNguyenLieu")
@@ -179,31 +208,39 @@ def add_ingredients():
 
                 ingredient = NguyenLieu.query.filter_by(TenNguyenLieu=ten_nguyen_lieu).first()
                 if ingredient:
-                    don_gia = ingredient.DonGia 
-                    thanh_tien = float(don_gia) * float(so_luong)
+                    don_gia = ingredient.DonGia
+                    thanh_tien = don_gia * so_luong
                     total_amount += thanh_tien
 
-                    new_ct_phieu_nhap = CT_PHIEUNHAP(
+                    existing_ct_phieu_nhap = CT_PHIEUNHAP.query.filter_by(
                         idNhap=new_phieu_nhap.SoPhieuNhap,
-                        idNL=ingredient.MaNL,
-                        SoLuong=so_luong,
-                        ThanhTien=thanh_tien
-                    )
+                        idNL=ingredient.MaNL
+                    ).first()
 
-                    db.session.add(new_ct_phieu_nhap)
+                    if existing_ct_phieu_nhap:
+                        existing_ct_phieu_nhap.SoLuong += so_luong
+                        existing_ct_phieu_nhap.ThanhTien += float(thanh_tien)
+                    else:
+                        new_ct_phieu_nhap = CT_PHIEUNHAP(
+                            idNhap=new_phieu_nhap.SoPhieuNhap,
+                            idNL=ingredient.MaNL,
+                            SoLuong=so_luong,
+                            ThanhTien=thanh_tien
+                        )
+                        db.session.add(new_ct_phieu_nhap)
+
                     ingredient.SoLuongTon += int(so_luong)
 
+            new_phieu_nhap.TongTien = (Decimal(new_phieu_nhap.TongTien) or Decimal(0)) + total_amount
 
-            new_phieu_nhap.TongTien = total_amount
-            db.session.commit()  
+            db.session.commit()
+            flash('Phiếu nhập và chi tiết phiếu nhập đã được lưu/cập nhật thành công!', 'success')
+            return redirect(url_for('nguyenlieu.add_ingredients'))
 
-            flash('Phiếu nhập và chi tiết phiếu nhập đã được lưu thành công!', 'success')
-            return redirect(url_for('nguyenlieu.add_ingredients'))  
         except Exception as e:
             db.session.rollback()
             flash(f'Có lỗi xảy ra: {str(e)}', 'danger')
-            return redirect(url_for('nguyenlieu.add_ingredients')) 
+            return redirect(url_for('nguyenlieu.add_ingredients'))
 
-    # GET request: chỉ hiển thị form
     ingredients = NguyenLieu.query.all()
     return render_template('nguyenlieu/formNLDaCo.html', ingredients=ingredients)

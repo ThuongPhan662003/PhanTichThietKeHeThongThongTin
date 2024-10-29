@@ -296,13 +296,13 @@ class PHANQUYEN(db.Model):
 class PHIEUXUAT(db.Model):
     __tablename__ = 'PHIEUXUAT'
     SoPhieuXuat = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    idNV = db.Column(db.Integer, db.ForeignKey('NHANVIEN.MaNV', ondelete='CASCADE'), nullable=False)
+    idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
     NgayXuat = db.Column(db.DateTime, nullable=False)
 
 class CT_PHIEUXUAT(db.Model):
     __tablename__ = 'CT_PHIEUXUAT'
     idXuat = db.Column(db.Integer, db.ForeignKey('PHIEUXUAT.SoPhieuXuat', ondelete='CASCADE'), primary_key=True)
-    idNL = db.Column(db.Integer, db.ForeignKey('NGUYENLIEU.MaNL', ondelete='CASCADE'), primary_key=True)
+    idNL = db.Column(db.Integer, db.ForeignKey('NguyenLieu.MaNL', ondelete='CASCADE'), primary_key=True)
     SoLuong = db.Column(db.Float, nullable=False)
     
     @db.validates('SoLuong')
