@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
 {% block title %}
-Phiếu xuất
+Phiếu nhập
 {% endblock %}
 
 {% block content%}
@@ -8,39 +8,49 @@ Phiếu xuất
     <div class="col-md-9">
         <div class="row">
             <div class="col-lg-4">
-                <h1>Phiếu xuất kho</h1>
+                <h1>Phiếu nhập kho</h1>
             </div>
             <div class="col-lg-8">
                 <div class="float-end">
-                    <a type="submit" class="btn btn-secondary" href="{{url_for('phieuxuat.add_delivery_notes')}}">
+                    <a type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                        href="{{url_for('nguyenlieu.add_ingredients')}}"
+                        data-bs-title="Dành cho những nguyên liệu có sẵn trong dữ liệu">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-plus-circle mb-1" viewBox="0 0 16 16">
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
                             <path
                                 d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
                         </svg>
-                        Thêm phiếu xuất
+                        Thêm phiếu nhập
                     </a>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+                            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+                        });
+                    </script>
                 </div>
             </div>
         </div>
         <table class="table table-hover table-bordered mt-4">
             <thead>
                 <tr class="text-center">
-                    <th scope="col">Số phiếu xuất</th>
-                    <th scope="col">Nhân viên xuất</th>
-                    <th scope="col">Ngày xuất</th>
-                    <th scope="col">Chi tiết phiếu xuất</th>
+                    <th scope="col">Số phiếu nhập</th>
+                    <th scope="col">Nhân viên nhập</th>
+                    <th scope="col">Ngày nhập</th>
+                    <th scope="col">Tổng tiền</th>
+                    <th scope="col">Chi tiết phiếu nhập</th>
                 </tr>
             </thead>
             <tbody class="table-group-divider">
                 {% for note in results.items %}
                 <tr>
-                    <td class="text-center">{{ note.SoPhieuXuat }}</td>
-                    <td class="text-center">{{ note.NhanVienXuat }}</td>
-                    <td class="text-center">{{ note.NgayXuat.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="text-center">{{ note.SoPhieuNhap }}</td>
+                    <td class="text-center">{{ note.NhanVienNhap }}</td>
+                    <td class="text-center">{{ note.NgayNhap.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="text-center">{{ "{:,.0f}".format(note.TongTien) }} VND</td>
                     <td class="text-center"><a
-                            href="{{url_for('phieuxuat.delivery_note_detail', note_id=note.SoPhieuXuat)}}"
+                            href="{{url_for('phieunhap.received_note_detail', note_id=note.SoPhieuNhap)}}"
                             class='btn btn-outline-secondary btn-sm'>Xem chi tiết</a> </td>
                 </tr>
                 {% endfor %}
@@ -80,7 +90,6 @@ Phiếu xuất
             </ul>
         </nav>
 
-
     </div>
     <div class="col-md-3">
         <div class="content-section">
@@ -91,7 +100,7 @@ Phiếu xuất
                 </svg>Bộ lọc tìm kiếm</h5>
             <br />
             <div>
-                {% include 'phieuxuat/formLocPX.html'%}
+                {% include 'admin/phieunhap/formLocPN.html'%}
             </div>
 
         </div>

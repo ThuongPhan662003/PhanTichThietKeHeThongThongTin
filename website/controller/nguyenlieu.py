@@ -97,7 +97,7 @@ def ingredients(id=None):
    
     ingredients = NguyenLieu.query.order_by(NguyenLieu.MaNL.desc()).paginate(page=page, per_page=8)
     return render_template(
-        'nguyenlieu/nguyenlieu.html', 
+        'admin/nguyenlieu/nguyenlieu.html', 
         ingredients=ingredients, 
         form=form, 
         ingredient=ingredient, 
@@ -142,7 +142,7 @@ def filter_ingredients():
     
     filtered_ingredients = query.order_by(NguyenLieu.MaNL.desc()).paginate(page=page, per_page=9)
     
-    return render_template('nguyenlieu/nguyenlieu.html', form=form, ingredients=filtered_ingredients, selected_units=units, selected_stock=stock, price_min=price_min, price_max=price_max,  endpoint='nguyenlieu.filter_ingredients')
+    return render_template('admin/nguyenlieu/nguyenlieu.html', form=form, ingredients=filtered_ingredients, selected_units=units, selected_stock=stock, price_min=price_min, price_max=price_max,  endpoint='nguyenlieu.filter_ingredients')
 
 @nguyenlieu.route('/search_ingredients', methods=['GET'])
 @login_required
@@ -154,7 +154,7 @@ def search_ingredients():
         ingredients = NguyenLieu.query.filter(NguyenLieu.TenNguyenLieu.ilike(f'%{query}%')).paginate(page=page, per_page=9)
     else:
         ingredients = NguyenLieu.query.order_by(NguyenLieu.MaNL.desc()).paginate(page=page, per_page=8)
-    return render_template('nguyenlieu/nguyenlieu.html', form=form, ingredients=ingredients, query=query,  endpoint='nguyenlieu.search_ingredients')
+    return render_template('admin/nguyenlieu/nguyenlieu.html', form=form, ingredients=ingredients, query=query,  endpoint='nguyenlieu.search_ingredients')
 
 
 @nguyenlieu.route('/delete_ingredient/<int:id>')
@@ -243,4 +243,4 @@ def add_ingredients():
             return redirect(url_for('nguyenlieu.add_ingredients'))
 
     ingredients = NguyenLieu.query.all()
-    return render_template('nguyenlieu/formNLDaCo.html', ingredients=ingredients)
+    return render_template('admin/nguyenlieu/formNLDaCo.html', ingredients=ingredients)

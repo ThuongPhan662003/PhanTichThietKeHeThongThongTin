@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
 {% block title %}
 Nguyên liệu
 {% endblock %}
@@ -47,7 +47,7 @@ Nguyên liệu
             </button>
         </form>
         <br />
-        {% include 'nguyenlieu/formNLMoi.html'%}
+        {% include 'admin/nguyenlieu/formNLMoi.html'%}
         <script src="{{url_for('static', filename='js/nguyenlieumoi.js')}}"></script>
 
         <br />
@@ -169,7 +169,7 @@ Nguyên liệu
                 </svg>Bộ lọc tìm kiếm</h5>
             <br />
             <div>
-                {% include 'nguyenlieu/formLocNL.html'%}
+                {% include 'admin/nguyenlieu/formLocNL.html'%}
             </div>
 
         </div>

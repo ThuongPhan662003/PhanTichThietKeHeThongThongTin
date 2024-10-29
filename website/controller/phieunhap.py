@@ -49,7 +49,7 @@ def received_notes():
     
     results = get_received_notes(page)
     
-    return render_template('phieunhap/phieunhap.html', results=results)
+    return render_template('admin/phieunhap/phieunhap.html', results=results)
 
 @phieunhap.route('/received_note/<int:note_id>', methods=['GET'])
 @login_required
@@ -75,7 +75,7 @@ def received_note_detail(note_id):
         })
     
     return render_template(
-        'phieunhap/ctphieunhap.html', received_note=received_note, details=details, tong_tien=tong_tien
+        'admin/phieunhap/ctphieunhap.html', received_note=received_note, details=details, tong_tien=tong_tien
     )
 
 @phieunhap.route('/filter_received_notes', methods=['GET', 'POST'])
@@ -95,7 +95,7 @@ def filter_received_notes():
     results = get_received_notes(page, start_date=start_date, end_date=end_date, min_amount=min_amount, max_amount=max_amount, query_search=query_search)
 
     return render_template(
-        'phieunhap/phieunhap.html',
+        'admin/phieunhap/phieunhap.html',
         results=results,
         start_date=start_date,
         end_date=end_date,

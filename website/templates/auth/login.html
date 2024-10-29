@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block title %}Login{% endblock %}
+{% extends "auth/base.html" %}
+{% block title %}Login{% endblock %}
 {% block content%}
 {% for message in get_flashed_messages() %}
 <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -10,7 +11,7 @@
     <h3 align="center">Login</h3>
     <div class="form-group">
         <label for="Username">User Name</label>
-        <input type="Username" class="form-control" id="Username" name="Username" placeholder="Enter Username" />
+        <input type="Username" class="form-control" id="Username" name="UserName" placeholder="Enter Username" />
     </div>
     <div class="form-group">
         <label for="MatKhau">Mật khẩu</label>

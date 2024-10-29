@@ -28,23 +28,24 @@ def init_oauth(app):
         server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
     )
 
-# @auth.route("/login", methods=["GET", "POST"])
-# def login():
-#     if request.method == "POST":
-#         UserName = request.form.get("UserName")
-#         MatKhau = request.form.get("MatKhau")
+@auth.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        UserName = request.form.get("UserName")
+        MatKhau = request.form.get("MatKhau")
 
-#         # Retrieve the user from the database
-#         user = NguoiDung.query.filter_by(UserName=UserName).first()
+        # Retrieve the user from the database
+        user = NguoiDung.query.filter_by(UserName=UserName).first()
 
-#         if user and check_password_hash(user.MatKhau, MatKhau):
-#             login_user(user, remember=True)  # Log the user in
-#             flash("Login successful!", category="success")
-#             return redirect(url_for("views.home"))
-#         else:
-#             flash("Invalid username or password.", category="error")
+        # phải check hashpass
+        if user and user.MatKhau == MatKhau:
+            login_user(user, remember=True)  # Log the user in
+            flash("Login successful!", category="success")
+            return redirect(url_for("views.admin_home"))
+        else:
+            flash("Invalid username or password.", category="error")
 
-#     return render_template("login.html", user=current_user)
+    return render_template("auth/login.html", user=current_user)
 
 
 
@@ -56,10 +57,10 @@ def index():
 
 
 
-@auth.route("/login")
-def login():
-    redirect_uri = url_for("auth.authorize", _external=True)
-    return google.authorize_redirect(redirect_uri)
+# @auth.route("/login")
+# def login():
+#     redirect_uri = url_for("auth.authorize", _external=True)
+#     return google.authorize_redirect(redirect_uri)
 
 
 
@@ -81,7 +82,8 @@ def authorize():
 
 @auth.route("/protected_area")
 def protected_area():
-    return f"Hello {session.get('name')}! <br/> <a href='{url_for('auth.logout')}'><button>Logout</button></a>"
+    # return f"Hello {session.get('name')}! <br/> <a href='{url_for('auth.logout')}'><button>Logout</button></a>"
+    return redirect(url_for("views.admin_home"))
 
 
 @auth.route("/logout")
