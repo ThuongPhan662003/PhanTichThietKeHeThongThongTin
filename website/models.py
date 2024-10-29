@@ -325,7 +325,7 @@ class PHIEUNHAP(db.Model):
     SoPhieuNhap = db.Column(db.Integer, primary_key=True, autoincrement=True)
     idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
     NgayNhap = db.Column(db.DateTime, nullable=False)
-    # TongTien = db.Column(db.Float, nullable=False)
+    TongTien = db.Column(db.Float, nullable=False)
 
 class CT_PHIEUNHAP(db.Model):
     __tablename__ = 'CT_PHIEUNHAP'

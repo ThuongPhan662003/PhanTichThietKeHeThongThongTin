@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -17,7 +16,7 @@
   <!-- 
     - favicon
   -->
-  <link rel="shortcut icon" href="./assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="./static/images/favicon.svg" type="image/svg+xml">
 
   <!-- 
     - google font link
@@ -29,14 +28,14 @@
   <!-- 
     - custom css link
   -->
-  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./static/css/styleofhomepage.css">
 
   <!-- 
     - preload images
   -->
-  <link rel="preload" as="image" href="./assets/images/hero-slider-1.jpg">
-  <link rel="preload" as="image" href="./assets/images/hero-slider-2.jpg">
-  <link rel="preload" as="image" href="./assets/images/hero-slider-3.jpg">
+  <link rel="preload" as="image" href="./static/images/hero-slider-1.jpg">
+  <link rel="preload" as="image" href="./static/images/hero-slider-2.jpg">
+  <link rel="preload" as="image" href="./static/images/hero-slider-3.jpg">
 
 </head>
 
@@ -115,7 +114,7 @@
     <div class="container">
 
       <a href="#" class="logo">
-        <img src="./assets/images/logo.svg" width="160" height="50" alt="Grilli - Home">
+        <img src="./static/images/logo.svg" width="160" height="50" alt="Grilli - Home">
       </a>
 
       <nav class="navbar" data-navbar>
@@ -125,7 +124,7 @@
         </button>
 
         <a href="#" class="logo">
-          <img src="./assets/images/logo.svg" width="160" height="50" alt="Grilli - Home">
+          <img src="./static/images/logo.svg" width="160" height="50" alt="Grilli - Home">
         </a>
 
         <ul class="navbar-list">
@@ -225,10 +224,15 @@
       <button type="button" class="close" data-dismiss="alert">
         <span aria-hidden="true">&times;</span>
       </button>
-
     </div>
-  </div>
-
+    {% else %}
+    <div class="alert alert-success alter-dismissable fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endif %} {% endfor %} {% endif %} {% endwith %}
 
     <article>
       {% block content %}
@@ -236,7 +240,7 @@
         - #HERO
       -->
 
-      
+
       {% endblock %}
     </article>
   </main>
@@ -250,7 +254,7 @@
   -->
 
   <footer class="footer section has-bg-image text-center"
-    style="background-image: url('./assets/images/footer-bg.jpg')">
+    style="background-image: url('./static/images/footer-bg.jpg')">
     <div class="container">
 
       <div class="footer-top grid-list">
@@ -258,7 +262,7 @@
         <div class="footer-brand has-before has-after">
 
           <a href="#" class="logo">
-            <img src="./assets/images/logo.svg" width="160" height="50" loading="lazy" alt="grilli home">
+            <img src="./static/images/logo.svg" width="160" height="50" loading="lazy" alt="grilli home">
           </a>
 
           <address class="body-4">
@@ -382,7 +386,8 @@
   <!-- 
     - custom js link
   -->
-  <script src="./assets/js/script.js"></script>
+  {% block javascript %}
+  <script src="./static/js/script.js"></script>
 
   <!-- 
     - ionicon link
@@ -390,37 +395,7 @@
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
-
-  <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const hamBurger = document.querySelector(".toggle-btn");
-      const sidebar = document.querySelector("#sidebar");
-
-      if (localStorage.getItem("sidebarExpanded") === "true") {
-        sidebar.classList.add("expand");
-      }
-
-      hamBurger.addEventListener("click", function () {
-        sidebar.classList.toggle("expand");
-        localStorage.setItem("sidebarExpanded", sidebar.classList.contains("expand"));
-      });
-    });
-  </script>
-  <script src="{{url_for('static', filename='index.js')}}"></script>
-  {% block javascript %}
-
-  <script type="text/javascript">
-    function deleteNote(noteId) {
-      fetch("/delete-note", {
-        method: "POST",
-        body: JSON.stringify({ noteId: noteId }),
-      }).then((_res) => {
-        window.location.href = "/";
-      });
-    }
-  </script>
-  {% endblock %} -->
+  {% endblock %}
 
 </body>
 

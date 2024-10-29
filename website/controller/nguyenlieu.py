@@ -13,7 +13,7 @@ nguyenlieu = Blueprint("nguyenlieu", __name__)
 
 @nguyenlieu.route("/ingredients", methods=["GET", "POST"])
 @nguyenlieu.route("/ingredients/edit/<int:id>", methods=["GET", "POST"])
-@login_required
+# @login_required
 def ingredients(id=None):
     page = request.args.get('page', 1, type=int)
     

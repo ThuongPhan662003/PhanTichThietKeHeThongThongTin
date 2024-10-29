@@ -19,9 +19,14 @@ python main.py
 ```
 
 ## Change the app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:passwword@localhost/database_name'
+## Mọi người thêm một file config.json và thư mục json rồi bổ sung những thông tin như username, password, database
+ví dụ:
+{
+    "username": "root",
+    "password": "thuong",
+    "database": "qlnh"
+}
 
-password: là mật khẩu của root
-database_name: là tên database
 
 ## Viewing The App
 
