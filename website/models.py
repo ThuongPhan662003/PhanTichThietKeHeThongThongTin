@@ -18,6 +18,15 @@ __all__ = [
     "MonAn",
     "HoaDon",
     "ChucNang",
+    "PHANQUYEN",
+    "PHIEUXUAT",
+    "CT_PHIEUXUAT",
+    "PHIEUNHAP",
+    "CT_PHIEUNHAP",
+    "LOAIVOUCHER",
+    "VOUCHER",
+    "CT_VOUCHER",
+    "THAMSO",
 
 ]
 
@@ -278,14 +287,14 @@ class NguoiDung(db.Model, UserMixin):
         "KhachHang", back_populates="nguoi_dung", uselist=False
     )
 
+    def get_id(self):
+        return self.MaND
+
     nhan_vien = db.relationship("NhanVien", back_populates="nguoi_dung", uselist=False)
     
     # nhan_vien = db.relationship(
     #     "NhanVien", back_populates="nguoi_dung", uselist=False
     # )
-
-    def get_id(self):
-        return self.MaND
 
 
 class PHANQUYEN(db.Model):
@@ -395,3 +404,4 @@ class THAMSO(db.Model):
     Bac = db.Column(db.Integer, nullable=False)
     Dong = db.Column(db.Integer, nullable=False)
     PhanTramThue = db.Column(db.Integer, nullable=False)
+
