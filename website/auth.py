@@ -82,8 +82,7 @@ def authorize():
 
 @auth.route("/protected_area")
 def protected_area():
-    # return f"Hello {session.get('name')}! <br/> <a href='{url_for('auth.logout')}'><button>Logout</button></a>"
-    return redirect(url_for("views.admin_home"))
+    return f"Hello {session.get('name')}! <br/> <a href='{url_for('auth.logout')}'><button>Logout</button></a>"
 
 
 @auth.route("/logout")

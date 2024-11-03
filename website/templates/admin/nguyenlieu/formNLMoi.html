@@ -15,7 +15,7 @@
 
             <div class="col-md-4">
                 {{ form.TenNguyenLieu.label(class="form-label") }}<span style="color: red;">*</span>
-                {{ form.TenNguyenLieu(class="form-control", required=True) }}
+                {{ form.TenNguyenLieu(class="form-control", required=True, placeholder='VD: Thịt gà') }}
                 <div class="invalid-feedback">
                     Vui lòng nhập tên nguyên liệu!
                 </div>
@@ -23,7 +23,7 @@
 
             <div class="col-md-4">
                 {{ form.DonGia.label(class="form-label") }}<span style="color: red;">*</span>
-                {{ form.DonGia(class="form-control", step="1000", required=True) }}
+                {{ form.DonGia(class="form-control", step="1000", required=True, placeholder='Đơn vị: VNĐ') }}
                 <div class="invalid-feedback">
                     Vui lòng nhập đơn giá hợp lệ!
                 </div>
@@ -40,7 +40,7 @@
             {% else%}
             <div class="col-md-6">
                 {{ form.NgayNhap.label(class="form-label") }}<span style="color: red;">*</span>
-                {{ form.NgayNhap(class="form-control", id="ngayNhap", required=True) }}
+                {{ form.NgayNhap(class="form-control", id="ngayNhap", required=True, placeholder='Bấm vào để chọn') }}
                 <div class="invalid-feedback">
                     Vui lòng nhập ngày!
                 </div>
@@ -53,7 +53,7 @@
             </script>
             <div class="col-md-6">
                 {{ form.SoLuongTon.label(class="form-label") }}<span style="color: red;">*</span>
-                {{ form.SoLuongTon(class="form-control", id="SoLuongTon", required=True) }}
+                {{ form.SoLuongTon(class="form-control", id="SoLuongTon", required=True, placeholder='VD: 5') }}
                 <div class="invalid-feedback">
                     Vui lòng nhập số lượng!
                 </div>
