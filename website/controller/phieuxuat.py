@@ -1,5 +1,4 @@
-from lib2to3.pgen2.token import AT
-from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, send_file
 from flask_login import login_required, current_user
 from sqlalchemy import func, cast, Date
 from website import db
@@ -7,6 +6,8 @@ from datetime import datetime
 from website.models import PHIEUXUAT, CT_PHIEUXUAT
 from website.models import *
 import json
+import pandas as pd
+from io import BytesIO
 
 phieuxuat = Blueprint("phieuxuat", __name__)
 
@@ -163,3 +164,112 @@ def add_delivery_notes():
 
     ingredients = NguyenLieu.query.filter(NguyenLieu.SoLuongTon != 0).all()
     return render_template('admin/phieuxuat/formNhapPX.html', ingredients=ingredients)
+
+@phieuxuat.route('/export-to-excel/<int:note_id>')
+@login_required
+def export_to_excel(note_id):
+    delivery_note = PHIEUXUAT.query.get_or_404(note_id)
+    
+    # Lấy thêm thông tin nhân viên
+    nhan_vien = NhanVien.query.get(delivery_note.idNV)
+    
+    delivery_note_detail = (
+        db.session.query(CT_PHIEUXUAT, NguyenLieu)
+        .join(NguyenLieu, CT_PHIEUXUAT.idNL == NguyenLieu.MaNL)
+        .filter(CT_PHIEUXUAT.idXuat == note_id)
+        .all()
+    )
+    
+    details = []
+    for idx, (ct, nl) in enumerate(delivery_note_detail, 1):
+        details.append({
+            "STT": idx,
+            "Tên nguyên liệu": nl.TenNguyenLieu,
+            "Đơn vị tính": nl.DonViTinh,
+            "Số lượng": ct.SoLuong,
+            "Đơn giá": nl.DonGia,
+        })
+    
+    df = pd.DataFrame(details)
+    
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name='Chi tiết phiếu xuất', index=False, startrow=4)  # Đẩy xuống 1 dòng để chứa thông tin NV
+        
+        workbook = writer.book
+        worksheet = writer.sheets['Chi tiết phiếu xuất']
+
+        basic_format = workbook.add_format({
+            'font_name': 'Times New Roman',
+            'font_size': 12,
+            'border': 1
+        })
+        
+        header_format = workbook.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'align': 'center',
+            'border': 1,
+            'font_name': 'Times New Roman',
+            'font_size': 12
+        })
+        
+        money_format = workbook.add_format({
+            'num_format': '#,##0',
+            'align': 'right',
+            'border': 1,
+            'font_name': 'Times New Roman',
+            'font_size': 12
+        })
+        
+        number_format = workbook.add_format({
+            'align': 'center',
+            'border': 1,
+            'font_name': 'Times New Roman',
+            'font_size': 12
+        })
+        
+        info_format = workbook.add_format({
+            'align': 'left',
+            'font_name': 'Times New Roman',
+            'font_size': 12
+        })
+        
+        title_format = workbook.add_format({
+            'bold': True,
+            'font_size': 14,
+            'align': 'center',
+            'font_name': 'Times New Roman'
+        })
+        worksheet.merge_range('A1:E1', f'CHI TIẾT PHIẾU XUẤT SỐ {note_id}', title_format)
+        
+        worksheet.write('A2', f'Ngày xuất: {delivery_note.NgayXuat.strftime("%d-%m-%Y %H:%M")}', info_format)
+        worksheet.write('A3', f'Nhân viên xuất: {nhan_vien.HoNV} {nhan_vien.TenNV}', info_format)
+        
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(4, col_num, value, header_format)
+        
+        for row_num in range(5, len(df) + 5):
+            worksheet.write(row_num, 0, df.iloc[row_num-5]['STT'], number_format)               
+            worksheet.write(row_num, 1, df.iloc[row_num-5]['Tên nguyên liệu'], basic_format)  
+            worksheet.write(row_num, 2, df.iloc[row_num-5]['Đơn vị tính'], number_format)     
+            worksheet.write(row_num, 3, df.iloc[row_num-5]['Số lượng'], number_format)       
+            worksheet.write(row_num, 4, df.iloc[row_num-5]['Đơn giá'], money_format)          
+        
+        worksheet.set_column('A:A', 5)   
+        worksheet.set_column('B:B', 20)  
+        worksheet.set_column('C:C', 10)  
+        worksheet.set_column('D:D', 10) 
+        worksheet.set_column('E:E', 15)  
+        
+    output.seek(0)
+    
+    filename = f'phieu_xuat_{note_id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    
+    return send_file(
+        output,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=filename
+    )

@@ -235,7 +235,7 @@ def get_thamso():
 
 @views.route("/homepage")
 def homepage():
-    return render_template("homepage.html")
+    return render_template("user/homepage.html")
 
 
 @views.route("/admin-home")
