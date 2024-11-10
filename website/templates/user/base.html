@@ -16,7 +16,7 @@
   <!-- 
     - favicon
   -->
-  <link rel="shortcut icon" href="./static/images/favicon.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="{{url_for('static',filename='images/favicon.svg')}}" type="image/svg+xml">
 
   <!-- 
     - google font link
@@ -28,14 +28,14 @@
   <!-- 
     - custom css link
   -->
-  <link rel="stylesheet" href="./static/css/styleofhomepage.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styleofhomepage.css') }}">
 
   <!-- 
     - preload images
   -->
-  <link rel="preload" as="image" href="./static/images/hero-slider-1.jpg">
-  <link rel="preload" as="image" href="./static/images/hero-slider-2.jpg">
-  <link rel="preload" as="image" href="./static/images/hero-slider-3.jpg">
+  <link rel="preload" as="image" href="{{ url_for('static', filename='images/hero-slider-1.jpg') }}">
+  <link rel="preload" as="image" href="{{ url_for('static', filename='images/hero-slider-2.jpg') }}">
+ <link rel="preload" as="image" href="{{ url_for('static', filename='images/hero-slider-3.jpg') }}">
 
 </head>
 
@@ -114,7 +114,7 @@
     <div class="container">
 
       <a href="#" class="logo">
-        <img src="./static/images/logo.svg" width="160" height="50" alt="Grilli - Home">
+        <img src="{{url_for('static',filename='images/logo.svg')}}" width="160" height="50" alt="Grilli - Home">
       </a>
 
       <nav class="navbar" data-navbar>
@@ -124,7 +124,7 @@
         </button>
 
         <a href="#" class="logo">
-          <img src="./static/images/logo.svg" width="160" height="50" alt="Grilli - Home">
+          <img src="{{url_for('static',filename='images/logo.svg')}}" width="160" height="50" alt="Grilli - Home">
         </a>
 
         <ul class="navbar-list">
@@ -166,6 +166,13 @@
               <div class="separator"></div>
 
               <span class="span">Contact</span>
+            </a>
+          </li>
+          <li class="navbar-item">
+            <a href="{{url_for("auth.login")}}" class="navbar-link hover-underline">
+              <div class="separator"></div>
+
+              <span class="span">Login</span>
             </a>
           </li>
 
@@ -262,7 +269,7 @@
         <div class="footer-brand has-before has-after">
 
           <a href="#" class="logo">
-            <img src="./static/images/logo.svg" width="160" height="50" loading="lazy" alt="grilli home">
+            <img src="{{url_for('static',filename='images/logo.svg')}}" width="160" height="50" loading="lazy" alt="grilli home">
           </a>
 
           <address class="body-4">
@@ -387,7 +394,7 @@
     - custom js link
   -->
   {% block javascript %}
-  <script src="./static/js/script.js"></script>
+  <script src="{{url_for('static',filename='js/script.js')}}"></script>
 
   <!-- 
     - ionicon link

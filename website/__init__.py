@@ -1,9 +1,10 @@
-from flask import Flask, json, jsonify
+from flask import Flask, json, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 import os
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from authlib.integrations.flask_client import OAuth
+from flask_mail import Mail
 
 
 db = SQLAlchemy()
@@ -26,10 +27,20 @@ def create_app():
         f"mysql://{username}:{password}@localhost/{database}"
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    # Cấu hình email trong Flask app
+    app.config["MAIL_SERVER"] = "smtp.gmail.com"
+    app.config["MAIL_PORT"] = 587
+    app.config["MAIL_USE_TLS"] = True
+    app.config["MAIL_USE_SSL"] = False
+    app.config["MAIL_USERNAME"] = "n21dccn184@student.ptithcm.edu.vn"
+    app.config["MAIL_PASSWORD"] = "irzy hzyd qrms eapz"
+    app.config["MAIL_DEFAULT_SENDER"] = "n21dccn184@student.ptithcm.edu.vn"
+    mail = Mail(app)
     db.init_app(app)
     from .models import NguoiDung, NhomNguoiDung
     from .views import views
     from .auth import auth
+    from .admin import admin
     from .controller.nguyenlieu import nguyenlieu
     from .controller.phieunhap import phieunhap
     from .controller.phieuxuat import phieuxuat
@@ -41,7 +52,7 @@ def create_app():
     app.register_blueprint(phieunhap, url_prefix="/phieunhap")
     app.register_blueprint(phieuxuat, url_prefix="/phieuxuat")
     app.register_blueprint(nguoidung, url_prefix="/nguoidung")
-
+    app.register_blueprint(admin, url_prefix="/admin")
     with app.app_context():
         db.create_all()
 
@@ -50,9 +61,11 @@ def create_app():
     login_manager.init_app(app)
 
     from .auth import init_oauth
+
     init_oauth(app)
 
     @login_manager.user_loader
     def load_user(id):
         return NguoiDung.query.get(int(id))
+
     return app

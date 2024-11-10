@@ -6,7 +6,7 @@ import json
 
 
 views = Blueprint("views", __name__)
-
+    
 
 @views.route("/functions")
 def get_functions():

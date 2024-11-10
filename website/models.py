@@ -272,6 +272,8 @@ class NhomNguoiDung(db.Model):
     MaNND = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TenNhomNguoiDung = db.Column(db.String(100))
     nguoi_dung = db.relationship("NguoiDung", backref="nhom_nguoi_dung", lazy=True)
+    def getMaNND(self):
+        return self.MaNND
 
 
 class NguoiDung(db.Model, UserMixin):
@@ -404,4 +406,3 @@ class THAMSO(db.Model):
     Bac = db.Column(db.Integer, nullable=False)
     Dong = db.Column(db.Integer, nullable=False)
     PhanTramThue = db.Column(db.Integer, nullable=False)
-
