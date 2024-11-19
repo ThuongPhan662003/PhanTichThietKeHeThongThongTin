@@ -5,7 +5,6 @@ Nguyên liệu
 
 {% block content%}
 
-
 <div class="row">
     <div class="col-md-9">
         {% for category, message in get_flashed_messages(with_categories=True) %}
@@ -47,7 +46,8 @@ Nguyên liệu
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Nhập danh sách nguyên liệu từ
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Nhập danh sách nguyên
+                                        liệu từ
                                         Excel</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
@@ -83,10 +83,12 @@ Nguyên liệu
                                         </div>
 
                                         <div class="mb-3">
-                                            <label for="excel_file" class="form-label">Chọn file Excel của bạn</label>
+                                            <label for="excel_file" class="form-label">Chọn file Excel của
+                                                bạn</label>
                                             <input class="form-control" type="file" id="excel_file" name="excel_file"
                                                 accept=".xls,.xlsx" required>
-                                            <div id="fileHelp" class="form-text">Chỉ chấp nhận file có định dạng .xls
+                                            <div id="fileHelp" class="form-text">Chỉ chấp nhận file có định dạng
+                                                .xls
                                                 hoặc .xlsx</div>
                                         </div>
                                     </div>
@@ -170,25 +172,29 @@ Nguyên liệu
                             });
                         </script>
                         <button type="button" class="btn btn-light" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
+                            data-bs-target="#deleteModal{{ingredient.MaNL}}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 style="color: #dc3545;" class="bi bi-trash3" viewBox="0 0 16 16">
                                 <path
                                     d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
                             </svg>
                         </button>
-                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                            aria-hidden="true">
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="deleteModal{{ingredient.MaNL}}" tabindex="-1"
+                            aria-labelledby="deleteModalLabel{{ingredient.MaNL}}" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Xác nhận xóa nguyên liệu
+                                        <h1 class="modal-title fs-5" id="deleteModalLabel{{ingredient.MaNL}}">
+                                            Xác nhận xóa nguyên liệu
                                         </h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        Bạn có chắc chắn muốn xóa nguyên liệu này không?
+                                        Bạn có chắc chắn muốn xóa nguyên liệu "{{ingredient.TenNguyenLieu}}"
+                                        không?
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
@@ -216,7 +222,8 @@ Nguyên liệu
                         href="{{ url_for(endpoint, page=ingredients.prev_num, query=query, units=selected_units, price_min=price_min, price_max=price_max, stock=selected_stock) }}">&laquo;</a>
                 </li>
                 {% endif %}
-                {% for page_num in ingredients.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% for page_num in ingredients.iter_pages(left_edge=1, right_edge=1, left_current=2,
+                right_current=2) %}
                 {% if page_num %}
                 <li class="page-item {% if page_num == ingredients.page %}active{% endif %}">
                     <a class="page-link"

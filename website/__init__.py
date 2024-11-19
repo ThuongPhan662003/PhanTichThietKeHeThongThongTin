@@ -34,6 +34,7 @@ def create_app():
     from .controller.phieunhap import phieunhap
     from .controller.phieuxuat import phieuxuat
     from .controller.nguoidung import nguoidung
+    from .controller.dondathang import dondathang
 
     app.register_blueprint(views, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/auth")
@@ -41,6 +42,7 @@ def create_app():
     app.register_blueprint(phieunhap, url_prefix="/phieunhap")
     app.register_blueprint(phieuxuat, url_prefix="/phieuxuat")
     app.register_blueprint(nguoidung, url_prefix="/nguoidung")
+    app.register_blueprint(dondathang, url_prefix="/dondathang")
 
     with app.app_context():
         db.create_all()

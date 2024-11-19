@@ -1,0 +1,49 @@
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Chỉnh sửa đơn đặt hàng số </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('dondathang.sua_don_dat_hang') }}" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" id="maDDH" name="maDDH">
+
+                    <!-- Danh sách bàn -->
+                    <div class="mb-4">
+                        <label class="form-label">Danh sách bàn đã đặt</label>
+                        <div id="tableList" class="mb-2">
+                            <!-- Badges sẽ được thêm bằng JavaScript -->
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Giờ đến</label>
+                            <input type="time" class="form-control" id="gioDenEdit" name="gioDen" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Thời lượng (giờ)</label>
+                            <input type="number" class="form-control" id="thoiLuongEdit" name="thoiLuong" step="0.5"
+                                min="0.5" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Số khách</label>
+                            <input type="number" class="form-control" id="soKhachEdit" name="soKhach" min="1" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="huyDon">
+                            <label class="form-check-label" for="huyDon">Hủy đơn hàng?</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary" id="saveButton">Lưu Thay Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

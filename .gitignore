@@ -1,5 +1,6 @@
 .vscode
 website/__pycache__
 json/config.json
+*/**/__pycache__
 
 

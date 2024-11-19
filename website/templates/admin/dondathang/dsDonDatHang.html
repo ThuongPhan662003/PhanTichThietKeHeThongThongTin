@@ -1,0 +1,159 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Đơn đặt hàng{% endblock %}
+
+
+{% block content%}
+
+<div class="row">
+    <div class="col-md-9">
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-lg-4">
+                <h1>Danh sách đơn đặt hàng</h1>
+            </div>
+            <div class="col-lg-8">
+                <div class="float-end">
+                    <a class="btn btn-outline-primary" type="submit" href="{{url_for('dondathang.manage_booking')}}">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-pencil-square mb-1" viewBox="0 0 16 16">
+                            <path
+                                d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                            <path fill-rule="evenodd"
+                                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                        </svg>
+                        Đặt bàn
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <table class="table table-bordered table-striped caption-top" style="vertical-align: middle;">
+            <caption style="padding-bottom: 0 !important;">
+                {% if not show_all %}
+                <p>Đơn đặt hàng hôm nay</p>
+                {% else %}
+                <p>Tất cả đơn đặt hàng</p>
+                {% endif %}
+            </caption>
+            <thead>
+                <tr class="text-center">
+                    <th>Mã đơn</th>
+                    <th>Ngày đặt</th>
+                    <th>Giờ đến</th>
+                    <th>Thời lượng</th>
+                    <th>Bàn</th>
+                    <th>Loại</th>
+                    <th>Trạng thái</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td class="text-center">{{ order.MaDDH }}</td>
+                    <td>{{ order.NgayDat.strftime('%d/%m/%Y') }}</td>
+                    <td class="text-end">{{ order.GioDen.strftime('%H:%M') }}</td>
+                    <td class="text-end">{{ order.ThoiLuong if order.ThoiLuong else "2" }} giờ</td>
+                    <td>
+                        {% for ct in order.ct_don_dat_hang %}
+                        {{ ct.ban.TenBan }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if order.Loai %}
+                        <span class="badge bg-primary">Tại quán</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Mang về</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if order.TrangThai == 'Chưa bắt đầu' %}
+                        <span class="badge bg-warning">{{ order.TrangThai }}</span>
+                        {% elif order.TrangThai == 'Đang chế biến' %}
+                        <span class="badge bg-info">{{ order.TrangThai }}</span>
+                        {% elif order.TrangThai == 'Đã hoàn thành' %}
+                        <span class="badge bg-success">{{ order.TrangThai }}</span>
+                        {% else %}
+                        <span class="badge bg-danger">{{ order.TrangThai }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">{{ "{:,.0f}".format(order.ThanhTien) }}đ</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        {% if pagination.pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <!-- Nút Previous -->
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link"
+                        href="{{ url_for('dondathang.ds_dondathang', **make_query_string(page=pagination.prev_num)) if pagination.has_prev else '#' }}"
+                        tabindex="-1" {% if not pagination.has_prev %}aria-disabled="true" {% endif %}>
+                        Trước
+                    </a>
+                </li>
+
+                <!-- Các số trang -->
+                {%- for page in pagination.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                {% if page %}
+                <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                    <a class="page-link"
+                        href="{{ url_for('dondathang.ds_dondathang', **make_query_string(page=page)) }}">
+                        {{ page }}
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                {%- endfor %}
+
+                <!-- Nút Next -->
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link"
+                        href="{{ url_for('dondathang.ds_dondathang', **make_query_string(page=pagination.next_num)) if pagination.has_next else '#' }}">
+                        Sau
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Hiển thị thông tin phân trang -->
+        <div class="text-muted">
+            <small>Hiển thị {{ pagination.items|length }} trên tổng số {{ pagination.total }} đơn hàng</small>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-3">
+        <div class="content-section">
+            <h5><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-funnel me-1" viewBox="0 0 16 16">
+                    <path
+                        d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />
+                </svg>Bộ lọc tìm kiếm</h5>
+            <br />
+            <div>
+                {% include 'admin/dondathang/formLocDDH.html'%}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

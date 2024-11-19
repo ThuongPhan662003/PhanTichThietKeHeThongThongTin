@@ -1,0 +1,189 @@
+{% extends "admin/base.html" %}
+{% block title %}
+Sửa phiếu nhập
+{% endblock %}
+{% block content%}
+{% for category, message in get_flashed_messages(with_categories=True) %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+    <strong>{{ message }} </strong>
+    {% if category == 'success' %}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    {% endif %}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div id="ngayNhapError" class="alert alert-danger" role="alert" style="display: none;">
+    Ngày nhập không được để trống!
+</div>
+{% endfor %}
+<!-- Form sửa phiếu nhập -->
+<h1>Sửa phiếu nhập số {{ phieu_nhap.SoPhieuNhap }}</h1>
+<br />
+<div class="shadow p-3 mb-5 bg-body rounded">
+    <form method="POST" class="row g-3 needs-validation" novalidate>
+        <div class="col-md-12">
+            <label for="ngayNhap" class="form-label">Ngày nhập<span style="color: red;">*</span></label>
+            <input type="text" class="form-control" id="ngayNhap" name="ngayNhap"
+                value="{{ phieu_nhap.NgayNhap.strftime('%d/%m/%Y %H:%M') }}" required>
+            <div class="invalid-feedback">
+                Vui lòng nhập ngày!
+            </div>
+            <script>
+                flatpickr("#ngayNhap", {
+                    enableTime: true,
+                    dateFormat: "d/m/Y H:i",
+                    maxDate: "today"
+                });
+            </script>
+        </div>
+
+        <h3 class="mb-3">Danh sách nguyên liệu</h3>
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <table class="table table-bordered table-hover mx-auto" style="vertical-align: middle;">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" scope="col">Mã nguyên liệu</th>
+                            <th class="text-center" scope="col">Tên nguyên liệu</th>
+                            <th class="text-center" scope="col">Đơn giá</th>
+                            <th class="text-center" scope="col">Đơn vị tính</th>
+                            <th class="text-center" scope="col">Số lượng</th>
+                            <th class="text-center" scope="col">Chức năng</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider" id="ingredientTableBody">
+                        {% for ct in phieu_nhap.chi_tiet_phieu %}
+                        <tr>
+                            <td class="text-center">{{ ct.nguyen_lieu.MaNL }}</td>
+                            <td class="text-center">{{ ct.nguyen_lieu.TenNguyenLieu }}</td>
+                            <td class="text-center">{{ "{:,.0f}".format(ct.nguyen_lieu.DonGia) }}</td>
+                            <td class="text-center">{{ ct.nguyen_lieu.DonViTinh }}</td>
+                            <td class="text-center">
+                                <input type="number" class="form-control" name="quantity[]"
+                                    value="{{ '{:,.0f}'.format(ct.SoLuong) }}" min="0" step="1" required>
+                                <input type="hidden" name="material_id[]" value="{{ ct.nguyen_lieu.MaNL }}">
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                    onclick="removeRow(this)">Xóa</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+        <!-- Phần thêm nguyên liệu mới -->
+        <div class="col-md-6">
+            <label class="form-label">Tên nguyên liệu<span style="color: red;">*</span></label>
+            <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Nhập để tìm kiếm..."
+                onchange="document.getElementById('selectedIngredientId').value=this.value">
+            <datalist id="datalistOptions">
+                {% for ingredient in ingredients %}
+                <option value="{{ ingredient.TenNguyenLieu }}" data-id="{{ ingredient.MaNL }}"
+                    data-dongia="{{ ingredient.DonGia }}" data-donvitinh="{{ ingredient.DonViTinh }}">
+                </option>
+                {% endfor %}
+            </datalist>
+            <input type="hidden" id="selectedIngredientId">
+        </div>
+
+        <div class="col-md-4">
+            <label for="soLuongNhap" class="form-label">Số lượng nhập<span style="color: red;">*</span></label>
+            <div data-mdb-input-init class="form-outline">
+                <input type="number" id="soLuongNhap" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-2 text-end">
+            <label class="form-label"><i>Bấm để thêm vào list</i></label>
+            <button class="btn btn-primary" id="addButton" type="button">
+                <i class="bi bi-arrow-bar-up"></i> Thêm nguyên liệu
+            </button>
+        </div>
+
+        <div class="col-12 mt-4">
+            <button class="btn btn-success" type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-floppy mb-1" viewBox="0 0 16 16">
+                    <path d="M11 2H9v3h2z" />
+                    <path
+                        d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                </svg>
+                Lưu thay đổi
+            </button>
+            <a href="{{ url_for('phieunhap.received_note_detail', note_id=phieu_nhap.SoPhieuNhap) }}"
+                class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-bar-left mb-1" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5" />
+                </svg>
+                Quay lại
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('addButton').addEventListener('click', function () {
+        const tenNguyenLieu = document.getElementById('exampleDataList').value;
+        const selectedOption = document.querySelector(`#datalistOptions option[value="${tenNguyenLieu}"]`);
+
+        if (!selectedOption) {
+            alert("Vui lòng chọn tên nguyên liệu từ danh sách!");
+            return;
+        }
+
+        const idNL = selectedOption.dataset.id;
+        const donGia = selectedOption.dataset.dongia;
+        const donViTinh = selectedOption.dataset.donvitinh;
+        const soLuongNhap = document.getElementById('soLuongNhap').value;
+
+        if (!tenNguyenLieu || !soLuongNhap) {
+            alert("Vui lòng nhập tên nguyên liệu và số lượng!");
+            return;
+        }
+
+        const tableBody = document.getElementById('ingredientTableBody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+        <td class="text-center">${idNL}</td>
+        <td class="text-center">${tenNguyenLieu}</td>
+        <td class="text-center">${donGia}</td>
+        <td class="text-center">${donViTinh}</td>
+        <td class="text-center">
+            <input type="number" class="form-control" name="quantity[]" 
+                   value="${soLuongNhap}" min="0" step="0.01" required>
+            <input type="hidden" name="material_id[]" value="${idNL}">
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">Xóa</button>
+        </td>
+    `;
+        tableBody.appendChild(newRow);
+
+        selectedOption.remove();
+        document.getElementById('exampleDataList').value = '';
+        document.getElementById('soLuongNhap').value = '';
+    });
+
+    function removeRow(button) {
+        const row = button.closest('tr');
+        const ingredientName = row.cells[1].innerText;
+        row.remove();
+
+        const dataList = document.getElementById('datalistOptions');
+        const originalOption = document.createElement('option');
+        originalOption.value = ingredientName;
+        originalOption.dataset.id = row.cells[0].innerText;
+        originalOption.dataset.dongia = row.cells[2].innerText;
+        originalOption.dataset.donvitinh = row.cells[3].innerText;
+        dataList.appendChild(originalOption);
+    }
+
+</script>
+{% endblock %}
