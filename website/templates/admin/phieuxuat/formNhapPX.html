@@ -34,6 +34,7 @@ Nhập phiếu xuất
 
                     enableTime: true,
                     dateFormat: "d-m-Y H:i",
+                    maxDate: "today"
                 });
             </script>
         </div>
@@ -62,15 +63,6 @@ Nhập phiếu xuất
         </div>
         <div class="col-md-6">
             <label class="form-label">Tên nguyên liệu<span style="color: red;">*</span></label>
-
-            <!-- <input class="form-control" list="simpleDatalist" id="dataListExample" name="ingredient_name"
-                placeholder="Nhập để tìm kiếm..."
-                onchange="document.getElementById('selectedIngredientId').value=this.value">
-            <datalist id="simpleDatalist">
-                {% for ingredient in ingredients %}
-                <option value="{{ ingredient.TenNguyenLieu }}" data-id="{{ ingredient.MaNL }}"></option>
-                {% endfor %}
-            </datalist> -->
             <select class="form-select" id="dataListExample" name="ingredient_name"
                 onchange="handleIngredientSelection(this)" aria-label="Default select example">
                 <option value="">Chọn nguyên liệu...</option>
@@ -78,7 +70,7 @@ Nhập phiếu xuất
                 <option value="{{ ingredient.MaNL }}" data-ten="{{ ingredient.TenNguyenLieu }}"
                     data-dongia="{{ ingredient.DonGia }}" data-donvitinh="{{ ingredient.DonViTinh }}"
                     data-soluongton="{{ ingredient.SoLuongTon }}">
-                    {{ ingredient.TenNguyenLieu }}
+                    {{ ingredient.TenNguyenLieu }} (tồn kho: {{ingredient.SoLuongTon}})
                 </option>
                 {% endfor %}
             </select>
@@ -126,69 +118,6 @@ Nhập phiếu xuất
     </form>
 </div>
 <script>
-    // document.getElementById('addButton').addEventListener('click', function () {
-    //     const tenNguyenLieu = document.getElementById('dataListExample').value;
-    //     const selectedOption = document.querySelector(`#simpleDatalist option[value="${tenNguyenLieu}"]`);
-
-    //     if (!selectedOption) {
-    //         alert("Vui lòng chọn tên nguyên liệu từ danh sách!");
-    //         return;
-    //     }
-
-    //     const idNL = selectedOption.dataset.id;
-    //     const donGia = selectedOption.dataset.dongia;
-    //     const donViTinh = selectedOption.dataset.donvitinh;
-    //     const soLuongTon = parseFloat(selectedOption.dataset.soluongton);
-    //     const soLuongXuat = parseFloat(document.getElementById('soLuongXuat').value);
-
-    //     if (!tenNguyenLieu || !soLuongXuat) {
-    //         alert("Vui lòng nhập tên nguyên liệu và số lượng!");
-    //         return;
-    //     }
-
-    //     if (soLuongXuat > soLuongTon) {
-    //         alert(`Sản phẩm này chỉ còn ${soLuongTon}, vui lòng nhập lại số lượng nhỏ hơn!`);
-    //         return;
-    //     }
-
-
-    //     const tableBody = document.getElementById('ingredientTableBody');
-    //     const newRow = document.createElement('tr');
-    //     newRow.innerHTML = `
-    //         <td class="text-center">${idNL}</td>
-    //         <td class="text-center">${tenNguyenLieu}</td>
-    //         <td class="text-center">${donGia}</td>
-    //         <td class="text-center">${donViTinh}</td>
-    //         <td class="text-center">${soLuongXuat}</td>
-    //         <td class="text-center"><button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">Xóa</button></td>
-    //     `;
-    //     tableBody.appendChild(newRow);
-
-    //     selectedOption.remove();
-    //     document.getElementById('dataListExample').value = '';
-    //     document.getElementById('soLuongXuat').value = '';
-    // });
-
-    // // Function to close the alert
-    // function closeCustomAlert() {
-    //     document.getElementById('customAlert').classList.add('d-none');
-    // }
-
-
-    // function removeRow(button) {
-    //     const row = button.closest('tr');
-    //     const ingredientName = row.cells[1].innerText;
-    //     row.remove();
-
-    //     const dataList = document.getElementById('simpleDatalist');
-    //     const originalOption = document.createElement('option');
-    //     originalOption.value = ingredientName;
-    //     originalOption.dataset.id = row.cells[0].innerText;
-    //     originalOption.dataset.dongia = row.cells[2].innerText;
-    //     originalOption.dataset.donvitinh = row.cells[3].innerText;
-    //     dataList.appendChild(originalOption);
-    // }
-
     document.getElementById('ingredientList').addEventListener('click', function (event) {
         const ngayNhap = document.getElementById('ngayXuat').value;
         const errorDiv = document.getElementById('ngayXuatError');
