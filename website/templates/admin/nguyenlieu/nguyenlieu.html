@@ -4,23 +4,22 @@ Nguyên liệu
 {% endblock %}
 
 {% block content%}
-{% for category, message in get_flashed_messages(with_categories=True) %}
-<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-    <strong>{{ message }}</strong>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{% endfor %}
 
 <div class="row">
     <div class="col-md-9">
-
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
         <div class="row">
             <div class="col-lg-4">
                 <h1>Quản lý nguyên liệu</h1>
             </div>
             <div class="col-lg-8">
                 <div class="float-end">
-                    <a class="btn btn-secondary" type="submit" href="{{url_for('nguyenlieu.add_ingredients')}}">
+                    <a class="btn btn-outline-danger" type="submit" href="{{url_for('nguyenlieu.add_ingredients')}}">
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-plus-circle mb-1" viewBox="0 0 16 16">
@@ -30,9 +29,92 @@ Nguyên liệu
                         </svg>
                         Thêm nguyên liệu có sẵn
                     </a>
+                    <a type="button" class="btn btn-outline-success mb-1" data-bs-toggle="modal"
+                        data-bs-target="#importExcelModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                            <path
+                                d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z" />
+                            <path
+                                d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
+                        </svg>
+                        Nhập từ file excel
+                    </a>
+
+                    <div class="modal fade" id="importExcelModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Nhập danh sách nguyên
+                                        liệu từ
+                                        Excel</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <form action="{{ url_for('nguyenlieu.import_ingredients') }}" method="POST"
+                                    enctype="multipart/form-data">
+                                    <div class="modal-body">
+                                        <div class="alert alert-info mb-3">
+                                            <h6 class="alert-heading">Hướng dẫn nhập liệu:</h6>
+                                            <p class="mb-0">File Excel cần có các cột sau:</p>
+                                            <ul class="mb-0">
+                                                <li>Tên nguyên liệu</li>
+                                                <li>Đơn vị tính</li>
+                                                <li>Đơn giá</li>
+                                            </ul>
+                                            <p class="mb-0">Lưu ý: Nếu nguyên liệu đã có thì sẽ được update.</p>
+                                        </div>
+
+                                        <div class="mb-3 d-flex justify-content-between align-items-center">
+                                            <span>Tải file mẫu:</span>
+                                            <a href="{{ url_for('nguyenlieu.download_template') }}"
+                                                class="btn btn-outline-primary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                    fill="currentColor" class="bi bi-file-earmark-arrow-down mb-1"
+                                                    viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z" />
+                                                    <path
+                                                        d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
+                                                </svg>
+                                                Tải xuống file mẫu
+                                            </a>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="excel_file" class="form-label">Chọn file Excel của
+                                                bạn</label>
+                                            <input class="form-control" type="file" id="excel_file" name="excel_file"
+                                                accept=".xls,.xlsx" required>
+                                            <div id="fileHelp" class="form-text">Chỉ chấp nhận file có định dạng
+                                                .xls
+                                                hoặc .xlsx</div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Đóng</button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                fill="currentColor" class="bi bi-file-earmark-arrow-up mb-1"
+                                                viewBox="0 0 16 16">
+                                                <path
+                                                    d="M8.5 11.5a.5.5 0 0 1-1 0V7.707L6.354 8.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 7.707z" />
+                                                <path
+                                                    d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
+                                            </svg>
+                                            Tải lên
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
         <br />
         <form class="d-flex" role="search" method="GET" action="{{ url_for('nguyenlieu.search_ingredients') }}">
             <input class="form-control me-2" type="search" name="query" placeholder="Tên nguyên liệu"
@@ -89,28 +171,30 @@ Nguyên liệu
                                 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
                             });
                         </script>
-                        <!-- Button trigger modal -->
                         <button type="button" class="btn btn-light" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
+                            data-bs-target="#deleteModal{{ingredient.MaNL}}">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 style="color: #dc3545;" class="bi bi-trash3" viewBox="0 0 16 16">
                                 <path
                                     d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
                             </svg>
                         </button>
+
                         <!-- Modal -->
-                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-                            aria-hidden="true">
+                        <div class="modal fade" id="deleteModal{{ingredient.MaNL}}" tabindex="-1"
+                            aria-labelledby="deleteModalLabel{{ingredient.MaNL}}" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Xác nhận xóa nguyên liệu
+                                        <h1 class="modal-title fs-5" id="deleteModalLabel{{ingredient.MaNL}}">
+                                            Xác nhận xóa nguyên liệu
                                         </h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        Bạn có chắc chắn muốn xóa nguyên liệu này không?
+                                        Bạn có chắc chắn muốn xóa nguyên liệu "{{ingredient.TenNguyenLieu}}"
+                                        không?
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
@@ -138,7 +222,8 @@ Nguyên liệu
                         href="{{ url_for(endpoint, page=ingredients.prev_num, query=query, units=selected_units, price_min=price_min, price_max=price_max, stock=selected_stock) }}">&laquo;</a>
                 </li>
                 {% endif %}
-                {% for page_num in ingredients.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% for page_num in ingredients.iter_pages(left_edge=1, right_edge=1, left_current=2,
+                right_current=2) %}
                 {% if page_num %}
                 <li class="page-item {% if page_num == ingredients.page %}active{% endif %}">
                     <a class="page-link"

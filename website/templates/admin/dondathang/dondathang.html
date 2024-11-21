@@ -1,0 +1,506 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Đặt bàn{% endblock %}
+
+{% block css %}
+{{ super() }}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet'>
+<style>
+    #calendar {
+        margin: 20px;
+        height: 400px;
+    }
+
+    .fc-timeline-slot-cushion {
+        font-weight: bold;
+    }
+
+    .alert {
+        transition: opacity 0.15s linear;
+    }
+
+    .alert.fade {
+        transition: opacity 0.15s linear;
+    }
+
+    .alert.fade:not(.show) {
+        opacity: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% for category, message in get_flashed_messages(with_categories=True) %}
+<div class="alert alert-{{ category }} alert-dismissible fade show auto-dismiss" role="alert">
+    <strong>{{ message }}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+
+<script src="{{url_for('static', filename='js/dismissAlert.js')}}"></script>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-lg-4">
+                <h3>Đặt bàn</h3>
+            </div>
+            <div class="col-lg-8">
+                <div class="float-end">
+                    <a class="btn btn-outline-dark" type="submit" href="{{url_for('dondathang.ds_dondathang')}}">
+                        Danh sách đơn đặt hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id='calendar'></div>
+    </div>
+</div>
+
+<!-- Model thêm đơn đặt hàng -->
+{% include 'admin/dondathang/formThemDDH.html'%}
+
+<!-- Modal sửa đơn đặt hàng -->
+{% include 'admin/dondathang/formUpdateDDH.html'%}
+
+<!-- Modal xác nhận thay đổi -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmTitle">Xác nhận thay đổi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage" class="mb-0"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnCancel">Hủy bỏ</button>
+                <button type="button" class="btn btn-primary" id="btnConfirm">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+{{ super() }}
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.10/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core/locales/vi.js'></script>
+<script>
+    let resourcesData = JSON.parse('{{ tables_data|tojson|safe }}');
+    let resourceGroupsData = JSON.parse('{{ loai_ban_data|tojson|safe }}');
+    let eventData = JSON.parse('{{ events|tojson|safe }}');
+
+    let calendar = null;
+    document.addEventListener('DOMContentLoaded', function () {
+        var bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+        var calendarEl = document.getElementById('calendar');
+
+        let selectedTables = [];
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'resourceTimelineDay',
+            schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'resourceTimelineDay,resourceTimelineWeek,resourceTimelineMonth'
+            },
+            slotMinTime: '08:00:00',
+            slotMaxTime: '23:00:00',
+            locale: 'vi',
+            editable: true,
+            eventStartEditable: true,
+            eventDurationEditable: true,
+
+            eventAllow: function (dropInfo, draggedEvent) {
+                return dropInfo.start >= new Date();
+            },
+
+            // selectOverlap: false,  // Không cho phép chọn chỗ đã có event
+            // eventOverlap: false,   // Không cho phép events chồng lên nhau
+            nowIndicator: true,
+            resourceAreaWidth: '180px',
+            resourceGroupField: 'loaiBanName',
+            resourceAreaColumns: [
+                {
+                    field: 'title',
+                    headerContent: 'Bàn',
+                }
+            ],
+            resources: resourcesData,
+            resourceGroups: resourceGroupsData,
+            events: eventData,
+
+            editable: true,
+            selectable: true,
+            dayMinWidth: 200,
+            editable: true,
+            eventResourceEditable: true,       // Cho phép đổi bàn
+            eventDurationEditable: false,      // Không cho phép resize
+            eventStartEditable: true,
+
+            eventStartEditable: function (info) {
+                return !(info.event.title === 'Đã hoàn thành' || info.event.title === 'Đã hủy');
+            },
+
+            select: function (info) {
+                if (info.start < new Date()) {
+                    calendar.unselect();
+                    alert('Không thể đặt bàn cho thời điểm trong quá khứ');
+                    return;
+                }
+                selectedTables = [];
+                selectedTables.push({
+                    id: info.resource.id,
+                    name: info.resource.title
+                });
+                updateTables();
+
+                // Lưu thời gian được chọn
+                const selectedDate = info.start.toISOString().split('T')[0];
+                const selectedTime = info.start.toTimeString().slice(0, 5);
+                const duration = (info.end - info.start) / (1000 * 60 * 60);
+
+                document.getElementById('bookingDate').value = selectedDate;
+                document.getElementById('bookingTime').value = selectedTime;
+                document.getElementById('bookingDurationDisplay').value = duration;
+                document.getElementById('bookingDuration').value = duration;
+
+                // Lọc bàn trống
+                updateAvailableTables(info.start, info.end);
+
+                var bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+                bookingModal.show();
+            },
+
+            eventClick: function (info) {
+                const event = info.event;
+                const props = event.extendedProps;
+                const maDDH = event.id;
+                const isCompleted = event.title === 'Đã hoàn thành';
+                const isCanceled = event.title === 'Đã hủy';
+                const isDisabled = isCompleted || isCanceled;
+
+                // Lấy reference đến modal và các elements
+                const editModal = document.getElementById('editModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const tableList = document.getElementById('tableList');
+                const saveButton = editModal.querySelector('button[type="submit"]');
+                const huyDonSwitch = document.getElementById('huyDon');
+
+                // Cập nhật tiêu đề modal với mã đơn
+                modalTitle.textContent = isDisabled
+                    ? `Xem đơn đặt hàng số ${maDDH}`
+                    : `Chỉnh sửa đơn đặt hàng số ${maDDH}`;
+
+                // Hiển thị danh sách bàn
+                if (tableList && props.tableNames) {
+                    const tableHtml = props.tableNames.map(tableName => `
+                        <span class="badge bg-primary me-2 mb-2">${tableName}</span>
+                    `).join('');
+                    tableList.innerHTML = tableHtml;
+                }
+
+                // Format thời gian và điền thông tin vào form
+                const startTime = event.start.toTimeString().split(' ')[0].slice(0, 5);
+                document.getElementById('maDDH').value = maDDH;
+                document.getElementById('gioDenEdit').value = startTime;
+                document.getElementById('thoiLuongEdit').value = props.thoiLuong || 2;
+                document.getElementById('soKhachEdit').value = props.soKhach;
+
+                // Set trạng thái switch và disable nếu cần
+                huyDonSwitch.checked = isCanceled;
+                huyDonSwitch.disabled = isDisabled;
+
+                // Xử lý sự kiện khi switch thay đổi
+                huyDonSwitch.onchange = function () {
+                    // Tạo input hidden để gửi trạng thái
+                    let trangThaiInput = document.getElementById('trangThaiInput');
+                    if (!trangThaiInput) {
+                        trangThaiInput = document.createElement('input');
+                        trangThaiInput.type = 'hidden';
+                        trangThaiInput.id = 'trangThaiInput';
+                        trangThaiInput.name = 'trangThai';
+                        editModal.querySelector('form').appendChild(trangThaiInput);
+                    }
+                    trangThaiInput.value = this.checked ? 'Đã hủy' : 'Chưa bắt đầu';
+
+                    // Thay đổi style nút submit khi switch được bật
+                    if (this.checked) {
+                        saveButton.classList.remove('btn-primary');
+                        saveButton.classList.add('btn-danger');
+                        saveButton.textContent = 'Xác nhận hủy';
+                    } else {
+                        saveButton.classList.remove('btn-danger');
+                        saveButton.classList.add('btn-primary');
+                        saveButton.textContent = 'Lưu Thay Đổi';
+                    }
+                };
+
+                // Xử lý readonly cho các input
+                const inputs = editModal.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"])');
+                inputs.forEach(input => {
+                    input.readOnly = isDisabled;
+                });
+
+                // Ẩn/hiện nút Lưu
+                if (saveButton) {
+                    saveButton.style.display = isDisabled ? 'none' : 'block';
+                }
+
+                // Hiện modal
+                var modal = new bootstrap.Modal(editModal);
+                modal.show();
+            },
+
+            eventDidMount: function (info) {
+                if (info.event.title === 'Đã hoàn thành' || info.event.title === 'Đã hủy') {
+                    info.el.style.cursor = 'not-allowed';
+                    info.el.style.opacity = '0.7';
+
+                    const reason = info.event.title === 'Đã hoàn thành'
+                        ? 'Đơn đã hoàn thành, không thể chỉnh sửa'
+                        : 'Đơn đã hủy, không thể chỉnh sửa';
+                    info.el.title = reason;
+                }
+            },
+
+            eventDrop: function (info) {
+                const event = info.event;
+                const newResource = info.newResource || info.event.getResources()[0];  // Lấy resource hiện tại nếu không đổi bàn
+                const oldResource = info.oldResource || info.event.getResources()[0];
+                const newStart = event.start;
+                const currentTime = newStart.toTimeString().slice(0, 5);
+
+                // Kiểm tra xem là đổi bàn hay đổi giờ
+                const isTableChange = newResource.id !== oldResource.id;
+
+                // Lấy các elements của modal
+                const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                const confirmTitle = document.getElementById('confirmTitle');
+                const confirmMessage = document.getElementById('confirmMessage');
+
+                // Set nội dung modal
+                if (isTableChange) {
+                    confirmTitle.textContent = 'Xác nhận chuyển bàn';
+                    confirmMessage.textContent = `Bạn có muốn chuyển đơn từ ${oldResource.title} sang ${newResource.title}?`;
+                } else {
+                    confirmTitle.textContent = 'Xác nhận đổi giờ';
+                    confirmMessage.textContent = `Bạn có muốn đổi giờ đến thành ${currentTime}?`;
+                }
+
+                // Xử lý nút Xác nhận
+                document.getElementById('btnConfirm').onclick = function () {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/dondathang/cap-nhat-ban';
+
+                    const fields = {
+                        'maDDH': event.id,
+                        'banCu': oldResource.id,
+                        'banMoi': newResource.id,
+                        'gioDen': currentTime
+                    };
+
+                    for (const [key, value] of Object.entries(fields)) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        form.appendChild(input);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                    confirmModal.hide();
+                };
+
+                // Xử lý nút Hủy bỏ
+                document.getElementById('btnCancel').onclick = function () {
+                    info.revert();
+                    confirmModal.hide();
+                };
+
+                // Xử lý đóng modal
+                document.getElementById('confirmModal').addEventListener('hidden.bs.modal', function () {
+                    if (!document.querySelector('form[action="/dondathang/cap-nhat-ban"]')) {
+                        info.revert();
+                    }
+                });
+
+                confirmModal.show();
+            }
+
+        });
+
+        // Thêm hàm lọc bàn trống
+        function updateAvailableTables(startTime, endTime) {
+            const tableSelect = document.getElementById('tableSelect');
+            const allEvents = calendar.getEvents();
+
+            // Lấy tất cả options trừ option đầu tiên (placeholder)
+            const options = Array.from(tableSelect.options).slice(1);
+
+            options.forEach(option => {
+                const tableId = option.value;
+
+                // Kiểm tra xem bàn có event nào trong khoảng thời gian này không
+                const hasOverlap = allEvents.some(event => {
+                    return event.getResources()[0]?.id === tableId &&
+                        event.start < endTime &&
+                        event.end > startTime;
+                });
+
+                // Ẩn/hiện option dựa vào kết quả kiểm tra
+                option.hidden = hasOverlap;
+                option.disabled = hasOverlap;
+
+                // Thêm text thông báo nếu bàn đã được đặt
+                if (hasOverlap) {
+                    option.text = `${option.getAttribute('data-name')} (Đã đặt)`;
+                } else {
+                    option.text = option.getAttribute('data-name');
+                }
+            });
+
+            // Đảm bảo option placeholder luôn hiển thị
+            tableSelect.options[0].hidden = false;
+            tableSelect.options[0].disabled = false;
+        }
+
+        // Cập nhật lại dropdown khi thay đổi thời gian
+        document.getElementById('bookingTime').addEventListener('change', function () {
+            const date = document.getElementById('bookingDate').value;
+            const time = this.value;
+            const duration = parseFloat(document.getElementById('bookingDuration').value);
+
+            if (date && time && duration) {
+                const startTime = new Date(date + 'T' + time);
+                const endTime = new Date(startTime.getTime() + duration * 60 * 60 * 1000);
+                updateAvailableTables(startTime, endTime);
+            }
+        });
+
+        document.getElementById('bookingDuration').addEventListener('change', function () {
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
+            const duration = parseFloat(this.value);
+
+            if (date && time && duration) {
+                const startTime = new Date(date + 'T' + time);
+                const endTime = new Date(startTime.getTime() + duration * 60 * 60 * 1000);
+                updateAvailableTables(startTime, endTime);
+            }
+        });
+
+        // Xử lý chọn bàn
+        document.getElementById('tableSelect').addEventListener('change', function () {
+            if (!this.value) return;
+
+            const tableId = this.value;
+            const tableName = this.options[this.selectedIndex].dataset.name;
+
+            if (selectedTables.find(t => t.id === tableId)) {
+                alert('Bàn này đã được chọn!');
+                return;
+            }
+
+            selectedTables.push({ id: tableId, name: tableName });
+            updateTables();
+            this.value = '';
+        });
+
+        // Cập nhật hiển thị bàn
+        function updateTables() {
+            const html = selectedTables.map(table => `
+                <span class="badge bg-primary me-2 mb-2">
+                    ${table.name}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" 
+                        class="bi bi-x ms-1" viewBox="0 0 16 16" 
+                        style="cursor: pointer" onclick="removeTable('${table.id}')">
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                    </svg>
+                </span>
+            `).join('');
+
+            document.getElementById('selectedTablesContainer').innerHTML = html;
+            document.getElementById('maBan').value = selectedTables.map(t => t.id).join(',');
+        }
+
+        // Xóa bàn
+        window.removeTable = function (id) {
+            selectedTables = selectedTables.filter(t => t.id !== id);
+            updateTables();
+        }
+
+        calendar.render();
+
+        // Xử lý nút Save
+        document.getElementById('saveBooking').addEventListener('click', function (e) {
+            e.preventDefault(); // Ngăn form submit ngay lập tức
+
+            // Reset trạng thái validation
+            const khachHangInput = document.getElementById('khachHangInput');
+            const soLuongInput = document.getElementById('soLuongNguoi');
+            const maKH = document.getElementById('maKH').value;
+            const soLuong = soLuongInput.value;
+            const bookingForm = this.closest('form'); // Lấy form cha gần nhất
+
+            // Reset các styles
+            khachHangInput.classList.remove('is-invalid');
+            soLuongInput.classList.remove('is-invalid');
+
+            let isValid = true;
+
+            // Kiểm tra khách hàng
+            if (!maKH) {
+                khachHangInput.classList.add('is-invalid');
+                document.getElementById('customerError').style.display = 'block';
+                isValid = false;
+            }
+
+            // Kiểm tra số lượng
+            if (!soLuong || soLuong < 1) {
+                soLuongInput.classList.add('is-invalid');
+                document.getElementById('quantityError').style.display = 'block';
+                isValid = false;
+            }
+
+            // Nếu tất cả hợp lệ thì submit form
+            if (isValid) {
+                // Lấy thông tin từ form
+                const startTime = document.getElementById('bookingTime').value;
+                const duration = parseFloat(document.getElementById('bookingDuration').value);
+                const bookingDate = document.getElementById('bookingDate').value;
+
+                // Tạo datetime cho event
+                const start = new Date(bookingDate + 'T' + startTime);
+                const end = new Date(start.getTime() + (duration * 60 * 60 * 1000));
+
+                // Ẩn modal và reset các giá trị
+                bookingModal.hide();
+                calendar.unselect();
+                selectedTables = [];
+                document.getElementById('selectedTablesContainer').innerHTML = '';
+
+                // Submit form
+                if (bookingForm) {
+                    bookingForm.submit();
+                }
+            }
+        });
+        document.getElementById('khachHangInput').addEventListener('input', function () {
+            this.classList.remove('is-invalid');
+        });
+        document.getElementById('soLuongNguoi').addEventListener('input', function () {
+            this.classList.remove('is-invalid');
+            document.getElementById('quantityError').textContent = 'Vui lòng nhập số lượng khách!';
+        });
+    });
+</script>
+{% endblock %}

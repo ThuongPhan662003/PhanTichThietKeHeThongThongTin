@@ -1,19 +1,21 @@
-from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, send_file
 from flask_login import login_required, current_user
 from decimal import Decimal
 from website import db
-from sqlalchemy import func, cast, Date, or_, and_
+from sqlalchemy import or_, and_
 from datetime import datetime
 from website.models import *
 from website.models import PHIEUNHAP, CT_PHIEUNHAP
 from website.webforms import NguyenLieuForm 
 import json
+import pandas as pd
+from io import BytesIO
 
 nguyenlieu = Blueprint("nguyenlieu", __name__)
 
 @nguyenlieu.route("/ingredients", methods=["GET", "POST"])
 @nguyenlieu.route("/ingredients/edit/<int:id>", methods=["GET", "POST"])
-# @login_required
+@login_required
 def ingredients(id=None):
     page = request.args.get('page', 1, type=int)
     
@@ -40,7 +42,7 @@ def ingredients(id=None):
                     SoLuongTon=form.SoLuongTon.data
                 )
                 db.session.add(new_ingredient)
-                db.session.flush()  # Tạm lưu để lấy ID mà không commit
+                db.session.flush() 
 
                 nhan_vien = NhanVien.query.filter_by(idNguoiDung=current_user.MaND).first()
                 if nhan_vien is None:
@@ -163,6 +165,16 @@ def delete_ingredient(id):
     try:
         ingredient = NguyenLieu.query.get_or_404(id)
         
+        phieu_nhap_check = CT_PHIEUNHAP.query.filter_by(idNL=id).first()
+        if phieu_nhap_check:
+            flash('Không thể xóa nguyên liệu này vì nó đang tồn tại trong phiếu nhập!', 'danger')
+            return redirect(url_for('nguyenlieu.ingredients'))
+        
+        phieu_xuat_check = CT_PHIEUXUAT.query.filter_by(idNL=id).first()
+        if phieu_xuat_check:
+            flash('Không thể xóa nguyên liệu này vì nó đang tồn tại trong phiếu xuất!', 'danger')
+            return redirect(url_for('nguyenlieu.ingredients'))
+        
         db.session.delete(ingredient)
         db.session.commit()
         
@@ -172,7 +184,6 @@ def delete_ingredient(id):
         flash(f'Lỗi khi xóa nguyên liệu: {str(e)}', 'danger')
     
     return redirect(url_for('nguyenlieu.ingredients'))
-
     
 @nguyenlieu.route('/add_ingredients', methods=['GET', 'POST'])
 @login_required
@@ -181,9 +192,6 @@ def add_ingredients():
         ngay_nhap = request.form.get("ngayNhap")
         ingredient_list_json = request.form.get("ingredientList")
         total_amount = Decimal(0) 
-        # if not ngay_nhap:
-        #     flash('Ngày nhập không được để trống!', 'danger')
-        #     return redirect(url_for('nguyenlieu.add_ingredients'))
         try:
             ingredients = json.loads(ingredient_list_json)
             existing_phieu_nhap = PHIEUNHAP.query.filter_by(
@@ -244,3 +252,100 @@ def add_ingredients():
 
     ingredients = NguyenLieu.query.all()
     return render_template('admin/nguyenlieu/formNLDaCo.html', ingredients=ingredients)
+
+
+
+@nguyenlieu.route('/import-ingredients', methods=['POST'])
+@login_required
+def import_ingredients():
+    if 'excel_file' not in request.files:
+        flash('No file part', 'danger')
+        return redirect(url_for('nguyenlieu.ingredients'))
+
+    file = request.files['excel_file']
+    if file.filename == '':
+        flash('Bạn chưa chọn file nào! Vui lòng chọn lại!', 'danger')
+        return redirect(url_for('nguyenlieu.ingredients'))
+
+    if file and file.filename.endswith(('.xls', '.xlsx')):
+        try:
+            df = pd.read_excel(file)
+            new_count = 0  # Đếm số nguyên liệu thêm mới
+            update_count = 0  # Đếm số nguyên liệu được cập nhật
+
+            for _, row in df.iterrows():
+                ten_nguyen_lieu = row['Tên nguyên liệu']
+                don_vi_tinh = row['Đơn vị tính']
+                don_gia = row['Đơn giá']
+
+                existing_ingredient = NguyenLieu.query.filter_by(TenNguyenLieu=ten_nguyen_lieu).first()
+
+                if not existing_ingredient:
+                    new_ingredient = NguyenLieu(
+                        TenNguyenLieu=ten_nguyen_lieu,
+                        DonViTinh=don_vi_tinh,
+                        DonGia=don_gia,
+                        SoLuongTon=0  
+                    )
+                    db.session.add(new_ingredient)
+                    new_count += 1
+                else:
+                    existing_ingredient.DonGia = don_gia
+                    existing_ingredient.DonViTinh = don_vi_tinh
+                    update_count += 1
+                    
+            db.session.commit()
+            
+            message = f'Hoàn tất! Đã thêm {new_count} nguyên liệu mới'
+            if update_count > 0:
+                message += f' và cập nhật {update_count} nguyên liệu'
+            flash(message, 'success')
+
+        except KeyError as e:
+            db.session.rollback()
+            flash('Lỗi: Tên cột không đúng định dạng. Vui lòng kiểm tra lại file mẫu!', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Lỗi khi thêm danh sách nguyên liệu: {str(e)}', 'danger')
+    else:
+        flash('Định dạng file không hợp lệ. Vui lòng tải lên file excel!', 'danger')
+
+    return redirect(url_for('nguyenlieu.ingredients'))
+
+@nguyenlieu.route('/download-template')
+@login_required
+def download_template():
+    sample_data = {
+        'Tên nguyên liệu': ['Ví dụ: Cà phê', 'Ví dụ: Sữa'],
+        'Đơn vị tính': ['kg', 'lít'],
+        'Đơn giá': [100000, 50000]
+    }
+    df = pd.DataFrame(sample_data)
+    
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='NguyenLieu')
+        worksheet = writer.sheets['NguyenLieu']
+        
+        header_format = writer.book.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'border': 1
+        })
+        
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num, value, header_format)
+            
+        worksheet.set_column('A:A', 30)  
+        worksheet.set_column('B:B', 15)  
+        worksheet.set_column('C:C', 15)  
+            
+    buffer.seek(0)
+    
+    return send_file(
+        buffer,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name='mau_nhap_nguyen_lieu.xlsx'
+    )
