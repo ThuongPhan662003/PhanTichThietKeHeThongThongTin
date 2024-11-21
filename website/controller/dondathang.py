@@ -6,7 +6,6 @@ from website import db
 from datetime import datetime, timedelta
 from website.models import *
 from sqlalchemy import func, extract
-from website.webforms import DonDatHangForm 
 
 dondathang = Blueprint("dondathang", __name__)
 
@@ -104,9 +103,9 @@ def ds_dondathang():
 def manage_booking():
     orders = DonDatHang.query.order_by(DonDatHang.MaDDH.desc()).all()
     customers = KhachHang.query.all()
-    tables = Ban.query.all()
+    tables = Ban.query.order_by(Ban.MaBan.asc()).all()
     events = []
-    
+
     for order in orders:
         if order.ThoiLuong is not None:
             start_time = datetime.combine(order.NgayDat, order.GioDen)
@@ -136,6 +135,8 @@ def manage_booking():
                     }
                 }
                 events.append(event)
+
+    
     resources = []
     for table in tables:
         resources.append({'id': table.MaBan, 'title': table.TenBan, 'loaiBanId': table.idLoaiBan, 'loaiBanName': table.loai_ban.TenLoaiBan})
@@ -162,14 +163,19 @@ def them_don_dat_hang():
 
         start_time = datetime.combine(ngayDat, gioDen)
         end_time = start_time + timedelta(hours=thoiLuong)
-        
+        current_time = datetime.now()
+
+        if start_time < current_time:
+            flash('Không thể đặt bàn cho thời điểm trong quá khứ', 'danger')
+            return redirect(url_for('dondathang.manage_booking'))
+
         for maBan in maBanList:
             if not maBan: 
                 continue
 
             overlapping_orders = DonDatHang.query\
                 .join(CT_DonDatHang)\
-                .filter(CT_DonDatHang.idBan == int(maBan), DonDatHang.NgayDat == ngayDat).all()
+                .filter(CT_DonDatHang.idBan == int(maBan), DonDatHang.NgayDat == ngayDat, DonDatHang.TrangThai != "Đã hủy").all()
 
             for order in overlapping_orders:
                 order_start = datetime.combine(order.NgayDat, order.GioDen)
@@ -229,7 +235,6 @@ def sua_don_dat_hang():
             flash('Không tìm thấy đơn đặt hàng!', 'danger')
             return redirect(url_for('dondathang.manage_booking'))
 
-        # Kiểm tra trạng thái hiện tại
         if don_dat_hang.TrangThai == 'Đã hoàn thành':
             flash('Không thể sửa đơn đã hoàn thành!', 'danger')
             return redirect(url_for('dondathang.manage_booking'))
@@ -238,14 +243,18 @@ def sua_don_dat_hang():
         start_time = datetime.combine(don_dat_hang.NgayDat, gio_moi)
         end_time = start_time + timedelta(hours=thoi_luong)
 
-        # Kiểm tra trùng lịch cho tất cả bàn trong đơn
+        if start_time < datetime.now():
+            flash('Không thể đặt bàn cho thời điểm trong quá khứ', 'danger')
+            return redirect(url_for('dondathang.manage_booking'))
+
         for ct in don_dat_hang.ct_don_dat_hang:
             overlapping_orders = DonDatHang.query\
                 .join(CT_DonDatHang)\
                 .filter(
                     CT_DonDatHang.idBan == ct.idBan,
                     DonDatHang.NgayDat == don_dat_hang.NgayDat,
-                    DonDatHang.MaDDH != ma_ddh  
+                    DonDatHang.MaDDH != ma_ddh,
+                    DonDatHang.TrangThai != "Đã hủy"
                 ).all()
 
             for order in overlapping_orders:
@@ -256,7 +265,6 @@ def sua_don_dat_hang():
                     flash(f'{ct.ban.TenBan} đã được đặt trong khoảng thời gian này', 'danger')
                     return redirect(url_for('dondathang.manage_booking'))
 
-         # Cập nhật thông tin
         don_dat_hang.GioDen = gio_moi
         don_dat_hang.ThoiLuong = thoi_luong
         don_dat_hang.SoLuongNguoi = so_khach
@@ -283,39 +291,34 @@ def cap_nhat_ban():
         ban_cu = request.form.get('banCu')
         ban_moi = request.form.get('banMoi')
         gio_den_moi = datetime.strptime(request.form.get('gioDen'), '%H:%M').time()
-
-        # Lấy đơn đặt hàng
+        
         don_dat_hang = DonDatHang.query.get(ma_ddh)
         if not don_dat_hang:
             flash('Không tìm thấy đơn đặt hàng', 'danger')
             return redirect(url_for('dondathang.manage_booking'))
 
-        # Kiểm tra trạng thái
         if don_dat_hang.TrangThai == 'Đã hoàn thành' or don_dat_hang.TrangThai == 'Đã hủy':
             flash('Không thể chỉnh sửa đơn đã hoàn thành hoặc đã hủy', 'danger')
             return redirect(url_for('dondathang.manage_booking'))
-        # Kiểm tra số lượng bàn trong đơn
         if len(don_dat_hang.ct_don_dat_hang) > 1:
             flash('Không thể di chuyển đơn có nhiều bàn', 'danger')
             return redirect(url_for('dondathang.manage_booking'))
 
 
-        # Kiểm tra xem có phải đổi bàn không
         is_table_change = ban_cu != ban_moi
         target_ban = ban_moi if is_table_change else ban_cu
         action_type = "bàn" if is_table_change else "giờ"
 
-        # Tạo datetime để kiểm tra chồng chéo
         start_time = datetime.combine(don_dat_hang.NgayDat, gio_den_moi)
         end_time = start_time + timedelta(hours=don_dat_hang.ThoiLuong)
 
-        # Kiểm tra trùng lịch
         overlapping_orders = DonDatHang.query\
             .join(CT_DonDatHang)\
             .filter(
                 CT_DonDatHang.idBan == target_ban,
                 DonDatHang.NgayDat == don_dat_hang.NgayDat,
-                DonDatHang.MaDDH != ma_ddh
+                DonDatHang.MaDDH != ma_ddh,
+                DonDatHang.TrangThai != "Đã hủy"
             ).all()
 
         has_overlap = False
@@ -334,9 +337,7 @@ def cap_nhat_ban():
                 flash(f'Khung giờ này đã có đơn đặt khác', 'danger')
             return redirect(url_for('dondathang.manage_booking'))
 
-        # Nếu không có trùng lịch, tiến hành cập nhật
         if is_table_change:
-            # Cập nhật bàn mới
             ct_ddh = CT_DonDatHang.query.filter_by(idDDH=ma_ddh, idBan=ban_cu).first()
             if ct_ddh:
                 ct_ddh.idBan = ban_moi
@@ -344,11 +345,9 @@ def cap_nhat_ban():
                 flash('Không tìm thấy chi tiết đơn đặt hàng', 'danger')
                 return redirect(url_for('dondathang.manage_booking'))
 
-        # Cập nhật giờ đến (cho cả 2 trường hợp)
         don_dat_hang.GioDen = gio_den_moi
         db.session.commit()
 
-        # Thông báo thành công tùy theo loại thay đổi
         if is_table_change:
             flash(f'Đã chuyển bàn và cập nhật giờ đến thành công', 'success')
         else:
@@ -360,3 +359,37 @@ def cap_nhat_ban():
         db.session.rollback()
         flash(f'Có lỗi xảy ra: {str(e)}', 'danger')
         return redirect(url_for('dondathang.manage_booking'))
+
+def xoa_don_dat_hang_cu():
+    from website import db  # Import db
+    from website.models import DonDatHang, HoaDon, CT_DonDatHang
+    from datetime import datetime
+    
+    print("Bắt đầu xóa đơn đặt hàng cũ")
+    try:
+        don_dat_hangs = DonDatHang.query.filter(
+            DonDatHang.NgayDat < datetime.now().date(),
+            DonDatHang.ThanhTien == 0,
+            DonDatHang.TrangThai.in_(['Đã hủy', 'Chưa bắt đầu'])
+        ).all()
+
+        count = 0
+        for don in don_dat_hangs:
+            try:
+                CT_DonDatHang.query.filter_by(idDDH=don.MaDDH).delete()
+                HoaDon.query.filter_by(idDDH=don.MaDDH).delete()
+                
+                db.session.delete(don)
+                db.session.commit()
+                count += 1
+            except Exception as e:
+                print(f"Lỗi khi xóa đơn đặt hàng {don.MaDDH}: {str(e)}")
+                db.session.rollback()
+                continue
+
+        db.session.commit()
+        print(f"Đã xóa thành công {count} đơn đặt hàng cũ")
+    
+    except Exception as e:
+        print(f"Lỗi trong quá trình xóa đơn đặt hàng: {str(e)}")
+        db.session.rollback()

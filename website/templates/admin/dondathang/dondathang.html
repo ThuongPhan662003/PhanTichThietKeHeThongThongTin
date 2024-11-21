@@ -14,19 +14,6 @@
     .fc-timeline-slot-cushion {
         font-weight: bold;
     }
-</style>
-{% endblock %}
-
-{% block content %}
-<style>
-    #selectedTablesContainer .badge {
-        font-size: 10px;
-        padding: 8px 12px;
-    }
-
-    #selectedTablesContainer .badge i:hover {
-        opacity: 0.8;
-    }
 
     .alert {
         transition: opacity 0.15s linear;
@@ -40,7 +27,9 @@
         opacity: 0;
     }
 </style>
+{% endblock %}
 
+{% block content %}
 {% for category, message in get_flashed_messages(with_categories=True) %}
 <div class="alert alert-{{ category }} alert-dismissible fade show auto-dismiss" role="alert">
     <strong>{{ message }}</strong>
@@ -49,7 +38,6 @@
 {% endfor %}
 
 <script src="{{url_for('static', filename='js/dismissAlert.js')}}"></script>
-
 
 <div class="card">
     <div class="card-header">
@@ -125,8 +113,17 @@
             slotMinTime: '08:00:00',
             slotMaxTime: '23:00:00',
             locale: 'vi',
-            selectOverlap: false,  // Không cho phép chọn chỗ đã có event
-            eventOverlap: false,   // Không cho phép events chồng lên nhau
+            editable: true,
+            eventStartEditable: true,
+            eventDurationEditable: true,
+
+            eventAllow: function (dropInfo, draggedEvent) {
+                return dropInfo.start >= new Date();
+            },
+
+            // selectOverlap: false,  // Không cho phép chọn chỗ đã có event
+            // eventOverlap: false,   // Không cho phép events chồng lên nhau
+            nowIndicator: true,
             resourceAreaWidth: '180px',
             resourceGroupField: 'loaiBanName',
             resourceAreaColumns: [
@@ -152,6 +149,11 @@
             },
 
             select: function (info) {
+                if (info.start < new Date()) {
+                    calendar.unselect();
+                    alert('Không thể đặt bàn cho thời điểm trong quá khứ');
+                    return;
+                }
                 selectedTables = [];
                 selectedTables.push({
                     id: info.resource.id,
@@ -416,15 +418,15 @@
         // Cập nhật hiển thị bàn
         function updateTables() {
             const html = selectedTables.map(table => `
-            <span class="badge bg-primary me-2 mb-2">
-                ${table.name}
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" 
-                     class="bi bi-x ms-1" viewBox="0 0 16 16" 
-                     style="cursor: pointer" onclick="removeTable('${table.id}')">
-                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
-                </svg>
-            </span>
-        `).join('');
+                <span class="badge bg-primary me-2 mb-2">
+                    ${table.name}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" 
+                        class="bi bi-x ms-1" viewBox="0 0 16 16" 
+                        style="cursor: pointer" onclick="removeTable('${table.id}')">
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                    </svg>
+                </span>
+            `).join('');
 
             document.getElementById('selectedTablesContainer').innerHTML = html;
             document.getElementById('maBan').value = selectedTables.map(t => t.id).join(',');
