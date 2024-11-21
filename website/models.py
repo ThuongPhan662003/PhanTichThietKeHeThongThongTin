@@ -81,30 +81,11 @@ class KhachHang(db.Model):
     idNguoiDung = db.Column(
         db.Integer,
         db.ForeignKey("NguoiDung.MaND"),
-        nullable=False,
         unique=True,
     )
     LoaiKH = db.Column(db.String(10), nullable=False)
     nguoi_dung = db.relationship("NguoiDung", back_populates="khach_hang")
     hoa_don = db.relationship("HoaDon", backref="khach_hang")
-
-    @db.validates("DiemTieuDung")
-    def validate_diem_tieu_dung(self, key, value):
-        if value < 0:
-            raise ValueError("Điểm tiêu dùng không được nhỏ hơn 0.")
-        return value
-
-    @db.validates("DiemTichLuy")
-    def validate_diem_tich_luy(self, key, value):
-        if value < 0:
-            raise ValueError("Điểm tích lũy không được nhỏ hơn 0.")
-        return value
-
-    @db.validates("SDT")
-    def validate_sdt(self, key, value):
-        if not value.isdigit():
-            raise ValueError("SDT chỉ được phép chứa số.")
-        return value
 
 
 class HoaDon(db.Model):
@@ -160,23 +141,12 @@ class NhanVien(db.Model):
     CCCD = db.Column(db.String(12), nullable=False, unique=True)
     Email = db.Column(db.String(100), nullable=False, unique=True)
     SDT = db.Column(db.String(10), nullable=False, unique=True)
-    idNguoiDung = db.Column(db.Integer, db.ForeignKey("NguoiDung.MaND"), nullable=False)
-    TinhTrang = db.Column(db.Boolean, nullable=False, default=False)
+    idNguoiDung = db.Column(db.Integer, db.ForeignKey("NguoiDung.MaND"))
+    TinhTrang = db.Column(db.Integer, nullable=False)
     NgayVaoLam = db.Column(db.Date, nullable=False)
     hoa_don = db.relationship("HoaDon", backref="nhan_vien")
     nguoi_dung = db.relationship("NguoiDung", back_populates="nhan_vien")
 
-    @db.validates("CCCD")
-    def validate_cccd(self, key, value):
-        if not value.isdigit() or len(value) != 12:
-            raise ValueError("CCCD phải là một chuỗi số 12 chữ số!")
-        return value
-
-    @db.validates("SDT")
-    def validate_sdt(self, key, value):
-        if not value.isdigit() or len(value) != 10:
-            raise ValueError("SDT phải là một chuỗi số 10 chữ số!")
-        return value
 
 
 class DonDatHang(db.Model):
