@@ -2,5 +2,6 @@
 website/__pycache__
 json/config.json
 */**/__pycache__
+logs
 
 
