@@ -1,0 +1,353 @@
+{% extends "admin/base.html" %}
+{% block title %}
+Thông tin nhân viên
+{% endblock %}
+
+{% block content%}
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=True) %}
+{% if messages %}
+{% for category, message in messages %}
+{% if category == 'success' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% elif category == 'error' %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<h1>Thông tin nhân viên</h1>
+<div class="container">
+    <div class="container d-flex flex-column container-center">
+        <div class="container d-flex justify-content-end mt-3">
+            <div class="me-2">
+                <button type="button" id="editBtn" class="btn btn-outline-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-pencil" viewBox="0 0 16 16">
+                        <path
+                            d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                    </svg>
+                    Sửa thông tin</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                    data-bs-target="#modalDelete">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-file-earmark-minus" viewBox="0 0 16 16">
+                        <path d="M5.5 9a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5" />
+                        <path
+                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
+                    </svg>
+                    Ẩn nhân viên</button>
+
+                <!-- Modal ẩn nhân viên -->
+                <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Xác nhận nhân viên đã nghỉ làm ?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary"
+                                    data-bs-dismiss="modal">No</button>
+                                <form action="{{ url_for('nhanvien.an_nhanvien', manv=nv.MaNV) }}" method="POST">
+                                    <button type="submit" class="btn btn-outline-primary">Yes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="container-body d-flex flex-row">
+            <div class="left-box">
+                <img src="https://avatar.iran.liara.run/public" alt="Image" class="left-image" />
+            </div>
+            <div class="right-box" id="formThongTin" data-error="{{ 'true' if form_error else 'false' }}">
+                <form class="row g-3 needs-validation" action="{{ url_for('nhanvien.nhanvien_info', manv=nv.MaNV) }}"
+                    method="POST">
+                    <div class="col-6">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <label for="hoten" class="form-label">Mã nhân viên</label>
+                            <input type="text" id="fullname" class="form-control"
+                                aria-describedby="inputGroup-sizing-default" value="{{ nv.MaNV }}" readonly>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-8 mb-3">
+                                <label for="honv">{{ form.HoNV.label }}</label>
+                                {{ form.HoNV(class="form-control editable-field mt-2", readonly=True, required=True) }}
+                                {% if form.HoNV.errors %}
+                                <span class="form-error">{{ form.HoNV.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-4 mb-3">
+                                <label for="tennv">{{ form.TenNV.label }}</label>
+                                {{ form.TenNV(class="form-control editable-field mt-2", readonly=True, required=True) }}
+                                {% if form.TenNV.errors %}
+                                <span class="form-error">{{ form.TenNV.errors[0]}}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="cccd">{{ form.CCCD.label }}</label>
+                            {{ form.CCCD(class="form-control editable-field mt-2", readonly=True, required=True) }}
+                            {% if form.CCCD.errors %}
+                            <span class="form-error">{{ form.CCCD.errors[0] }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            {{ form.Email(class="form-control editable-field", placeholder="Nhập Email",
+                            readonly=True, required=True) }}
+                            {% if form.Email.errors %}
+                            <span class="form-error">{{ form.Email.errors[0] }}</span>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <label for="cccd">{{ form.SDT.label }}</label>
+                            {{ form.SDT(class="form-control editable-field mt-2", placeholder="Nhập SDT", readonly=True,
+                            required=True) }}
+                            {% if form.SDT.errors %}
+                            <span class="form-error">{{ form.SDT.errors[0] }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label for="ngaysinh">{{ form.NgaySinh.label }}</label>
+                                {{ form.NgaySinh(class="form-control editable-field mt-2") }}
+                                {% if form.NgaySinh.errors %}
+                                <span class="form-error">{{ form.NgaySinh.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+                            <div class=" col-6 mb-3">
+                                <label for="ngayvaolam">{{ form.NgayVaoLam.label }}</label>
+                                {{ form.NgayVaoLam(class="form-control editable-field mt-2") }}
+                                {% if form.NgayVaoLam.errors %}
+                                <span class="form-error">{{ form.NgayVaoLam.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" id="fullname" class="form-control" aria-label="Họ tên"
+                                aria-describedby="inputGroup-sizing-default" value="{{ nv.nguoi_dung.UserName }}"
+                                readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cccd">{{ form.TinhTrang.label }}</label>
+                            <div class="d-flex d-column gap-5 mt-2">
+                                <input type="text" class="form-control"
+                                    value="{{ 'Đã nghỉ' if nv.TinhTrang == 1 else 'Đang làm' }}" readonly>
+                            </div>
+                            {% if form.TinhTrang.errors %}
+                            <span class="form-error">{{ form.TinhTrang.errors[0] }}</span>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    <div class="col-12" style="text-align: right;">
+                        {{ form.submit(class="btn btn-success", style="display: none;") }}
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <div class="container-footer">
+            <div id="formGroup">
+                <p class="d-inline-flex gap-1 mb-3">
+                    <button class="btn btn-outline-primary" type="button">
+                        Xem DS hóa đơn
+                    </button>
+                    <button class="btn btn-outline-primary" type="button">
+                        Xem DS Phiếu Nhập
+                    </button>
+                    <button class="btn btn-outline-primary" type="button">
+                        Xem DS Phiếu Xuất
+                    </button>
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- show collapse -->
+    <div class="col mt-4">
+        <!-- Collapsible Form 1 -->
+        <div class="collapse" id="DSHoaDon">
+            <div class="card card-body">
+                <form id="myForm" action="your-server-endpoint" method="POST">
+                    <div class="row">
+                        <!-- Column 1 -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Họ tên</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Số điện thoại</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                        </div>
+
+                        <!-- Column 2 -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Địa chỉ</label>
+                                <input type="text" class="form-control" id="address" name="address" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">Thành phố</label>
+                                <input type="text" class="form-control" id="city" name="city" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="zip" class="form-label">Mã bưu điện</label>
+                                <input type="text" class="form-control" id="zip" name="zip" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success">OK</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col mt-4">
+        <!-- Collapsible Search Form -->
+        <div class="collapse" id="DSPhieuNhap">
+            <div class="card card-body">
+                <form id="searchForm" action="your-search-endpoint" method="GET">
+                    <div class="row">
+                        <!-- Column 1 -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="searchName" class="form-label">Tên</label>
+                                <input type="text" class="form-control" id="searchName" name="searchName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="searchEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="searchEmail" name="searchEmail">
+                            </div>
+                        </div>
+
+                        <!-- Column 2 -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="searchCity" class="form-label">Thành phố</label>
+                                <input type="text" class="form-control" id="searchCity" name="searchCity">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success">OK</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col mt-4">
+        <!-- Collapsible Search Form -->
+        <div class="collapse" id="DSPhieuXuat">
+            <div class="card card-body">
+                <form id="searchForm" action="your-search-endpoint" method="GET">
+                    <div class="row">
+                        <!-- Column 1 -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="searchName" class="form-label">Tên</label>
+                                <input type="text" class="form-control" id="searchName" name="searchName">
+                            </div>
+                            <div class="mb-3">
+                                <label for="searchEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="searchEmail" name="searchEmail">
+                            </div>
+                        </div>
+
+                        <!-- Column 2 -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="searchCity" class="form-label">Thành phố</label>
+                                <input type="text" class="form-control" id="searchCity" name="searchCity">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success">OK</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', function () {
+        // Kiểm tra nếu có lỗi và mở collapse tương ứng
+        var collapse1 = document.getElementById('formThongTin');
+        // Kiểm tra dữ liệu lỗi trong thuộc tính data-error
+        if (collapse1.getAttribute('data-error') === 'true') {
+            // alert("Sai rồi")
+            document.getElementById('editBtn').click();
+        }
+    });
+</script>
+
+<script>
+    // Khởi tạo Flatpickr trên input ngày sinh với định dạng dd/mm/yyyy
+    flatpickr("#ngaysinh", {
+        dateFormat: "d/m/Y",
+        clickOpens: false
+    });
+    flatpickr("#ngayvaolam", {
+        dateFormat: "d/m/Y",
+        maxDate: "today",
+        clickOpens: false
+    });
+</script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nhanvien_info.css') }}">
+<!-- <script src="{{ url_for('static', filename='js/novalidate.js') }}"></script> -->
+<script src="{{ url_for('static', filename='js/btnEdit.js') }}"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
+
+
+
+{% endblock %}
