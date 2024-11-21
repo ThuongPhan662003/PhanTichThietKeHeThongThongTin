@@ -76,26 +76,22 @@
 </form>
 
 <script>
-    // JavaScript để gán lại giá trị vào các ô input khi bấm nút "Áp dụng"
     document.getElementById('applyButton').addEventListener('click', function (event) {
-        // Lấy giá trị từ các input
         let priceMin = document.getElementById('price_min').value;
         let priceMax = document.getElementById('price_max').value;
 
-        // Kiểm tra nếu các giá trị là 'None' hoặc rỗng, xóa chúng
         if (priceMin === 'None' || priceMin === '') {
-            document.getElementById('price_min').value = '';  // Không gán gì nếu rỗng
+            document.getElementById('price_min').value = '';
         }
         else {
             document.getElementById('price_min').value = priceMin;
 
         }
         if (priceMax === 'None' || priceMax === '') {
-            document.getElementById('price_max').value = '';  // Không gán gì nếu rỗng
+            document.getElementById('price_max').value = '';
         }
         else {
             document.getElementById('price_max').value = priceMax;
         }
-
     });
 </script>

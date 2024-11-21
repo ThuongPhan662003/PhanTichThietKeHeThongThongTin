@@ -1,0 +1,119 @@
+<form method="GET" action="{{ url_for('dondathang.ds_dondathang') }}">
+    <!-- Lọc theo trạng thái -->
+    <p class='text-muted fw-bold mb-2'>Theo trạng thái</p>
+    <div class="mb-3">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="status" value="Chưa bắt đầu" id="statusNew" {%
+                if 'Chưa bắt đầu' in selected_status %}checked{% endif %}>
+            <label class="form-check-label" for="statusNew">Chưa bắt đầu</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="status" value="Đang chế biến" id="statusInProgress" {%
+                if 'Đang chế biến' in selected_status %}checked{% endif %}>
+            <label class="form-check-label" for="statusInProgress">Đang chế biến</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="status" value="Đã hoàn thành" id="statusCompleted" {%
+                if 'Đã hoàn thành' in selected_status %}checked{% endif %}>
+            <label class="form-check-label" for="statusCompleted">Đã hoàn thành</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="status" value="Đã hủy" id="statusCanceled" {%
+                if 'Đã hủy' in selected_status %}checked{% endif %}>
+            <label class="form-check-label" for="statusCanceled">Đã hủy</label>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Thêm lọc theo loại -->
+    <p class='text-muted fw-bold mb-2'>Theo loại</p>
+    <div class="mb-3">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="type" value="1" id="typeIn" {% if '1' in
+                selected_types %}checked{% endif %}>
+            <label class="form-check-label" for="typeIn">Tại quán</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="type" value="0" id="typeOut" {% if '0' in
+                selected_types %}checked{% endif %}>
+            <label class="form-check-label" for="typeOut">Mang về</label>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Lọc theo thời gian -->
+    <p class='text-muted fw-bold mb-2'>Theo thời gian</p>
+    <div class="mb-3">
+        <!-- Lọc theo năm -->
+        <div class="mb-2">
+            <label class="form-label">Năm</label>
+            <select class="form-select form-select-sm" name="year" id="yearFilter">
+                <option value="">-- Chọn năm --</option>
+                {% set current_year = now.year %}
+                {% for year in range(2020, current_year + 1) %}
+                <option value="{{ year }}" {% if selected_year==year %}selected{% endif %}>
+                    {{ year }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Lọc theo tháng -->
+        <div class=" mb-2">
+            <label class="form-label">Tháng</label>
+            <select class="form-select form-select-sm" name="month" id="monthFilter">
+                <option value="">-- Chọn tháng --</option>
+                {% for month in range(1, 13) %}
+                <option value="{{ month }}" {% if selected_month==month %}selected{% endif %}>
+                    Tháng {{ month }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Lọc theo thành tiền -->
+    <p class="text-muted fw-bold mb-2">Theo thành tiền</p>
+    <div class="mb-3">
+        <div class="input-group input-group-sm mb-2">
+            <span class="input-group-text">Từ</span>
+            <input type="text" class="form-control money-input" id="price_min" name="price_min" placeholder="VND"
+                value="{{ price_min }}">
+        </div>
+        <div class="input-group input-group-sm">
+            <span class="input-group-text">Đến</span>
+            <input type="text" class="form-control money-input" id="price_max" name="price_max" placeholder="VND"
+                value="{{ price_max }}">
+        </div>
+    </div>
+
+    <!-- Nút điều khiển -->
+    <div class="mt-4">
+        <button type="submit" class="btn btn-outline-primary">Áp dụng</button>
+        {% if not show_all %}
+        <button type="submit" name="show_all" value="1" class="btn btn-success ms-2">Hiện tất cả</button>
+        {% else %}
+        <a href="{{ url_for('dondathang.ds_dondathang') }}" class="btn btn-outline-secondary ms-2">Chỉ hiện hôm nay</a>
+        {% endif %}
+    </div>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Format input tiền tệ
+        const moneyInputs = document.querySelectorAll('.money-input');
+        moneyInputs.forEach(input => {
+            input.addEventListener('input', function (e) {
+                let value = this.value.replace(/\D/g, '');
+                if (value) {
+                    value = parseInt(value).toLocaleString('vi-VN');
+                }
+                this.value = value;
+            });
+        });
+    });
+</script>
