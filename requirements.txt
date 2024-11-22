@@ -10,3 +10,4 @@ xlsxwriter
 fullcalendar-scheduler
 Flask-APScheduler
 unidecode
+email-validator
