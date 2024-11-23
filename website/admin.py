@@ -57,13 +57,13 @@ def admin_home():
     return render_template("admin/admin-home.html")
 
 
-@admin.route("/logout")
-@login_required
-def logout():
-    session.pop("email", None)  # Xóa email khỏi session
-    session.pop("name", None)  # Xóa tên khỏi session
-    logout_user()
-    return redirect(url_for("admin.login"))
+# @admin.route("/logout")
+# @login_required
+# def logout():
+#     session.pop("email", None)  # Xóa email khỏi session
+#     session.pop("name", None)  # Xóa tên khỏi session
+#     logout_user()
+#     return redirect(url_for("admin.login"))
 
 
 @admin.route("/sign-up", methods=["GET", "POST"])

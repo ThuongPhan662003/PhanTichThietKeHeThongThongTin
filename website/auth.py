@@ -1,10 +1,12 @@
 import datetime
+from functools import wraps
 import re
 import secrets
 import string
 from .models import KhachHang, NguoiDung, NhomNguoiDung
 from flask import (
     Blueprint,
+    abort,
     render_template,
     request,
     flash,
@@ -44,26 +46,84 @@ def init_oauth(app):
     )
 
 
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            return redirect(url_for("admin.login"))
+        return f(*args, **kwargs)
+
+    return decorated_function
+def role_required(required_roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for("auth.login"))  # Trang đăng nhập
+
+            if isinstance(required_roles, list):
+                # Kiểm tra nếu người dùng có ít nhất một vai trò yêu cầu
+                if not any(current_user.has_role(role) for role in required_roles):
+                    abort(403)  # Truy cập bị cấm
+            else:
+                # Kiểm tra một vai trò duy nhất
+                if not current_user.has_role(required_roles):
+                    abort(403)
+
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
 @auth.route("/login", methods=["GET", "POST"])
 def login():
-    print("MatKhau")
     if request.method == "POST":
-        print("cn")
+
         UserName = request.form.get("UserName")
         MatKhau = request.form.get("MatKhau")
         print(UserName)
-        # Retrieve the user from the database
         user = NguoiDung.query.filter_by(UserName=UserName).first()
 
-        # phải check hashpass
+        tenNND = (
+            NhomNguoiDung.query.filter_by(MaNND=user.idNND)
+            .first()
+            .getTenNhomNguoiDung()
+        )
         if user and user.MatKhau == MatKhau:
-            login_user(user, remember=True)  
-            flash("Login successful!", category="success")
-            return redirect(url_for("views.homepage"))
+            if tenNND != 'Khách hàng':
+                login_user(user, remember=True)
+                flash("Login successful!", category="success")
+                return redirect(url_for("admin.admin_home"))
+            else:
+                login_user(user, remember=True)
+                flash("Login successful!", category="success")
+                return redirect(url_for("views.homepage"))
         else:
             flash("Invalid username or password.", category="error")
 
     return render_template("auth/login.html", user=current_user)
+
+
+# @auth.route("/login", methods=["GET", "POST"])
+# def login():
+#     print("MatKhau")
+#     if request.method == "POST":
+#         print("cn")
+#         UserName = request.form.get("UserName")
+#         MatKhau = request.form.get("MatKhau")
+#         print(UserName)
+#         # Retrieve the user from the database
+#         user = NguoiDung.query.filter_by(UserName=UserName).first()
+
+#         # phải check hashpass
+#         if user and user.MatKhau == MatKhau:
+#             login_user(user, remember=True)
+#             flash("Login successful!", category="success")
+#             return redirect(url_for("views.homepage"))
+#         else:
+#             flash("Invalid username or password.", category="error")
+
+#     return render_template("auth/login.html", user=current_user)
 
 
 @auth.route("/google_login")
@@ -100,16 +160,18 @@ def authorize():
 
 @auth.route("/protected_area")
 def protected_area():
-    return f"Hello {session.get('name')}! <br/> <a href='{url_for('auth.logout')}'><button>Logout</button></a>"
+    # next_page = session.pop("next", url_for("views.homepage"))
+    # print("nexxt", next_page, url_for("views.homepage"))
+    return redirect(url_for("views.homepage"))
 
 
 @auth.route("/logout")
-@login_required
+@role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân","Khách hàng"])
 def logout():
     session.pop("email", None)  # Xóa email khỏi session
     session.pop("name", None)  # Xóa tên khỏi session
     logout_user()
-    return redirect(url_for("views.homepage"))
+    return redirect(url_for("auth.login"))
 
 
 @auth.route("/sign-up", methods=["GET", "POST"])

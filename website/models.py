@@ -1,3 +1,4 @@
+from datetime import time
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
@@ -176,6 +177,8 @@ class NhanVien(db.Model):
         if not value.isdigit() or len(value) != 10:
             raise ValueError("SDT phải là một chuỗi số 10 chữ số!")
         return value
+    def getHoTenNV(self):
+        return self.HoNV + " "+ self.TenNV
 
 
 class DonDatHang(db.Model):
@@ -183,20 +186,103 @@ class DonDatHang(db.Model):
 
     MaDDH = db.Column(db.Integer, primary_key=True, autoincrement=True)
     NgayDat = db.Column(db.Date, nullable=False)
+    HoTenNguoiDat =db.Column(db.String, nullable=False)
+    Email = db.Column(db.String, nullable=False)
+    SDT = db.Column(db.String, nullable=False)
     TrangThai = db.Column(db.String(20), nullable=False)
-    Loai = db.Column(db.Boolean, nullable=False)
+    Loai = db.Column(db.Integer, nullable=False, default=1)
     GioDen = db.Column(db.Time, nullable=False)
     ThoiLuong = db.Column(db.Integer)
     idNV = db.Column(db.Integer, db.ForeignKey("NhanVien.MaNV"), nullable=False)
     ThanhTien = db.Column(db.Numeric(15, 2), nullable=False, default=0.00)
     ct_don_dat_hang = db.relationship("CT_DonDatHang", backref="don_dat_hang")
     hoa_don = db.relationship("HoaDon", backref="don_dat_hang")
+    def __init__(
+        self,
+        NgayDat,
+        TrangThai,
+        Loai,
+        GioDen,
+        ThoiLuong=None,
+        idNV=None,
+        ThanhTien=None,
+    ):
+        # Initialize the fields of the class
+        self.NgayDat = NgayDat
+        self.TrangThai = TrangThai
+        self.Loai = Loai
+        self.GioDen = GioDen
+        self.ThoiLuong = (
+            ThoiLuong if ThoiLuong is not None else 0
+        )  # Default to 0 if not provided
+        self.idNV = idNV
+        self.ThanhTien = ThanhTien  # Default to 0.00 if not provided
+
+    @db.validates("NgayDat")
+    def validate_ngay_dat(self, key, value):
+        if not value or not isinstance(value, date):
+            raise ValueError(
+                "Ngày đặt không được bỏ trống và phải là kiểu ngày hợp lệ!"
+            )
+        if value > datetime.now().date():
+            raise ValueError("Ngày đặt không được là ngày trong tương lai!")
+        return value
+
+    @db.validates("HoTenNguoiDat")
+    def validate_ho_ten_nguoi_dat(self, key, value):
+        if not value or not value.strip():
+            raise ValueError("Họ tên người đặt không được bỏ trống!")
+        if len(value) > 255:
+            raise ValueError("Họ tên người đặt không được vượt quá 255 ký tự!")
+        return value
+
+    @db.validates("Email")
+    def validate_email(self, key, value):
+        if not value or not value.strip():
+            raise ValueError("Email không được bỏ trống!")
+        if "@" not in value or "." not in value:
+            raise ValueError("Email không hợp lệ!")
+        return value
+
+    @db.validates("SDT")
+    def validate_sdt(self, key, value):
+        if not value or not value.strip():
+            raise ValueError("Số điện thoại không được bỏ trống!")
+        if not value.isdigit() or len(value) < 10 or len(value) > 15:
+            raise ValueError(
+                "Số điện thoại phải là chuỗi số và có độ dài từ 10 đến 15 ký tự!"
+            )
+        return value
 
     @db.validates("TrangThai")
     def validate_trang_thai(self, key, value):
         valid_trang_thai = ["Đã hủy", "Đang chế biến", "Đã hoàn thành", "Chưa bắt đầu"]
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
+        return value
+
+    # @db.validates("Loai")
+    # def validate_loai(self, key, value):
+    #     if value not in [1, 2]:  # Giả sử Loại chỉ có thể là 1 hoặc 2
+    #         raise ValueError("Loại không hợp lệ! Phải là 1 hoặc 2.")
+    #     return value
+
+    @db.validates("GioDen")
+    def validate_gio_den(self, key, value):
+        if not value or not isinstance(value, time):
+            raise ValueError("Giờ đến không được bỏ trống và phải là kiểu giờ hợp lệ!")
+        return value
+
+    @db.validates("ThoiLuong")
+    def validate_thoi_luong(self, key, value):
+        if value is not None and (value < 0 or not isinstance(value, int)):
+            raise ValueError("Thời lượng phải là số nguyên không âm!")
+        return value
+
+    @db.validates("ThanhTien")
+    def validate_thanh_tien(self, key, value):
+        if value is not None and (value < 0 or not isinstance(value, (int, float))):
+            raise ValueError("Thành tiền phải là một số không âm!")
         return value
 
 
@@ -274,6 +360,8 @@ class NhomNguoiDung(db.Model):
     nguoi_dung = db.relationship("NguoiDung", backref="nhom_nguoi_dung", lazy=True)
     def getMaNND(self):
         return self.MaNND
+    def getTenNhomNguoiDung(self):
+        return self.TenNhomNguoiDung
 
 
 class NguoiDung(db.Model, UserMixin):
@@ -289,14 +377,22 @@ class NguoiDung(db.Model, UserMixin):
         "KhachHang", back_populates="nguoi_dung", uselist=False
     )
 
-    def get_id(self):
-        return self.MaND
-
     nhan_vien = db.relationship("NhanVien", back_populates="nguoi_dung", uselist=False)
-    
+
     # nhan_vien = db.relationship(
     #     "NhanVien", back_populates="nguoi_dung", uselist=False
     # )
+    @property
+    def is_authenticated(self):
+        return True
+    def get_id(self):
+        return self.MaND
+
+    def has_role(self, role):
+        ten_nhom_nguoi_dung = NhomNguoiDung.query.filter(
+            NhomNguoiDung.MaNND==self.idNND
+        ).first().getTenNhomNguoiDung()
+        return ten_nhom_nguoi_dung == role
 
 
 class PHANQUYEN(db.Model):
