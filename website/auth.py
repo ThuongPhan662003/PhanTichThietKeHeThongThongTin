@@ -46,19 +46,12 @@ def init_oauth(app):
     )
 
 
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            return redirect(url_for("admin.login"))
-        return f(*args, **kwargs)
-
-    return decorated_function
 def role_required(required_roles):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if not current_user.is_authenticated:
+            print("session",session["MaND"])
+            if not session["MaND"]:
                 return redirect(url_for("auth.login"))  # Trang đăng nhập
 
             if isinstance(required_roles, list):
@@ -92,6 +85,7 @@ def login():
         if user and user.MatKhau == MatKhau:
             if tenNND != 'Khách hàng':
                 login_user(user, remember=True)
+                session["MaND"] = user.get_id()
                 flash("Login successful!", category="success")
                 return redirect(url_for("admin.admin_home"))
             else:
@@ -149,11 +143,7 @@ def authorize():
     resp = google.get(
         "https://www.googleapis.com/oauth2/v3/userinfo"
     )  # Gọi endpoint userinfo để lấy thông tin người dùng
-    user_info = resp.json()  # Chuyển đổi thông tin người dùng sang định dạng JSON
-
-    # Lưu thông tin vào session
-    session["email"] = user_info.get("email")  # Lưu email của người dùng vào session
-    session["name"] = user_info.get("given_name")  # Lưu tên của người dùng vào session
+    user_info = resp.json() 
 
     return redirect(url_for("auth.protected_area"))
 

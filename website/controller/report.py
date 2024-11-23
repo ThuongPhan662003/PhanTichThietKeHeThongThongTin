@@ -16,7 +16,6 @@ from prompt_toolkit import HTML
 from website import db
 from sqlalchemy import func, cast, Date, text
 from datetime import datetime
-from website.auth import admin_required
 from website.models import *
 from website.models import NguoiDung, NhomNguoiDung
 from flask import Response, render_template, request
@@ -44,7 +43,6 @@ def convert_date_format(date_str):
 
 
 @report.route("/", methods=["GET"])
-@admin_required
 def report_list():
     """
     Hiển thị danh sách các báo cáo

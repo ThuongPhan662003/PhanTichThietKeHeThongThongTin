@@ -1,4 +1,5 @@
-from datetime import time
+from datetime import date, time
+import datetime
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
@@ -78,6 +79,7 @@ class KhachHang(db.Model):
     NgayMoThe = db.Column(db.Date, nullable=False)
     DiemTieuDung = db.Column(db.Integer, nullable=False)
     DiemTichLuy = db.Column(db.Integer, nullable=False)
+    GioiTinh = db.Column(db.Integer,nullable=False)
     idNguoiDung = db.Column(
         db.Integer,
         db.ForeignKey("NguoiDung.MaND"),
