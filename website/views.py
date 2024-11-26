@@ -176,25 +176,25 @@ def get_phieunhap():
 #     result = [{'idNhap': ct.idNhap, 'idNL': ct.idNL, 'SoLuong': ct.SoLuong, 'ThanhTien': ct.ThanhTien} for ct in ct_phieunhap]
 #     return jsonify(result)
 
-# # Route để xem dữ liệu bảng LOAIVOUCHER
-# @views.route('/loaivoucher', methods=['GET'])
-# #@login_required
-# def get_loaivoucher():
-#     loaivoucher = LOAIVOUCHER.query.all()
-#     result = [{
-#         'MaLoaiVoucher': lv.MaLoaiVoucher,
-#         'TenLoaiVoucher': lv.TenLoaiVoucher,
-#         'PhanTram': lv.PhanTram,
-#         'MoTa': lv.MoTa,
-#         'SoLuong': lv.SoLuong,
-#         'SoLuongConLai': lv.SoLuongConLai,
-#         'LoaiKH': lv.LoaiKH,
-#         'NgayBatDau': lv.NgayBatDau,
-#         'NgayKetThuc': lv.NgayKetThuc,
-#         'GiamToiDa': lv.GiamToiDa,
-#         'An': lv.An
-#     } for lv in loaivoucher]
-#     return jsonify(result)
+# Route để xem dữ liệu bảng LOAIVOUCHER
+@views.route('/loaivoucher', methods=['GET'])
+#@login_required
+def get_loaivoucher():
+    loaivoucher = LOAIVOUCHER.query.all()
+    result = [{
+        'MaLoaiVoucher': lv.MaLoaiVoucher,
+        'TenLoaiVoucher': lv.TenLoaiVoucher,
+        'PhanTram': lv.PhanTram,
+        'MoTa': lv.MoTa,
+        'SoLuong': lv.SoLuong,
+        'SoLuongConLai': lv.SoLuongConLai,
+        'LoaiKH': lv.LoaiKH,
+        'NgayBatDau': lv.NgayBatDau,
+        'NgayKetThuc': lv.NgayKetThuc,
+        'GiamToiDa': lv.GiamToiDa,
+        'An': lv.An
+    } for lv in loaivoucher]
+    return jsonify(result)
 
 # # Route để xem dữ liệu bảng VOUCHER
 @views.route('/voucher', methods=['GET'])

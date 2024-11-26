@@ -1,0 +1,151 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Quản lý loại voucher
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12">
+    <h1 class="mb-4">Danh sách Bàn</h1>
+    <div class="row align-items-center mb-4">
+        <!-- Form tìm kiếm và nút thêm bàn cùng một hàng -->
+        <div class="col-md-6">
+            <!-- Form tìm kiếm -->
+            <!-- Form tìm kiếm món ăn -->
+            <form method="GET" class="mb-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="ten_mon_an" value="{{ ten_mon_an }}"
+                        placeholder="Tìm món ăn...">
+                    <button class="btn btn-primary" type="submit">Tìm</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Nút mở Modal Thêm Bàn -->
+        <div class="col-md-6 text-end">
+            <!-- Nút mở modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalThemLoaiVoucher">
+                Thêm Loại Voucher
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Loại Voucher -->
+
+
+    <!-- Modal Sửa Loại Voucher -->
+    <!-- Bảng danh sách món ăn -->
+    <table id="customers" class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tên Món Ăn</th>
+                <th>Đơn Giá</th>
+                <th>Loại</th>
+                <th>Trạng Thái</th>
+                <th>Hình Ảnh</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mon_an in mon_ans %}
+            <tr>
+                <td>{{ mon_an.TenMonAn }}</td>
+                <td>{{ mon_an.DonGia }}</td>
+                <td>{{ mon_an.Loai }}</td>
+                <td>{{ mon_an.TrangThai }}</td>
+                <td>
+                    {% if mon_an.HinhAnh %}
+                    <img src="{{ url_for('static', filename='images/monan/' + mon_an.HinhAnh + '.jpg') }}" alt="{{ mon_an.TenMonAn }}" width="100">
+                {% else %}
+                    Chưa có hình
+                {% endif %}
+                
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Hiển thị phân trang -->
+    <div class="pagination">
+        {{ pagination.links }}
+    </div>
+</div>
+
+
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    #customers td,
+    #customers th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    #customers tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    #customers tr:hover {
+        background-color: #ddd;
+    }
+
+    #customers th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #04AA6D;
+        color: white;
+
+    }
+    img {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  width: 150px;
+  height: 100px;
+}
+
+img:hover {
+  box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+}
+</style>
+</div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="alert alert-{{ messages[0][0] }}" id="flashMessage">
+    {{ messages[0][1] }}
+</div>
+<script>
+    // Hiển thị thông báo
+    var flashMessage = document.getElementById('flashMessage');
+    flashMessage.style.display = 'block';
+
+    // Ẩn thông báo sau 2 giây
+    setTimeout(function () {
+        flashMessage.style.opacity = '1';  // Đảm bảo nó hiển thị đầy đủ trước khi bắt đầu ẩn
+        flashMessage.style.transition = 'opacity 0.5s';
+        flashMessage.style.opacity = '0';  // Làm mờ dần
+
+        setTimeout(function () {
+            flashMessage.style.display = 'none';  // Ẩn hoàn toàn
+        }, 500); // Đợi thêm 0.5 giây sau khi làm mờ
+    }, 4000); // 2 giây
+</script>
+{% endif %}
+{% endwith %}
+
+</div>
+
+</script>
+<link rel="stylesheet" href="{{url_for('static', filename='css/style_message.css')}}">
+<!-- Thêm Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Thêm Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}

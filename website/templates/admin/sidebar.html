@@ -80,15 +80,15 @@
             </a>
             <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">Loại bàn</a>
+                    <a href="{{ url_for('loaiban.danh_sach_loai_ban') }}" class="sidebar-link">Loại bàn</a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">Bàn</a>
+                    <a href="{{ url_for('ban.danh_sach_ban') }}" class="sidebar-link">Bàn</a>
                 </li>
             </ul>
         </li>
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
+            <a href="{{url_for('monan.danh_sach_mon_an')}}" class="sidebar-link">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg"
                     transform="rotate(0 0 0)">
                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -188,10 +188,10 @@
             </a>
             <ul id="auth2" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">Loại voucher</a>
+                    <a href="{{ url_for('loaivoucher.danh_sach_loaivoucher') }}" class="sidebar-link">Loại voucher</a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">Chi tiết voucher</a>
+                    <a href="{{ url_for('voucher.danh_sach_vouchers') }}" class="sidebar-link">Chi tiết voucher</a>
                 </li>
             </ul>
         </li>

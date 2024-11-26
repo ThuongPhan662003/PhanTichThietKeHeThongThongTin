@@ -72,12 +72,14 @@ def create_app():
     from .controller.phieunhap import phieunhap
     from .controller.phieuxuat import phieuxuat
     from .controller.nguoidung import nguoidung
-<<<<<<< HEAD
     from .controller.nhanvien import nhanvien
     from .controller.khachhang import khachhang
-=======
     from .controller.dondathang import dondathang
->>>>>>> 12213f8ca82215827581b29b78bf4e90167baf69
+    from .controller.monan import monan
+    from .controller.loaiban import loaiban
+    from .controller.ban import ban
+    from .controller.loaivoucher import loaivoucher
+    from .controller.voucher import voucher
 
     # Đăng ký blueprints
     app.register_blueprint(views, url_prefix="/")
@@ -86,12 +88,14 @@ def create_app():
     app.register_blueprint(phieunhap, url_prefix="/phieunhap")
     app.register_blueprint(phieuxuat, url_prefix="/phieuxuat")
     app.register_blueprint(nguoidung, url_prefix="/nguoidung")
-<<<<<<< HEAD
     app.register_blueprint(nhanvien, url_prefix="/nhanvien")
     app.register_blueprint(khachhang, url_prefix="/khachhang")
-=======
     app.register_blueprint(dondathang, url_prefix="/dondathang")
->>>>>>> 12213f8ca82215827581b29b78bf4e90167baf69
+    app.register_blueprint(monan, url_prefix="/monan")
+    app.register_blueprint(loaiban, url_prefix="/loaiban")
+    app.register_blueprint(ban, url_prefix="/ban")
+    app.register_blueprint(loaivoucher, url_prefix="/loaivoucher")
+    app.register_blueprint(voucher, url_prefix="/voucher")
 
     with app.app_context():
         db.create_all()
