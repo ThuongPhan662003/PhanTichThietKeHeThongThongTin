@@ -1,4 +1,5 @@
 from email.policy import default
+import json
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
@@ -47,8 +48,8 @@ class CT_MonAn(db.Model):
 
     idDDH = db.Column(db.Integer, db.ForeignKey("DonDatHang.MaDDH"), primary_key=True)
     idMA = db.Column(db.Integer, db.ForeignKey("MonAn.MaMA"), primary_key=True)
+    idBan = db.Column(db.Integer, db.ForeignKey("Ban.MaBan"), primary_key=True)
     SoLuong = db.Column(db.Integer, nullable=False)
-    GiaMon = db.Column(db.Text, nullable=False)
     GhiChu = db.Column(db.String(200), nullable=True)
 
     don_dat_hang = db.relationship("DonDatHang", backref="ct_mon_an")
@@ -65,6 +66,21 @@ class CT_MonAn(db.Model):
         if value < 1000:
             raise ValueError("Giá món phải lớn hơn hoặc bằng 1000.")
         return value
+    
+    def to_dict(self):
+        """Chuyển đổi đối tượng thành dictionary để serialize."""
+        return {
+            "idDDH": self.idDDH,
+            "idMA": self.idMA,
+            "idBan": self.idBan,
+            "SoLuong": self.SoLuong,
+            "GiaMon": self.GiaMon,
+            "GhiChu": self.GhiChu,
+        }
+
+    def to_json(self):
+        """Chuyển đổi đối tượng thành JSON."""
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=4)
 
 
 class KhachHang(db.Model):
@@ -85,7 +101,7 @@ class KhachHang(db.Model):
     )
     LoaiKH = db.Column(db.String(10), nullable=False)
     nguoi_dung = db.relationship("NguoiDung", back_populates="khach_hang")
-    hoa_don = db.relationship("HoaDon", backref="khach_hang")
+    hoa_don = db.relationship("HoaDon", backref="khach_hang", uselist=False)
 
 
 class HoaDon(db.Model):
@@ -106,6 +122,7 @@ class HoaDon(db.Model):
     TienThue = db.Column(db.Text, nullable=False)
     DiemCong = db.Column(db.Integer, nullable=False)
     DiemTru = db.Column(db.Integer, nullable=False)
+    don_dat_hang = db.relationship("DonDatHang", backref="hoa_don", uselist=False)
 
     @db.validates("DiemCong")
     def validate_diem_cong(self, key, value):
@@ -118,10 +135,30 @@ class HoaDon(db.Model):
         if value < 0:
             raise ValueError("Điểm trừ không được nhỏ hơn 0.")
         return value
+    
+    def to_dict(self):
+        """Chuyển đổi đối tượng thành dictionary để serialize."""
+        return {
+            "MaHD": self.MaHD,
+            "idKH": self.idKH,
+            "idDDH": self.idDDH,
+            "idNV": self.idNV,
+            "NgayXuat": self.NgayXuat.isoformat() if self.NgayXuat else None,
+            "TongTienGiam": self.TongTienGiam,
+            "TongTien": self.TongTien,
+            "TrangThai": self.TrangThai,
+            "TienThue": self.TienThue,
+            "DiemCong": self.DiemCong,
+            "DiemTru": self.DiemTru,
+        }
+
+    def to_json(self):
+        """Chuyển đổi đối tượng thành JSON."""
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=4)
 
 
 class CT_DonDatHang(db.Model):
-    __tablename__ = "CT_DonDatHang"
+    __tablename__ = "CT_DDH"
 
     idDDH = db.Column(
         db.Integer,
@@ -129,6 +166,7 @@ class CT_DonDatHang(db.Model):
         primary_key=True,
     )
     idBan = db.Column(db.Integer, db.ForeignKey("Ban.MaBan"), primary_key=True)
+    ThanhTien = db.Column(db.Integer, nullable=False, default=0)
 
 
 class NhanVien(db.Model):
@@ -162,8 +200,8 @@ class DonDatHang(db.Model):
     idNV = db.Column(db.Integer, db.ForeignKey("NhanVien.MaNV"), nullable=False)
     ThanhTien = db.Column(db.Numeric(15, 2), nullable=False, default=0.00)
     GhiChu = db.Column(db.String(1000))
-    ct_don_dat_hang = db.relationship("CT_DonDatHang", backref="don_dat_hang")
-    hoa_don = db.relationship("HoaDon", backref="don_dat_hang")
+    ct_don_dat_hang = db.relationship("CT_DonDatHang", backref="don_dat_hang", lazy=True)
+    # hoa_don = db.relationship("HoaDon", back_populates="don_dat_hang")
 
     @db.validates("TrangThai")
     def validate_trang_thai(self, key, value):
@@ -171,6 +209,25 @@ class DonDatHang(db.Model):
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
         return value
+    
+    def to_dict(self):
+        """Chuyển đổi đối tượng thành dictionary để serialize."""
+        return {
+            "MaDDH": self.MaDDH,
+            "NgayDat": self.NgayDat.isoformat() if self.NgayDat else None,
+            "TrangThai": self.TrangThai,
+            "Loai": self.Loai,
+            "GioDen": self.GioDen.isoformat() if self.GioDen else None,
+            "ThoiLuong": self.ThoiLuong,
+            "SoLuongNguoi": self.SoLuongNguoi,
+            "idNV": self.idNV,
+            "ThanhTien": float(self.ThanhTien) if self.ThanhTien else 0.00,
+            "GhiChu": self.GhiChu,
+        }
+
+    def to_json(self):
+        """Chuyển đổi đối tượng thành JSON."""
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=4)
 
 
 class MonAn(db.Model):
@@ -386,4 +443,3 @@ class THAMSO(db.Model):
     Bac = db.Column(db.Integer, nullable=False)
     Dong = db.Column(db.Integer, nullable=False)
     PhanTramThue = db.Column(db.Integer, nullable=False)
-
