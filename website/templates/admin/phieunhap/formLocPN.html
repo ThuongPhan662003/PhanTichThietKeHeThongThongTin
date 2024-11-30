@@ -2,7 +2,7 @@
     <p class='text-muted'>Theo nhân viên</p>
     <div class="input-group mb-3">
         <input class="form-control" type="text" name="query_search" placeholder="Nhập tên nhân viên"
-            value="{{ query_search }}">
+            value="{{ query_search }}" id="ten_nv">
     </div>
     <hr>
     <p class='text-muted'>Theo ngày nhập</p>
@@ -13,12 +13,12 @@
     <hr>
     <p class="text-muted">Tổng tiền</p>
     <div class="input-group input-group-sm mb-3">
-        <input type="number" class="form-control" name="min_amount" placeholder="Từ" value="{{ min_amount }}"
+        <input type="number" class="form-control" name="min_amount" placeholder="Từ (VND)" value="{{ min_amount }}"
             step="100000">
-        <input type="number" class="form-control" name="max_amount" placeholder="Đến" value="{{ max_amount }}"
+        <input type="number" class="form-control" name="max_amount" placeholder="Đến (VND)" value="{{ max_amount }}"
             step="100000">
     </div>
     <hr>
-    <button type="submit" class="btn btn-outline-success">Áp dụng</button>
+    <button type="submit" class="btn btn-outline-success" id="applyButton">Áp dụng</button>
     <a href="{{ url_for('phieunhap.received_notes') }}" class="btn btn-outline-secondary ms-2">Bỏ lọc</a>
 </form>

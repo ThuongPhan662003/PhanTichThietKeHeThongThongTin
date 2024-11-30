@@ -165,6 +165,16 @@ def delete_ingredient(id):
     try:
         ingredient = NguyenLieu.query.get_or_404(id)
         
+        phieu_nhap_check = CT_PHIEUNHAP.query.filter_by(idNL=id).first()
+        if phieu_nhap_check:
+            flash('Không thể xóa nguyên liệu này vì nó đang tồn tại trong phiếu nhập!', 'danger')
+            return redirect(url_for('nguyenlieu.ingredients'))
+        
+        phieu_xuat_check = CT_PHIEUXUAT.query.filter_by(idNL=id).first()
+        if phieu_xuat_check:
+            flash('Không thể xóa nguyên liệu này vì nó đang tồn tại trong phiếu xuất!', 'danger')
+            return redirect(url_for('nguyenlieu.ingredients'))
+        
         db.session.delete(ingredient)
         db.session.commit()
         
@@ -174,7 +184,6 @@ def delete_ingredient(id):
         flash(f'Lỗi khi xóa nguyên liệu: {str(e)}', 'danger')
     
     return redirect(url_for('nguyenlieu.ingredients'))
-
     
 @nguyenlieu.route('/add_ingredients', methods=['GET', 'POST'])
 @login_required
