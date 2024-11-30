@@ -1,23 +1,82 @@
-{% extends "auth/base.html" %}
-{% block title %}Login{% endblock %}
-{% block content%}
-{% for message in get_flashed_messages() %}
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong> {{message}}</strong>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+{% extends "auth/base.html" %} {% block title %} Login {% endblock %} {% block
+content %} {% for message in get_flashed_messages() %}
+<div
+  class="alert alert-dismissible fade show custom-alert alert-warning"
+  role="alert"
+>
+  <div class="d-flex align-items-center">
+    <!-- Icon for alert type -->
+    <ion-icon name="warning-outline" class="alert-icon"></ion-icon>
+    <div class="message-text">
+      <strong>{{ message }}</strong>
+    </div>
+    <!-- Close Button -->
+    <button
+      type="button"
+      class="btn-close ms-auto"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
 </div>
 {% endfor %}
-<form method="POST">
-    <h3 align="center">Login</h3>
+
+<div class="login-container">
+  <h2>Welcome to Grilli - Amazing & Delicious Food</h2>
+  <p class="description">
+    Cùng nhau đắm chìm trong hương vị của những món ăn ngon
+  </p>
+
+  <!-- Login Form -->
+  <form method="post" action="{{ url_for('auth.login') }}">
+    <!-- Email Input -->
     <div class="form-group">
-        <label for="Username">User Name</label>
-        <input type="Username" class="form-control" id="Username" name="UserName" placeholder="Enter Username" />
+      <ion-icon name="mail-outline"></ion-icon>
+      <input type="text" name="UserName" placeholder="UserName" required />
     </div>
+
+    <!-- Password Input -->
     <div class="form-group">
-        <label for="MatKhau">Mật khẩu</label>
-        <input type="MatKhau" class="form-control" id="MatKhau" name="MatKhau" placeholder="Enter Password" />
+      <ion-icon name="lock-closed-outline"></ion-icon>
+      <input
+        type="password"
+        name="MatKhau"
+        placeholder="Password"
+        required
+        id="password"
+      />
+      <ion-icon
+        name="eye-off-outline"
+        class="toggle-password"
+        onclick="togglePasswordVisibility()"
+      ></ion-icon>
     </div>
-    <br />
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
+
+    <!-- Forgot Password Link -->
+    <div class="login-options">
+      <a href="#">Quên mật khẩu</a>
+    </div>
+
+    <!-- Login Button -->
+    <button type="submit" class="btn">Đăng nhập</button>
+
+    <!-- Social Login Buttons -->
+    <div class="btn-social">
+      <button class="btn-google">
+        <a href="{{ url_for('auth.google_login') }}">
+          <ion-icon name="logo-google"></ion-icon> Google
+        </a>
+      </button>
+      <button class="btn-facebook">
+        <ion-icon name="logo-facebook"></ion-icon> Facebook
+      </button>
+    </div>
+
+    <p class="terms">
+      Bạn chưa có tài khoản?
+      <a href="{{ url_for('auth.sign_up') }}">Đăng ký ngay</a>
+    </p>
+  </form>
+</div>
+
 {% endblock %}

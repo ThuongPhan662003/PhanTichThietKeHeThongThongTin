@@ -177,3 +177,4 @@ def xoa_kh(makh):
                 flash(f"Lỗi xóa khách hàng {e}", 'error')
 
     return redirect(url_for('khachhang.khachhang_info', makh=kh.MaKH))
+

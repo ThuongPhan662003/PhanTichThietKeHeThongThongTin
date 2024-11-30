@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %} {% block title %} Đơn đặt hàng {% endblock %} {%
+block content %}
+<!-- <div class="container mt-5"> -->
+  <!-- Tiêu đề chính -->
+  <div class="text-center mb-4">
+    <h1 class="display-5">Danh Sách Báo Cáo</h1>
+    <p class="text-muted">Quản lý và theo dõi các báo cáo một cách dễ dàng</p>
+  </div>
+
+  <!-- Bảng báo cáo -->
+  <div class="card shadow-lg">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Báo cáo hiện có</h4>
+    </div>
+    <div class="card-body">
+      <table class="table table-hover table-striped align-middle">
+        <thead class="table-primary">
+          <tr>
+            <th class="text-center" style="width: 5%;">#</th>
+            <th style="width: 70%;">Tên Báo Cáo</th>
+            <th class="text-center" style="width: 25%;">Thao Tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for report in reports %}
+          <tr>
+            <td class="text-center">{{ loop.index }}</td>
+            <td>
+              <span class="fw-bold">{{ report.name }}</span>
+            </td>
+            <td class="text-center">
+              <a href="{{ report.route }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-eye"></i> Xem Báo Cáo
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+<!-- </div> -->
+
+{% endblock %}
+
+<!-- CSS tùy chỉnh -->
+<style>
+  .table th, .table td {
+    vertical-align: middle;
+  }
+  .table-hover tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+  .card {
+    border-radius: 12px;
+  }
+</style>

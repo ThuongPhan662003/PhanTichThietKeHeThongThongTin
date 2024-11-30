@@ -7,6 +7,8 @@ flask_session
 pandas
 openpyxl
 xlsxwriter
+Flask-Mail
+redis
 fullcalendar-scheduler
 Flask-APScheduler
 unidecode

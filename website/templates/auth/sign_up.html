@@ -1,0 +1,123 @@
+{% extends "auth/base.html" %} {% block title %}Sign Up{% endblock %} {% block
+content %} {% for message in get_flashed_messages() %}
+<div
+  class="alert alert-dismissible fade show custom-alert alert-warning"
+  role="alert"
+>
+  <div class="d-flex align-items-center">
+    <!-- Icon for alert type -->
+    <ion-icon name="warning-outline" class="alert-icon"></ion-icon>
+    <div class="message-text">
+      <strong>{{ message }}</strong>
+    </div>
+    <!-- Close Button -->
+    <button
+      type="button"
+      class="btn-close ms-auto"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+</div>
+{% endfor %}
+
+<div class="login-container">
+  <h2>Đăng ký tài khoản mới</h2>
+  <p class="description">
+    Cùng nhau đắm chìm trong hương vị của những món ăn ngon
+  </p>
+  <form method="post" action="{{ url_for('admin.sign_up') }}">
+    <!-- Full Name Input -->
+    <div class="form-group">
+      <ion-icon name="person-outline"></ion-icon>
+      <input
+        type="text"
+        placeholder="Họ và Tên"
+        name="HoTen"
+        required
+        id="HoTen"
+      />
+    </div>
+
+    <!-- Email Input -->
+    <div class="form-group">
+      <ion-icon name="mail-outline"></ion-icon>
+      <input
+        type="email"
+        placeholder="Email"
+        name="Email"
+        required
+        id="Email"
+      />
+    </div>
+    <div class="form-group">
+      <ion-icon name="person-outline"></ion-icon>
+      <input type="text" placeholder="SDT" name="SDT" required id="SDT" />
+    </div>
+    <!-- Password Input -->
+    <div class="form-group">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+      <input
+        type="password"
+        placeholder="Mật khẩu"
+        name="MatKhau1"
+        required
+        id="MatKhau1"
+      />
+      <ion-icon
+        name="eye-off-outline"
+        class="toggle-password"
+        onclick="togglePasswordVisibility()"
+      ></ion-icon>
+    </div>
+
+    <!-- Confirm Password Input -->
+    <div class="form-group">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+      <input
+        type="password"
+        placeholder="Xác nhận mật khẩu"
+        name="MatKhau2"
+        required
+        id="MatKhau2"
+      />
+      <ion-icon
+        name="eye-off-outline"
+        class="toggle-password"
+        onclick="togglePasswordVisibility()"
+      ></ion-icon>
+    </div>
+
+    <button type="submit" class="btn">
+      <a href="{{url_for("auth.sign_up")}}" >Đăng ký
+    </button>
+    <!-- Social Sign-Up Options -->
+    <div class="btn-social">
+      <button class="btn-google">
+        <a href="{{url_for("auth.google_login")}}" ><ion-icon name="logo-google"></ion-icon> Google </a>
+      </button>
+
+      <button class="btn-facebook"><ion-icon name="logo-facebook"></ion-icon> Facebook</button>
+    </div>
+    <p class="terms">
+      Bạn đã có tài khoản?
+      <a href="{{ url_for('auth.login') }}">Đăng nhập ngay</a>
+    </p>
+  </form>
+</div>
+
+<script>
+  function togglePasswordVisibility() {
+    var passwordField = document.getElementById("password");
+    var confirmPasswordField = document.getElementById("confirm_password");
+    if (passwordField.type === "password") {
+      passwordField.type = "text";
+      confirmPasswordField.type = "text";
+    } else {
+      passwordField.type = "password";
+      confirmPasswordField.type = "password";
+    }
+  }
+</script>
+
+{% endblock %}
