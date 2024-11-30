@@ -2,3 +2,6 @@
 website/__pycache__
 json/config.json
 website/controller/__pycache__
+*/**/__pycache__
+logs
+

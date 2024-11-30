@@ -1,0 +1,277 @@
+{% extends "admin/base.html" %}
+{% block title %}
+Sửa phiếu xuất
+{% endblock %}
+{% block content%}
+{% for category, message in get_flashed_messages(with_categories=True) %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+    <strong>{{ message }} </strong>
+    {% if category == 'success' %}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    {% endif %}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<div id="ngayXuatError" class="alert alert-danger" role="alert" style="display: none;">
+    Ngày xuất không được để trống!
+</div>
+{% endfor %}
+<!-- Form sửa phiếu xuất -->
+<h1>Sửa phiếu xuất số {{ phieu_xuat.SoPhieuXuat }}</h1>
+<br />
+<div class="shadow p-3 mb-5 bg-body rounded">
+    <form method="POST" class="row g-3 needs-validation" novalidate>
+        <div class="col-md-12">
+            <label for="ngayXuat" class="form-label">Ngày xuất<span style="color: red;">*</span></label>
+            <input type="text" class="form-control" id="ngayXuat" name="ngayXuat"
+                value="{{ phieu_xuat.NgayXuat.strftime('%d/%m/%Y %H:%M') }}" required>
+            <div class="invalid-feedback">
+                Vui lòng nhập ngày!
+            </div>
+            <script>
+                flatpickr("#ngayXuat", {
+                    enableTime: true,
+                    dateFormat: "d/m/Y H:i",
+                    time_24hr: true,
+                    maxDate: "today"
+                });
+            </script>
+        </div>
+
+        <h3 class="mb-3">Danh sách nguyên liệu</h3>
+        <div class="row justify-content-center">
+            <div class="col-10">
+                <table class="table table-bordered table-hover mx-auto" style="vertical-align: middle;">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" scope="col">Mã nguyên liệu</th>
+                            <th class="text-center" scope="col">Tên nguyên liệu</th>
+                            <th class="text-center" scope="col">Đơn giá</th>
+                            <th class="text-center" scope="col">Đơn vị tính</th>
+                            <th class="text-center" scope="col">Số lượng</th>
+                            <th class="text-center" scope="col">Chức năng</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider" id="ingredientTableBody">
+                        {% for ct in phieu_xuat.chi_tiet_phieu %}
+                        <tr>
+                            <td class="text-center">{{ ct.nguyen_lieu.MaNL }}</td>
+                            <td class="text-center">{{ ct.nguyen_lieu.TenNguyenLieu }}</td>
+                            <td class="text-center">{{ "{:,.0f}".format(ct.nguyen_lieu.DonGia) }}</td>
+                            <td class="text-center">{{ ct.nguyen_lieu.DonViTinh }}</td>
+                            <td class="text-center">
+                                <input type="number" class="form-control" name="quantity[]"
+                                    value="{{ '{:,.0f}'.format(ct.SoLuong) }}" min="0" step="1" required>
+                                <input type="hidden" name="material_id[]" value="{{ ct.nguyen_lieu.MaNL }}">
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                    onclick="removeRow(this)">Xóa</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Tên nguyên liệu<span style="color: red;">*</span></label>
+            <select class="form-select" id="dataListExample" name="ingredient_name"
+                onchange="handleIngredientSelection(this)" aria-label="Default select example">
+                <option value="">Chọn nguyên liệu...</option>
+                {% for ingredient in ingredients %}
+                <option value="{{ ingredient.MaNL }}" data-ten="{{ ingredient.TenNguyenLieu }}"
+                    data-dongia="{{ ingredient.DonGia }}" data-donvitinh="{{ ingredient.DonViTinh }}"
+                    data-soluongton="{{ ingredient.SoLuongTon }}">
+                    {{ ingredient.TenNguyenLieu }} (tồn kho: {{ingredient.SoLuongTon}})
+                </option>
+                {% endfor %}
+            </select>
+            <input type="hidden" id="selectedIngredientId" name="ingredient_id">
+            <input type="hidden" id="selectedIngredientName">
+            <input type="hidden" id="selectedIngredientPrice">
+            <input type="hidden" id="selectedIngredientUnit">
+            <input type="hidden" id="selectedIngredientStock">
+            <input type="hidden" id="selectedIngredientId" name="ingredient_id">
+        </div>
+        <input type="hidden" id="ingredientList" name="ingredientList" value="">
+        <div class="col-md-4">
+            <label for="soLuongXuat" class="form-label">Số lượng xuất<span style="color: red;">*</span></label>
+            <div data-mdb-input-init class="form-outline">
+                <input type="number" id="soLuongXuat" class="form-control" />
+            </div>
+        </div>
+
+        <div class="col-md-2 text-end">
+            <label class="form-label"><i>Bấm để thêm vào list</i></label>
+            <button class="btn btn-primary" id="addButton" type="button">
+                <i class="bi bi-arrow-bar-up"></i> Thêm nguyên liệu
+            </button>
+        </div>
+
+        <div class="col-12 mt-4">
+            <button class="btn btn-success" type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-floppy mb-1" viewBox="0 0 16 16">
+                    <path d="M11 2H9v3h2z" />
+                    <path
+                        d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                </svg>
+                Lưu thay đổi
+            </button>
+            <a href="{{ url_for('phieuxuat.delivery_note_detail', note_id=phieu_xuat.SoPhieuXuat) }}"
+                class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-bar-left mb-1" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5" />
+                </svg>
+                Quay lại
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('ingredientList').addEventListener('click', function (event) {
+        const ngayXuat = document.getElementById('ngayXuat').value;
+        const errorDiv = document.getElementById('ngayXuatError');
+
+        if (!ngayXuat) {
+            event.preventDefault();
+            errorDiv.style.display = 'block';
+        } else {
+            errorDiv.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        disableExistingIngredients();
+    });
+
+    function disableExistingIngredients() {
+        const tableBody = document.getElementById('ingredientTableBody');
+        const selectElement = document.getElementById('dataListExample');
+
+        const existingIds = Array.from(tableBody.querySelectorAll('tr')).map(row =>
+            row.cells[0].innerText.trim()
+        );
+
+        Array.from(selectElement.options).forEach(option => {
+            if (option.value) {
+                const idNL = option.value;
+                const soLuongTon = parseFloat(option.getAttribute("data-soluongton"));
+
+                if (existingIds.includes(idNL)) {
+                    option.disabled = true;
+                    option.style.display = '';
+                } else {
+                    option.disabled = false;
+                    option.style.display = (soLuongTon > 0) ? '' : 'none';
+                }
+            }
+        });
+    }
+
+    function removeRow(button) {
+        const row = button.closest('tr');
+        const idNL = row.cells[0].innerText.trim();
+        const soLuongXuat = parseFloat(row.querySelector('input[name="quantity[]"]').value);
+
+        const selectElement = document.getElementById('dataListExample');
+        const option = Array.from(selectElement.options).find(opt => opt.value === idNL);
+
+        if (option) {
+            const currentStock = parseFloat(option.getAttribute("data-soluongton"));
+            const newStock = currentStock + soLuongXuat;
+            option.setAttribute("data-soluongton", newStock);
+
+            const tenNguyenLieu = row.cells[1].innerText.trim();
+            option.textContent = `${tenNguyenLieu} (tồn kho: ${newStock})`;
+
+            if (newStock > 0) {
+                option.style.display = '';
+            }
+        }
+
+        row.remove();
+        disableExistingIngredients();
+    }
+
+    document.getElementById('addButton').addEventListener('click', function () {
+        const selectElement = document.getElementById('dataListExample');
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+
+        if (!selectedOption.value) {
+            alert("Vui lòng chọn tên nguyên liệu từ danh sách!");
+            return;
+        }
+
+        const idNL = selectedOption.value;
+        const tenNguyenLieu = selectedOption.getAttribute("data-ten");
+        const donGia = selectedOption.getAttribute("data-dongia");
+        const donViTinh = selectedOption.getAttribute("data-donvitinh");
+        const soLuongTon = parseFloat(selectedOption.getAttribute("data-soluongton"));
+        const soLuongXuat = parseFloat(document.getElementById('soLuongXuat').value);
+
+        if (!soLuongXuat || soLuongXuat <= 0) {
+            alert("Vui lòng nhập số lượng nguyên liệu hợp lệ!");
+            return;
+        }
+
+        if (soLuongXuat > soLuongTon) {
+            alert(`Số lượng tồn kho chỉ còn ${soLuongTon} ${donViTinh}. Vui lòng nhập số lượng nhỏ hơn!`);
+            return;
+        }
+
+        const soLuongTonMoi = soLuongTon - soLuongXuat;
+        selectedOption.setAttribute("data-soluongton", soLuongTonMoi);
+        selectedOption.textContent = `${tenNguyenLieu} (tồn kho: ${soLuongTonMoi})`;
+        if (soLuongTonMoi <= 0) {
+            selectedOption.style.display = 'none';
+        }
+
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+        <td class="text-center">${idNL}</td>
+        <td class="text-center">${tenNguyenLieu}</td>
+        <td class="text-center">${new Intl.NumberFormat('vi-VN').format(donGia)}</td>
+        <td class="text-center">${donViTinh}</td>
+        <td class="text-center">
+            <input type="number" class="form-control" name="quantity[]" 
+                value="${soLuongXuat}" min="0" step="1" required>
+            <input type="hidden" name="material_id[]" value="${idNL}">
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeRow(this)">Xóa</button>
+        </td>
+    `;
+        const tableBody = document.getElementById('ingredientTableBody');
+        tableBody.appendChild(newRow);
+
+        selectElement.value = '';
+        document.getElementById('soLuongXuat').value = '';
+
+        disableExistingIngredients();
+    });
+    document.querySelector('form').addEventListener('submit', function (event) {
+        const tableBody = document.getElementById('ingredientTableBody');
+        const rows = tableBody.querySelectorAll('tr');
+        const ingredients = [];
+
+        rows.forEach(row => {
+            const idNL = row.cells[0].innerText.trim();
+            const tenNguyenLieu = row.cells[1].innerText.trim();
+            const donGia = parseFloat(row.cells[2].innerText.replace(/[,.]/g, ''));
+            const donViTinh = row.cells[3].innerText.trim();
+            const soLuong = parseFloat(row.querySelector('input[name="quantity[]"]').value);
+
+            ingredients.push({ idNL, tenNguyenLieu, donGia, donViTinh, soLuong });
+        });
+
+        document.getElementById('ingredientList').value = JSON.stringify(ingredients);
+    });
+
+</script>
+{% endblock %}

@@ -1,5 +1,8 @@
+
 from datetime import date, time
 import datetime
+from email.policy import default
+
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
@@ -83,30 +86,11 @@ class KhachHang(db.Model):
     idNguoiDung = db.Column(
         db.Integer,
         db.ForeignKey("NguoiDung.MaND"),
-        nullable=False,
         unique=True,
     )
     LoaiKH = db.Column(db.String(10), nullable=False)
     nguoi_dung = db.relationship("NguoiDung", back_populates="khach_hang")
     hoa_don = db.relationship("HoaDon", backref="khach_hang")
-
-    @db.validates("DiemTieuDung")
-    def validate_diem_tieu_dung(self, key, value):
-        if value < 0:
-            raise ValueError("Điểm tiêu dùng không được nhỏ hơn 0.")
-        return value
-
-    @db.validates("DiemTichLuy")
-    def validate_diem_tich_luy(self, key, value):
-        if value < 0:
-            raise ValueError("Điểm tích lũy không được nhỏ hơn 0.")
-        return value
-
-    @db.validates("SDT")
-    def validate_sdt(self, key, value):
-        if not value.isdigit():
-            raise ValueError("SDT chỉ được phép chứa số.")
-        return value
 
 
 class HoaDon(db.Model):
@@ -162,8 +146,8 @@ class NhanVien(db.Model):
     CCCD = db.Column(db.String(12), nullable=False, unique=True)
     Email = db.Column(db.String(100), nullable=False, unique=True)
     SDT = db.Column(db.String(10), nullable=False, unique=True)
-    idNguoiDung = db.Column(db.Integer, db.ForeignKey("NguoiDung.MaND"), nullable=False)
-    TinhTrang = db.Column(db.Boolean, nullable=False, default=False)
+    idNguoiDung = db.Column(db.Integer, db.ForeignKey("NguoiDung.MaND"))
+    TinhTrang = db.Column(db.Integer, nullable=False)
     NgayVaoLam = db.Column(db.Date, nullable=False)
     hoa_don = db.relationship("HoaDon", backref="nhan_vien")
     nguoi_dung = db.relationship("NguoiDung", back_populates="nhan_vien")
@@ -190,6 +174,7 @@ class NhanVien(db.Model):
 from datetime import datetime, date, time
 
 
+
 class DonDatHang(db.Model):
     __tablename__ = "DonDatHang"
 
@@ -201,9 +186,11 @@ class DonDatHang(db.Model):
     TrangThai = db.Column(db.String(20), nullable=False)
     Loai = db.Column(db.Integer, nullable=False, default=1)
     GioDen = db.Column(db.Time, nullable=False)
-    ThoiLuong = db.Column(db.Integer)
+    ThoiLuong = db.Column(db.Float) 
+    SoLuongNguoi = db.Column(db.Integer)
     idNV = db.Column(db.Integer, db.ForeignKey("NhanVien.MaNV"), nullable=False)
     ThanhTien = db.Column(db.Numeric(15, 2), nullable=False, default=0.00)
+    GhiChu = db.Column(db.String(1000))
     ct_don_dat_hang = db.relationship("CT_DonDatHang", backref="don_dat_hang")
     hoa_don = db.relationship("HoaDon", backref="don_dat_hang")
 
@@ -411,12 +398,16 @@ class PHIEUXUAT(db.Model):
     idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
     NgayXuat = db.Column(db.DateTime, nullable=False)
 
+    nhan_vien = db.relationship('NhanVien', backref=db.backref('ds_phieu_xuat', lazy=True))
+    chi_tiet_phieu = db.relationship('CT_PHIEUXUAT', backref='phieu_xuat', lazy=True, cascade='all, delete-orphan')
+
 class CT_PHIEUXUAT(db.Model):
     __tablename__ = 'CT_PHIEUXUAT'
     idXuat = db.Column(db.Integer, db.ForeignKey('PHIEUXUAT.SoPhieuXuat', ondelete='CASCADE'), primary_key=True)
     idNL = db.Column(db.Integer, db.ForeignKey('NguyenLieu.MaNL', ondelete='CASCADE'), primary_key=True)
     SoLuong = db.Column(db.Float, nullable=False)
     
+    nguyen_lieu = db.relationship('NguyenLieu', backref=db.backref('ds_nguyenlieu_xuat', lazy=True))
     @db.validates('SoLuong')
     def validate_soluong(self, key, value):
         if value <= 0:
@@ -428,7 +419,10 @@ class PHIEUNHAP(db.Model):
     SoPhieuNhap = db.Column(db.Integer, primary_key=True, autoincrement=True)
     idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
     NgayNhap = db.Column(db.DateTime, nullable=False)
-    TongTien = db.Column(db.Float, nullable=False)
+    TongTien = db.Column(db.Float, nullable=False, default=0)
+
+    nhan_vien = db.relationship('NhanVien', backref=db.backref('ds_phieu_nhap', lazy=True))
+    chi_tiet_phieu = db.relationship('CT_PHIEUNHAP', backref='phieu_nhap', lazy=True, cascade='all, delete-orphan')
 
 class CT_PHIEUNHAP(db.Model):
     __tablename__ = 'CT_PHIEUNHAP'
@@ -437,6 +431,8 @@ class CT_PHIEUNHAP(db.Model):
     SoLuong = db.Column(db.Float, nullable=False)
     ThanhTien = db.Column(db.Float, nullable=False)
     
+    nguyen_lieu = db.relationship('NguyenLieu', backref=db.backref('ds_nguyenlieu_nhap', lazy=True))
+
     @db.validates('SoLuong')
     def validate_soluong(self, key, value):
         if value <= 0:
