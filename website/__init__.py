@@ -59,7 +59,6 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SCHEDULER_API_ENABLED"] = True
 
-    db.init_app(app)
 
     # Định nghĩa function chạy job định kỳ
     def run_scheduled_job():
