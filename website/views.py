@@ -278,10 +278,14 @@ def get_thamso():
 
 @views.route("/")
 def homepage():
-    return render_template("user/homepage.html")
+    print("session")
+    menu_items = MonAn.query.all()
+    return render_template("user/homepage.html", menu=menu_items)
+
 
 
 @views.route("/admin-home")
 @role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân"])
 def admin_home():
+    print(current_user)
     return render_template("admin/admin-home.html")

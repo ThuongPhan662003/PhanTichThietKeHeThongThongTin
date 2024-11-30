@@ -50,8 +50,8 @@ def role_required(required_roles):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            print("session",session["MaND"])
-            if not session["MaND"]:
+
+            if current_user.get_id() is None:
                 return redirect(url_for("auth.login"))  # Trang đăng nhập
 
             if isinstance(required_roles, list):
@@ -71,7 +71,7 @@ def role_required(required_roles):
 @auth.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-
+        print("current_user", current_user)
         UserName = request.form.get("UserName")
         MatKhau = request.form.get("MatKhau")
         print(UserName)
@@ -83,9 +83,9 @@ def login():
             .getTenNhomNguoiDung()
         )
         if user and user.MatKhau == MatKhau:
+
             if tenNND != 'Khách hàng':
                 login_user(user, remember=True)
-                session["MaND"] = user.get_id()
                 flash("Login successful!", category="success")
                 return redirect(url_for("admin.admin_home"))
             else:
@@ -97,32 +97,9 @@ def login():
 
     return render_template("auth/login.html", user=current_user)
 
-
-# @auth.route("/login", methods=["GET", "POST"])
-# def login():
-#     print("MatKhau")
-#     if request.method == "POST":
-#         print("cn")
-#         UserName = request.form.get("UserName")
-#         MatKhau = request.form.get("MatKhau")
-#         print(UserName)
-#         # Retrieve the user from the database
-#         user = NguoiDung.query.filter_by(UserName=UserName).first()
-
-#         # phải check hashpass
-#         if user and user.MatKhau == MatKhau:
-#             login_user(user, remember=True)
-#             flash("Login successful!", category="success")
-#             return redirect(url_for("views.homepage"))
-#         else:
-#             flash("Invalid username or password.", category="error")
-
-#     return render_template("auth/login.html", user=current_user)
-
-
 @auth.route("/google_login")
 def google_login():
-    session["next"] = request.args.get("next")
+    # session["next"] = request.args.get("next")
     redirect_uri = url_for("auth.authorize", _external=True)
     return google.authorize_redirect(redirect_uri)
 
@@ -152,14 +129,13 @@ def authorize():
 def protected_area():
     # next_page = session.pop("next", url_for("views.homepage"))
     # print("nexxt", next_page, url_for("views.homepage"))
+    
     return redirect(url_for("views.homepage"))
 
 
 @auth.route("/logout")
 @role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân","Khách hàng"])
 def logout():
-    session.pop("email", None)  # Xóa email khỏi session
-    session.pop("name", None)  # Xóa tên khỏi session
     logout_user()
     return redirect(url_for("auth.login"))
 

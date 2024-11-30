@@ -1,120 +1,89 @@
-{% extends "admin/base.html" %} {% block title %}Tạo tài khoản{% endblock %} {%
-block content %} {% for message in get_flashed_messages() %}
-<div
-  class="alert alert-dismissible fade show custom-alert alert-warning"
-  role="alert"
-  id="alertMessage"
->
+{% extends "admin/base.html" %} 
+{% block title %}Tạo tài khoản{% endblock %} 
+{% block content %}
+
+<!-- Thông báo -->
+{% for message in get_flashed_messages() %}
+<div class="alert alert-dismissible fade show alert-warning" role="alert" id="alertMessage">
   <div class="d-flex align-items-center">
-    <ion-icon name="warning-outline" class="alert-icon"></ion-icon>
-    <div class="message-text">
-      <strong>{{ message }}</strong>
-    </div>
-    <button
-      type="button"
-      class="btn-close ms-auto"
-      data-bs-dismiss="alert"
-      aria-label="Close"
-    ></button>
+    <ion-icon name="warning-outline" class="me-2"></ion-icon>
+    <strong>{{ message }}</strong>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
 </div>
 {% endfor %}
 
-<div class="d-flex">
-  <!-- Phần Form Tạo Tài Khoản -->
+<div class="row">
+  <!-- Form Tạo Tài Khoản -->
   <div class="col-md-6">
-    <h2>Tạo tài khoản</h2>
+    <h2 class="mb-4">Tạo tài khoản</h2>
     <form method="post" action="{{ url_for('admin.sign_up') }}">
-      <!-- Full Name Input -->
-      <div class="form-group">
-        <ion-icon name="person-outline"></ion-icon>
-        <input
-          type="text"
-          placeholder="UserName"
-          name="UserName"
-          required
-          id="UserName"
-        />
+      <div class="mb-3">
+        <label for="UserName" class="form-label">Tên người dùng</label>
+        <div class="input-group">
+          <span class="input-group-text"><ion-icon name="person-outline"></ion-icon></span>
+          <input type="text" class="form-control" id="UserName" name="UserName" placeholder="Nhập tên người dùng" required />
+        </div>
+      </div>
+      <div class="mb-3">
+  <label for="MatKhau1" class="form-label">Mật khẩu</label>
+  <div class="input-group">
+    <span class="input-group-text"><ion-icon name="lock-closed-outline"></ion-icon></span>
+    <input type="password" class="form-control" id="MatKhau1" name="MatKhau1" placeholder="Nhập mật khẩu" required />
+    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="#MatKhau1">
+      <ion-icon name="eye-off-outline" class="icon-hide"></ion-icon>
+      <ion-icon name="eye-outline" class="icon-show d-none"></ion-icon>
+    </button>
+  </div>
+</div>
+
+<div class="mb-3">
+  <label for="MatKhau2" class="form-label">Xác nhận mật khẩu</label>
+  <div class="input-group">
+    <span class="input-group-text"><ion-icon name="lock-closed-outline"></ion-icon></span>
+    <input type="password" class="form-control" id="MatKhau2" name="MatKhau2" placeholder="Xác nhận mật khẩu" required />
+    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="#MatKhau2">
+      <ion-icon name="eye-off-outline" class="icon-hide"></ion-icon>
+      <ion-icon name="eye-outline" class="icon-show d-none"></ion-icon>
+    </button>
+  </div>
+</div>
+
+      
+
+      <div class="mb-3">
+        <label for="selectedEmployee" class="form-label">Mã nhân viên</label>
+        <input type="text" id="selectedEmployee" name="selectedEmployee" class="form-control" readonly />
       </div>
 
-      <div class="form-group">
-        <ion-icon name="lock-closed-outline"></ion-icon>
-        <input
-          type="password"
-          placeholder="Mật khẩu"
-          name="MatKhau1"
-          required
-          id="MatKhau1"
-        />
-        <ion-icon
-          name="eye-off-outline"
-          class="toggle-password"
-          onclick="togglePasswordVisibility()"
-        ></ion-icon>
-      </div>
-
-      <!-- Confirm Password Input -->
-      <div class="form-group">
-        <ion-icon name="lock-closed-outline"></ion-icon>
-        <input
-          type="password"
-          placeholder="Xác nhận mật khẩu"
-          name="MatKhau2"
-          required
-          id="MatKhau2"
-        />
-        <ion-icon
-          name="eye-off-outline"
-          class="toggle-password"
-          onclick="togglePasswordVisibility()"
-        ></ion-icon>
-      </div>
-
-      <div class="form-group">
-        <label for="selectedEmployee">Mã NV:</label>
-        <input
-          type="text"
-          id="selectedEmployee"
-          class="form-control"
-          readonly
-        />
-      </div>
-      <div class="form-group">
-        <label for="role">Chọn Vai Trò:</label>
+      <div class="mb-3">
+        <label for="role" class="form-label">Vai trò</label>
         <select id="role" name="role" class="form-select" required>
           {% for role in roles %}
-          {% if role.TenNhomNguoiDung != "Khách hàng"%}
-          
+          {% if role.TenNhomNguoiDung != "Khách hàng" %}
           <option value="{{ role.MaNND }}">{{ role.TenNhomNguoiDung }}</option>
           {% endif %}
           {% endfor %}
         </select>
       </div>
 
-      <button type="submit" class="btn">Đăng ký</button>
+      <button type="submit" class="btn btn-primary">Đăng ký</button>
     </form>
   </div>
 
-  <!-- Phần Bảng Nhân Viên -->
+  <!-- Bảng Nhân Viên -->
   <div class="col-md-6">
-    <h2>Chọn Nhân Viên</h2>
-    <!-- Tìm kiếm -->
+    <h2 class="mb-4">Chọn Nhân Viên</h2>
     <div class="mb-3">
-      <label for="searchField">Tìm kiếm theo:</label>
+      <label for="searchField" class="form-label">Tìm kiếm theo</label>
       <select id="searchField" class="form-select mb-2">
         <option value="MaNV">Mã NV</option>
         <option value="TenNV">Tên nhân viên</option>
         <option value="HoNV">Họ nhân viên</option>
       </select>
-      <input
-        type="text"
-        id="searchInput"
-        class="form-control"
-        placeholder="Nhập từ khóa để tìm kiếm..."
-      />
+      <input type="text" id="searchInput" class="form-control" placeholder="Nhập từ khóa tìm kiếm..." />
     </div>
 
-    <!-- Bảng nhân viên -->
     <table class="table table-hover" id="employeeTable">
       <thead>
         <tr>
@@ -125,11 +94,13 @@ block content %} {% for message in get_flashed_messages() %}
       </thead>
       <tbody>
         {% for employee in employees %}
+        {% if employee.idNguoiDung is none %}
         <tr data-id="{{ employee.MaNV }}">
           <td>{{ employee.MaNV }}</td>
           <td>{{ employee.HoNV }}</td>
           <td>{{ employee.TenNV }}</td>
         </tr>
+        {% endif %}
         {% endfor %}
       </tbody>
     </table>
@@ -137,67 +108,87 @@ block content %} {% for message in get_flashed_messages() %}
 </div>
 
 <script>
-  // Hàm lọc nhân viên theo từ khóa tìm kiếm
+  // Lọc nhân viên theo từ khóa tìm kiếm
   document.getElementById("searchInput").addEventListener("input", function () {
-    var searchValue = this.value.toLowerCase();
-    var searchField = document.getElementById("searchField").value;
-    var rows = document.querySelectorAll("#employeeTable tbody tr");
+    const searchValue = this.value.toLowerCase();
+    const searchField = document.getElementById("searchField").value;
+    const rows = document.querySelectorAll("#employeeTable tbody tr");
 
-    rows.forEach(function (row) {
-      var cellValue = row
-        .querySelector(
-          "td:nth-child(" +
-            (searchField === "MaNV" ? 1 : searchField === "HoNV" ? 2 : 3) +
-            ")"
-        )
+    rows.forEach(row => {
+      const cellValue = row
+        .querySelector(`td:nth-child(${searchField === "MaNV" ? 1 : searchField === "HoNV" ? 2 : 3})`)
         .textContent.toLowerCase();
-      if (cellValue.indexOf(searchValue) > -1) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
+      row.style.display = cellValue.includes(searchValue) ? "" : "none";
     });
   });
 
-  // Hàm để chọn nhân viên và hiển thị mã nhân viên vào form
-  document.querySelectorAll("#employeeTable tbody tr").forEach(function (row) {
+  // Chọn nhân viên và hiển thị mã vào form
+  document.querySelectorAll("#employeeTable tbody tr").forEach(row => {
     row.addEventListener("click", function () {
-      var employeeId = this.getAttribute("data-id");
+      const employeeId = this.getAttribute("data-id");
       document.getElementById("selectedEmployee").value = employeeId;
 
-      // Đánh dấu hàng được chọn (in đậm)
-      document
-        .querySelectorAll("#employeeTable tbody tr")
-        .forEach(function (r) {
-          r.classList.remove("selected");
-        });
-      this.classList.add("selected");
+      document.querySelectorAll("#employeeTable tbody tr").forEach(r => r.classList.remove("table-primary"));
+      this.classList.add("table-primary");
     });
   });
+ // Toggle hiển thị mật khẩu
+document.querySelectorAll('.toggle-password').forEach(button => {
+  button.addEventListener('click', function () {
+    const targetId = this.getAttribute('data-target');
+    const passwordField = document.querySelector(targetId);
+    const iconShow = this.querySelector('.icon-show');
+    const iconHide = this.querySelector('.icon-hide');
 
-  // Hàm toggle ẩn/hiện mật khẩu
+    // Kiểm tra trạng thái của trường mật khẩu và chuyển đổi
+    if (passwordField.type === 'password') {
+      passwordField.type = 'text';
+      iconHide.classList.add('d-none'); // Ẩn icon "đóng mắt"
+      iconShow.classList.remove('d-none'); // Hiện icon "mở mắt"
+    } else {
+      passwordField.type = 'password';
+      iconShow.classList.add('d-none'); // Ẩn icon "mở mắt"
+      iconHide.classList.remove('d-none'); // Hiện icon "đóng mắt"
+    }
+  });
+
+  // Đồng bộ biểu tượng khi người dùng chuyển qua ô khác
+  const targetId = button.getAttribute('data-target');
+  const passwordField = document.querySelector(targetId);
+
+  passwordField.addEventListener('focus', function () {
+    const iconShow = button.querySelector('.icon-show');
+    const iconHide = button.querySelector('.icon-hide');
+
+    if (passwordField.type === 'password') {
+      iconShow.classList.add('d-none');
+      iconHide.classList.remove('d-none');
+    } else {
+      iconHide.classList.add('d-none');
+      iconShow.classList.remove('d-none');
+    }
+  });
+});
+
+
+  // Toggle hiển thị mật khẩu
   function togglePasswordVisibility() {
-    var passwordFields = document.querySelectorAll("#MatKhau1, #MatKhau2");
-    passwordFields.forEach(function (field) {
-      if (field.type === "password") {
-        field.type = "text";
-      } else {
-        field.type = "password";
-      }
+    const passwordFields = [document.getElementById("MatKhau1"), document.getElementById("MatKhau2")];
+    passwordFields.forEach(field => {
+      field.type = field.type === "password" ? "text" : "password";
     });
   }
 
   // Tự động ẩn thông báo sau 10 giây
-  window.addEventListener("DOMContentLoaded", function () {
-    var alertMessage = document.getElementById("alertMessage");
+  document.addEventListener("DOMContentLoaded", () => {
+    const alertMessage = document.getElementById("alertMessage");
     if (alertMessage) {
-      setTimeout(function () {
+      setTimeout(() => {
         alertMessage.classList.add("fade");
-        setTimeout(function () {
-          alertMessage.style.display = "none";
-        }, 150); // Chờ fade-out hoàn thành
-      }, 10000); // Sau 10 giây
+        setTimeout(() => (alertMessage.style.display = "none"), 150);
+      }, 10000);
     }
   });
 </script>
+
 {% endblock %}

@@ -181,6 +181,13 @@ class NhanVien(db.Model):
         return value
     def getHoTenNV(self):
         return self.HoNV + " "+ self.TenNV
+    def set_idNguoiDung(self,idNguoiDung):
+        self.idNguoiDung = idNguoiDung
+
+    def get_idNguoiDung(self):
+        return self.idNguoiDung
+
+from datetime import datetime, date, time
 
 
 class DonDatHang(db.Model):
@@ -188,7 +195,7 @@ class DonDatHang(db.Model):
 
     MaDDH = db.Column(db.Integer, primary_key=True, autoincrement=True)
     NgayDat = db.Column(db.Date, nullable=False)
-    HoTenNguoiDat =db.Column(db.String, nullable=False)
+    HoTenNguoiDat = db.Column(db.String, nullable=False)
     Email = db.Column(db.String, nullable=False)
     SDT = db.Column(db.String, nullable=False)
     TrangThai = db.Column(db.String(20), nullable=False)
@@ -199,9 +206,13 @@ class DonDatHang(db.Model):
     ThanhTien = db.Column(db.Numeric(15, 2), nullable=False, default=0.00)
     ct_don_dat_hang = db.relationship("CT_DonDatHang", backref="don_dat_hang")
     hoa_don = db.relationship("HoaDon", backref="don_dat_hang")
+
     def __init__(
         self,
         NgayDat,
+        HoTenNguoiDat,
+        Email,
+        SDT,
         TrangThai,
         Loai,
         GioDen,
@@ -209,19 +220,19 @@ class DonDatHang(db.Model):
         idNV=None,
         ThanhTien=None,
     ):
-        # Initialize the fields of the class
-        self.NgayDat = NgayDat
-        self.TrangThai = TrangThai
-        self.Loai = Loai
-        self.GioDen = GioDen
-        self.ThoiLuong = (
-            ThoiLuong if ThoiLuong is not None else 0
-        )  # Default to 0 if not provided
+        # Xác thực và làm sạch dữ liệu
+        self.NgayDat = self.validate_ngay_dat(NgayDat)
+        self.HoTenNguoiDat = self.validate_ho_ten_nguoi_dat(HoTenNguoiDat)
+        self.Email = self.validate_email(Email)
+        self.SDT = self.validate_sdt(SDT)
+        self.TrangThai = self.validate_trang_thai(TrangThai)
+        self.Loai = self.validate_loai(Loai)
+        self.GioDen = self.validate_gio_den(GioDen)
+        self.ThoiLuong = self.validate_thoi_luong(ThoiLuong)
         self.idNV = idNV
-        self.ThanhTien = ThanhTien  # Default to 0.00 if not provided
+        self.ThanhTien = self.validate_thanh_tien(ThanhTien)
 
-    @db.validates("NgayDat")
-    def validate_ngay_dat(self, key, value):
+    def validate_ngay_dat(self, value):
         if not value or not isinstance(value, date):
             raise ValueError(
                 "Ngày đặt không được bỏ trống và phải là kiểu ngày hợp lệ!"
@@ -230,24 +241,21 @@ class DonDatHang(db.Model):
             raise ValueError("Ngày đặt không được là ngày trong tương lai!")
         return value
 
-    @db.validates("HoTenNguoiDat")
-    def validate_ho_ten_nguoi_dat(self, key, value):
+    def validate_ho_ten_nguoi_dat(self, value):
         if not value or not value.strip():
             raise ValueError("Họ tên người đặt không được bỏ trống!")
         if len(value) > 255:
             raise ValueError("Họ tên người đặt không được vượt quá 255 ký tự!")
         return value
 
-    @db.validates("Email")
-    def validate_email(self, key, value):
+    def validate_email(self, value):
         if not value or not value.strip():
             raise ValueError("Email không được bỏ trống!")
         if "@" not in value or "." not in value:
             raise ValueError("Email không hợp lệ!")
         return value
 
-    @db.validates("SDT")
-    def validate_sdt(self, key, value):
+    def validate_sdt(self, value):
         if not value or not value.strip():
             raise ValueError("Số điện thoại không được bỏ trống!")
         if not value.isdigit() or len(value) < 10 or len(value) > 15:
@@ -256,33 +264,28 @@ class DonDatHang(db.Model):
             )
         return value
 
-    @db.validates("TrangThai")
-    def validate_trang_thai(self, key, value):
+    def validate_trang_thai(self, value):
         valid_trang_thai = ["Đã hủy", "Đang chế biến", "Đã hoàn thành", "Chưa bắt đầu"]
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
         return value
 
-    # @db.validates("Loai")
-    # def validate_loai(self, key, value):
-    #     if value not in [1, 2]:  # Giả sử Loại chỉ có thể là 1 hoặc 2
-    #         raise ValueError("Loại không hợp lệ! Phải là 1 hoặc 2.")
-    #     return value
+    def validate_loai(self, value):
+        if value not in [1, 2]:  # Giả sử Loại chỉ có thể là 1 hoặc 2
+            raise ValueError("Loại không hợp lệ! Phải là 1 hoặc 2.")
+        return value
 
-    @db.validates("GioDen")
-    def validate_gio_den(self, key, value):
+    def validate_gio_den(self, value):
         if not value or not isinstance(value, time):
             raise ValueError("Giờ đến không được bỏ trống và phải là kiểu giờ hợp lệ!")
         return value
 
-    @db.validates("ThoiLuong")
-    def validate_thoi_luong(self, key, value):
+    def validate_thoi_luong(self, value):
         if value is not None and (value < 0 or not isinstance(value, int)):
             raise ValueError("Thời lượng phải là số nguyên không âm!")
         return value
 
-    @db.validates("ThanhTien")
-    def validate_thanh_tien(self, key, value):
+    def validate_thanh_tien(self, value):
         if value is not None and (value < 0 or not isinstance(value, (int, float))):
             raise ValueError("Thành tiền phải là một số không âm!")
         return value

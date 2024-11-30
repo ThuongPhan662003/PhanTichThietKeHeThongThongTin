@@ -6,6 +6,17 @@
 
 {% block content %}
 <h1 style="text-align: center;">Danh sách đơn đặt hàng</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="alert alert-danger">
+      <ul>
+        {% for category, message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+{% endwith %}
 <table class="table table-striped" style="width: 90%; margin: 0 auto; box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);">
   <thead>
     <tr style="text-align: center;">
@@ -100,6 +111,7 @@
                   <div class="mb-3">
                     <label for="Email-{{ order.MaDDH }}" class="form-label">Email</label>
                     <input type="email" class="form-control" id="Email-{{ order.MaDDH }}" name="Email" value="{{ order.Email }}" required>
+                    
                   </div>
                   <div class="mb-3">
                     <label for="SDT-{{ order.MaDDH }}" class="form-label">Số điện thoại</label>

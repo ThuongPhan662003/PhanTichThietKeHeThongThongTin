@@ -40,23 +40,62 @@ def index():
     return render_template("admin/dondathang/dondathang.html", orders=results)
 
 
+from sqlalchemy.exc import IntegrityError
+
+
 @dondathang.route("/edit-order", methods=["POST"])
 @role_required(["Quản lý"])
 def edit_order():
     if request.method == "POST":
+        # Lấy ID đơn hàng từ form
         order_id = request.form["MaDDH"]
+
+        # Tìm đơn hàng trong DB
         order = DonDatHang.query.filter_by(MaDDH=order_id).first()
+
         if order:
-            order.HoTenNguoiDat = request.form["HoTenNguoiDat"]
-            order.Email = request.form["Email"]
-            order.SDT = request.form["SDT"]
-            order.NgayDat = request.form["NgayDat"]
-            order.GioDen = request.form["GioDen"]
-            order.ThoiLuong = request.form["ThoiLuong"]
-            order.TrangThai = request.form["TrangThai"]
-            order.ThanhTien = request.form["ThanhTien"]
-            order.Loai = int(request.form["Loai"])
-            db.session.commit()  # Lưu thay đổi vào DB
+            # Cập nhật thông tin đơn hàng
+            try:
+                # Lấy và kiểm tra các giá trị từ form
+                order.HoTenNguoiDat = request.form["HoTenNguoiDat"]
+                order.Email = request.form["Email"]
+                order.SDT = request.form["SDT"]
+                order.NgayDat = datetime.strptime(
+                    request.form["NgayDat"], "%Y-%m-%d"
+                )  # Kiểm tra định dạng ngày
+                order.GioDen = request.form[
+                    "GioDen"
+                ]  # Nếu cần, có thể kiểm tra thời gian hợp lệ
+                order.ThoiLuong = int(
+                    request.form["ThoiLuong"]
+                )  # Đảm bảo giá trị ThoiLuong là số
+                order.TrangThai = request.form[
+                    "TrangThai"
+                ]  # Có thể kiểm tra tính hợp lệ của TrangThai
+                order.ThanhTien = float(
+                    request.form["ThanhTien"]
+                )  # Chuyển đổi ThanhTien sang float
+                order.Loai = int(request.form["Loai"])  # Chuyển Loai sang kiểu int
+
+                # Lưu thay đổi vào DB
+                db.session.commit()
+                flash("Cập nhật đơn hàng thành công!", "success")
+
+            except ValueError as e:
+                # Nếu có lỗi trong việc chuyển kiểu hoặc dữ liệu không hợp lệ
+                db.session.rollback()
+                flash(f"Lỗi dữ liệu: {str(e)}", "danger")
+            except IntegrityError:
+                # Nếu có lỗi liên quan đến tính toàn vẹn (ví dụ: trùng lặp dữ liệu)
+                db.session.rollback()
+                flash(
+                    "Đã có lỗi trong quá trình lưu dữ liệu, vui lòng thử lại.", "danger"
+                )
+        else:
+            # Nếu không tìm thấy đơn hàng
+            flash("Không tìm thấy đơn hàng với mã đã nhập.", "danger")
+
+        # Chuyển hướng về trang danh sách đơn hàng
         return redirect(url_for("dondathang.index"))
 
 

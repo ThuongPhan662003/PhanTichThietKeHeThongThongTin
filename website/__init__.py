@@ -1,19 +1,18 @@
-from flask import Flask, json, jsonify, redirect, url_for
+from flask import Flask, json, jsonify, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 import os
 from flask_login import LoginManager, current_user
 from authlib.integrations.flask_client import OAuth
 from flask_mail import Mail
-
+import redis
+from flask_session import Session  # Đảm bảo đây là flask_session
 
 db = SQLAlchemy()
 
+
 def create_app():
-
-    # global db
     app = Flask(__name__, static_folder="static")
-
     with open("json/config.json") as config_file:
         config_data = json.load(config_file)
 
@@ -21,22 +20,33 @@ def create_app():
     username = config_data["username"]
     password = config_data["password"]
     database = config_data["database"]
-
-    app.config["SECRET_KEY"] = "hjshjhdjah kjshkjdhjs"
+    secret = config_data["SECRET_KEY"]
+    mail_username = config_data["MAIL_USERNAME"]
+    mail_port = config_data["MAIL_PORT"]
+    mail_server = config_data["MAIL_SERVER"]
+    mail_use_tls = config_data["MAIL_USE_TLS"]
+    mail_use_ssl = config_data["MAIL_USE_SSL"]
+    mail_password = config_data["MAIL_PASSWORD"]
+    mail_default_sender = config_data["MAIL_DEFAULT_SENDER"]
+    sqlalchemy_track_modifications = config_data["SQLALCHEMY_TRACK_MODIFICATIONS"]
+    app.config["SECRET_KEY"] = secret
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         f"mysql://{username}:{password}@localhost/{database}"
     )
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = sqlalchemy_track_modifications
+
     # Cấu hình email trong Flask app
-    app.config["MAIL_SERVER"] = "smtp.gmail.com"
-    app.config["MAIL_PORT"] = 587
-    app.config["MAIL_USE_TLS"] = True
-    app.config["MAIL_USE_SSL"] = False
-    app.config["MAIL_USERNAME"] = "n21dccn184@student.ptithcm.edu.vn"
-    app.config["MAIL_PASSWORD"] = "irzy hzyd qrms eapz"
-    app.config["MAIL_DEFAULT_SENDER"] = "n21dccn184@student.ptithcm.edu.vn"
+    app.config["MAIL_SERVER"] = mail_server
+    app.config["MAIL_PORT"] = mail_port
+    app.config["MAIL_USE_TLS"] = mail_use_tls
+    app.config["MAIL_USE_SSL"] = mail_use_ssl
+    app.config["MAIL_USERNAME"] = mail_username
+    app.config["MAIL_PASSWORD"] = mail_password
+    app.config["MAIL_DEFAULT_SENDER"] = mail_default_sender
+
     mail = Mail(app)
     db.init_app(app)
+
     from .models import NguoiDung, NhomNguoiDung
     from .views import views
     from .auth import auth
@@ -61,6 +71,7 @@ def create_app():
     app.register_blueprint(dondathang, url_prefix="/dondathang")
     app.register_blueprint(khachhang, url_prefix="/khachhang")
     app.register_blueprint(report, url_prefix="/report")
+
     with app.app_context():
         db.create_all()
 
