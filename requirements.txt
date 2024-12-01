@@ -12,3 +12,4 @@ Flask-APScheduler
 unidecode
 WTForms-Alchemy
 wtforms-sqlalchemy
+weasyprint

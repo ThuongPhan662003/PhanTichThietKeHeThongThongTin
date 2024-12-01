@@ -80,6 +80,7 @@ def create_app():
     from .controller.ban import ban
     from .controller.loaivoucher import loaivoucher
     from .controller.voucher import voucher
+    from .controller.report_ty_le_nh_x import nhp_xuat
 
     # Đăng ký blueprints
     app.register_blueprint(views, url_prefix="/")
@@ -96,6 +97,7 @@ def create_app():
     app.register_blueprint(ban, url_prefix="/ban")
     app.register_blueprint(loaivoucher, url_prefix="/loaivoucher")
     app.register_blueprint(voucher, url_prefix="/voucher")
+    app.register_blueprint(nhp_xuat, url_prefix="/report_ty_le_nhap_xuat")
 
     with app.app_context():
         db.create_all()

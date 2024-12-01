@@ -11,6 +11,7 @@ from flask_paginate import Pagination, get_page_args,get_page_parameter
 voucher = Blueprint('voucher', __name__)
 
 @voucher.route('/voucher/list', methods=['GET'])
+@login_required
 def danh_sach_vouchers():
     # Lấy từ request để kiểm tra nếu có từ khóa tìm kiếm
     code_voucher = request.args.get('code_voucher', '')

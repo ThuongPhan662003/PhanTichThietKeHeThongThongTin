@@ -2,7 +2,7 @@ from winreg import REG_EXPAND_SZ
 from flask_wtf import FlaskForm
 from wtforms.widgets import TextArea
 
-from wtforms import BooleanField, RadioField, StringField, DateField, DecimalField, IntegerField, DateTimeField, SubmitField, PasswordField, SelectField
+from wtforms import BooleanField, FileField, FloatField, RadioField, StringField, DateField, DecimalField, IntegerField, DateTimeField, SubmitField, PasswordField, SelectField
 from wtforms.validators import DataRequired, Email, Length, NumberRange, ValidationError, Optional, Regexp
 
 from wtforms import StringField, DecimalField, IntegerField, DateTimeField, SubmitField, TimeField, TextAreaField, HiddenField, DateField, SelectField
@@ -14,12 +14,29 @@ from wtforms.validators import ValidationError
 
 from flask_wtf import FlaskForm
 from wtforms_alchemy import ModelForm
-from .models import Ban, LoaiBan  
+from .models import Ban, LoaiBan, MonAn  
 from wtforms_sqlalchemy.fields import QuerySelectField
 
 from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, TextAreaField, IntegerField, DateTimeField, BooleanField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
+
+
+class MonAnForm(FlaskForm):
+    TenMonAn = StringField('Tên Món Ăn', validators=[DataRequired()])
+    DonGia = DecimalField('Đơn Giá', validators=[DataRequired()])
+    Loai = SelectField('Loại', choices=[], coerce=str)  # Dùng SelectField với choices động
+    TrangThai = SelectField('Trạng Thái', choices=[('Còn phục vụ', 'Còn phục vụ'), 
+                                                   ('Ngừng phục vụ', 'Ngừng phục vụ'), 
+                                                   ('Tạm hết', 'Tạm hết')], validators=[DataRequired()])
+    HinhAnh = FileField('Hình Ảnh')
+    Submit = SubmitField('Thêm')
+
+    def __init__(self, *args, **kwargs):
+        super(MonAnForm, self).__init__(*args, **kwargs)
+        # Truy vấn để lấy các giá trị duy nhất cho Loai
+        loai_choices = MonAn.query.with_entities(MonAn.Loai).distinct().all()
+        self.Loai.choices = [(loai.Loai, loai.Loai) for loai in loai_choices]
 
 class LoaiVoucherForm(FlaskForm):
     TenLoaiVoucher = StringField(

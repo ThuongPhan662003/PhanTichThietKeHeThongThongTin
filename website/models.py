@@ -54,7 +54,7 @@ class CT_MonAn(db.Model):
 
     don_dat_hang = db.relationship("DonDatHang", backref="ct_mon_an")
     mon_an = db.relationship("MonAn", backref="ct_mon_an")
-
+    
     @db.validates("SoLuong")
     def validate_so_luong(self, key, value):
         if value <= 0:
@@ -183,7 +183,8 @@ class MonAn(db.Model):
     Loai = db.Column(db.String(100), nullable=False)
     TrangThai = db.Column(db.String(20), nullable=False)
     HinhAnh = db.Column(db.String(200), nullable=True)
-
+    
+    #ct_monan = db.relationship("CT_MonAn", backref="monan", lazy=True, overlaps="ct_mon_an,mon_an")  # Thêm overlaps
     @db.validates("TrangThai")
     def validate_trang_thai(self, key, value):
         valid_trang_thai = ["Còn phục vụ", "Ngừng phục vụ", "Tạm hết"]
