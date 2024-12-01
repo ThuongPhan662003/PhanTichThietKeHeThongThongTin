@@ -1,6 +1,4 @@
-import time
-import os
-from xhtml2pdf import pisa
+from flask import session
 from flask import Blueprint, render_template, request
 from flask_login import login_required
 from sqlalchemy import func
@@ -9,7 +7,7 @@ from website import db
 from flask import make_response
 nhp_xuat = Blueprint("report_ty_le_nhap_xuat", __name__)
 
-from flask import session
+
 
 @nhp_xuat.route('/bao-cao-phieu', methods=['GET', 'POST'])
 @login_required
