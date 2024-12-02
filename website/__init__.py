@@ -99,6 +99,13 @@ def create_app():
     from .controller.phieuxuat import phieuxuat
     from .controller.nguoidung import nguoidung
 
+    from .controller.nhanvien import nhanvien
+    from .controller.khachhang import khachhang
+    from .controller.dondathang import dondathang
+    from .controller.order import order
+    from .controller.checkout import checkout
+
+
     from .controller.bookcalendar import bookcalendar
     from .controller.dondathang import dondathang
     from .controller.report import report
@@ -116,6 +123,12 @@ def create_app():
     app.register_blueprint(phieuxuat, url_prefix="/phieuxuat")
     app.register_blueprint(nguoidung, url_prefix="/nguoidung")
 
+    app.register_blueprint(nhanvien, url_prefix="/nhanvien")
+    app.register_blueprint(khachhang, url_prefix="/khachhang")
+
+    app.register_blueprint(dondathang, url_prefix="/dondathang")
+    app.register_blueprint(order, url_prefix="/order")
+    app.register_blueprint(checkout, url_prefix="/checkout")
     app.register_blueprint(admin, url_prefix="/admin")
     app.register_blueprint(bookcalendar, url_prefix="/bookcalendar")
     app.register_blueprint(dondathang, url_prefix="/dondathang")

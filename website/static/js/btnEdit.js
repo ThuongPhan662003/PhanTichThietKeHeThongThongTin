@@ -4,14 +4,21 @@ document.getElementById("editBtn").addEventListener("click", function () {
 
     // Mở khóa các input có class 'editable-field' để chỉnh sửa
     editableInputs.forEach(input => {
-        input.removeAttribute("readonly");  // Loại bỏ readonly
-        input.setAttribute("required", "true");  // Thêm required cho những input cần thiết
+        input.removeAttribute("readonly"); 
+        input.setAttribute("required", "true");
         
-        if (input.id === "ngayvaolam" || input.id === "ngaysinh" || input.id === "ngaymothe") {
+        if (input.id === "ngayvaolam" || input.id === "ngaymothe") {
             flatpickr(input, {
                 dateFormat: "d/m/Y",
-                clickOpens: true
+                maxDate: "today"
             });
+        }
+
+        if (input.id === "ngaysinh" ){
+            flatpickr(input, {
+                dateFormat: 'd/m/Y',
+                maxDate: new Date().setFullYear(new Date().getFullYear() - 18)
+            })
         }
     });
 

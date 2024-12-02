@@ -7,9 +7,11 @@ flask_session
 pandas
 openpyxl
 xlsxwriter
+Flask-APScheduler
+reportlab
+beautifulsoup4
 Flask-Mail
 redis
 fullcalendar-scheduler
-Flask-APScheduler
 unidecode
 email-validator
