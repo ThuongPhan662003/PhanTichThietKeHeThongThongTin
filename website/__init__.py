@@ -124,17 +124,14 @@ def create_app():
     app.register_blueprint(nguoidung, url_prefix="/nguoidung")
 
     app.register_blueprint(nhanvien, url_prefix="/nhanvien")
-    app.register_blueprint(khachhang, url_prefix="/khachhang")
 
     app.register_blueprint(dondathang, url_prefix="/dondathang")
     app.register_blueprint(order, url_prefix="/order")
     app.register_blueprint(checkout, url_prefix="/checkout")
     app.register_blueprint(admin, url_prefix="/admin")
     app.register_blueprint(bookcalendar, url_prefix="/bookcalendar")
-    app.register_blueprint(dondathang, url_prefix="/dondathang")
     app.register_blueprint(khachhang, url_prefix="/khachhang")
     app.register_blueprint(report, url_prefix="/report")
-    app.register_blueprint(nhanvien, url_prefix="/nhanvien")
     app.register_blueprint(chucnang, url_prefix="/chucnang")
     with app.app_context():
         db.create_all()
