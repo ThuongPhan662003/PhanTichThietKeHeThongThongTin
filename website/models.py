@@ -1,5 +1,7 @@
 from email.policy import default
 import json
+
+from flask import url_for
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
@@ -246,6 +248,16 @@ class MonAn(db.Model):
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
         return value
+    
+    def to_dict(self):
+        return {
+            "MaMA": self.MaMA,
+            "TenMonAn": self.TenMonAn,
+            "DonGia": self.DonGia,
+            "Loai": self.Loai,
+            "TrangThai": self.TrangThai,
+            "HinhAnh": url_for('static', filename=self.HinhAnh)
+        }
 
 
 class NguyenLieu(db.Model):
@@ -269,7 +281,6 @@ class NguyenLieu(db.Model):
         if value < 0:
             raise ValueError("Số lượng tồn không được âm!")
         return value
-
 
 class LoaiBan(db.Model):
     __tablename__ = "LoaiBan"
@@ -295,6 +306,15 @@ class Ban(db.Model):
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
         return value
+    
+    def to_dict(self):
+        return {
+            "MaBan": self.MaBan,
+            "TenBan": self.TenBan,
+            "ViTri": self.ViTri,
+            "TrangThai": self.TrangThai,
+            "idLoaiBan": self.idLoaiBan
+        }
 
 
 class NhomNguoiDung(db.Model):
@@ -428,7 +448,7 @@ class VOUCHER(db.Model):
 class CT_VOUCHER(db.Model):
     __tablename__ = 'CT_VOUCHER'
     CodeVoucher = db.Column(db.String(10), db.ForeignKey('VOUCHER.CodeVoucher', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
-    idHD = db.Column(db.Integer, db.ForeignKey('HOADON.MaHD', ondelete='CASCADE'), primary_key=True)
+    idHD = db.Column(db.Integer, db.ForeignKey('HoaDon.MaHD', ondelete='CASCADE'), primary_key=True)
 
 class THAMSO(db.Model):
     __tablename__ = 'THAMSO'
@@ -443,3 +463,4 @@ class THAMSO(db.Model):
     Bac = db.Column(db.Integer, nullable=False)
     Dong = db.Column(db.Integer, nullable=False)
     PhanTramThue = db.Column(db.Integer, nullable=False)
+

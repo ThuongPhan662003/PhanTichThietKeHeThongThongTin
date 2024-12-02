@@ -1,0 +1,522 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Order đồ ăn{% endblock %}
+
+{% block css %}
+{{ super() }}
+<style>
+    .quantity-control {
+        display: none;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .quantity-control span {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    .quantity-control button {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid vh-100 d-flex flex-row p-0">
+    <div class="col-12 col-lg-8 p-3 vh-100 overflow-auto">
+        <!-- Tab lựa chọn các loại món ăn -->
+        <div class="row mb-3">
+            <ul class="nav nav-pills nav-fill rounded-3" id="navTabs">
+                <!-- Danh mục món ăn hiển thị ở đây -->
+            </ul>
+        </div>
+
+        <!-- Nội dung sản phẩm -->
+        <div id="products-content" class="row g-3">
+            <!-- Các sản phẩm món ăn sẽ được hiển thị ở đây -->
+        </div>
+
+        <!-- Danh sách món ăn theo loại -->
+        <div class="row row-cols-2 row-cols-lg-4 g-3 mt-4">
+            <!-- List món ăn theo loại hiển thị ở đây -->
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4 border-start p-3 vh-100 overflow-auto">
+        <h3 class="mb-4 text-primary label-ma-ddh" data-ma-ddh="{{ ctddh[0].don_dat_hang.MaDDH }}">Đơn hàng số {{
+            ctddh[0].don_dat_hang.MaDDH }}</h3>
+
+        <!-- Navbar liệt kê các bàn -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <!-- Liệt kê các bàn -->
+                        {% for ct in ctddh %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link nav-table {% if loop.first %}active{% endif %}" data-bs-toggle="tab"
+                                data-bs-target="#content-{{ ct.idBan }}" type="button" role="tab"
+                                aria-controls="content-{{ ct.idBan }}"
+                                aria-selected="{% if loop.first %}true{% else %}false{% endif %}"
+                                data-table-id="{{ct.idBan}}">
+                                {{ ct.ban.TenBan }}
+                            </button>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <!-- Nội dung các bàn -->
+                        {% for ct in ctddh %}
+                        <div class="tab-pane fade" id="content-{{ ct.idBan }}" role="tabpanel"
+                            aria-labelledby="tab-{{ ct.idBan }}" tabindex="0">
+                            <!-- Nội dung cụ thể của bàn {{ ct.ban.TenBan }} -->
+                            <!-- <p>{{ ct.ban.TenBan }}</p> -->
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Thông tin đơn hàng sẽ hiển thị ở đây -->
+        <div id="order-list" class="mb-4"></div>
+
+        <!-- Nút xác nhận đơn hàng -->
+        <div class="d-flex justify-content-between">
+            <button id="confirm-order" class="btn btn-success d-none col-6 me-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-bell-fill" viewBox="0 0 16 16">
+                    <path
+                        d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
+                </svg>
+                Xác nhận order
+            </button>
+
+            <a type="button" id="cancel-order" class="btn btn-danger d-none col-6" href="{{url_for('dondathang.ds_dondathang')}}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-x-octagon-fill" viewBox="0 0 16 16">
+                    <path
+                        d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353zm-6.106 4.5L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
+                </svg>
+                Hủy order
+            </a>
+        </div>
+
+    </div>
+
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="notifyModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderModalLabel">Thông báo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modal-message">
+                <!-- Nội dung thông báo sẽ được hiện ở đây -->
+            </div>
+            <div class="modal-footer">
+                <a type="button" class="btn btn-warning" id="return" style="display: none;" href="{{ url_for('dondathang.ds_dondathang') }}">Trở về trang đặt
+                    đơn</a>
+                <a type="button" class="btn btn-success" id="checkout" style="display: none;" href="{{ url_for('checkout.index', maddh=ctddh[0].don_dat_hang.MaDDH) }}">Đi đến thanh
+                    toán</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const productsContent = document.getElementById("products-content");
+        const orderList = document.getElementById("order-list");
+        const confirmOrderButton = document.getElementById("confirm-order");
+        const navTabs = document.getElementById('navTabs');
+
+        const cancelOrderButton = document.getElementById("cancel-order");
+        const action = new URLSearchParams(window.location.search).get("action");
+        const navTables = document.querySelectorAll('.nav-table')
+        const tabContents = document.querySelectorAll('.tab-pane');
+
+        // Đối tượng lưu danh sách lưu order đã chọn
+        const orderData = {};
+
+        if (action === "combine" || action === "same") {
+            // Ẩn tất cả các tab bàn
+            const allTabs = document.querySelectorAll('.nav-link.nav-table');
+            allTabs.forEach(tab => tab.classList.add('d-none')); // Ẩn tất cả các tab
+
+            // Chỉ hiển thị tab đại diện (ví dụ tab đầu tiên)
+            const firstTab = document.querySelector('.nav-link.nav-table');
+            if (firstTab) {
+                firstTab.classList.remove('d-none');
+                firstTab.classList.add('active');
+                document.querySelector('#content-' + firstTab.getAttribute('data-table-id')).classList.add('show', 'active');
+            }
+
+            // Chèn những tab ẩn vào orderData
+            allTabs.forEach(tab => {
+                if (tab.classList.contains('d-none')) { // Nếu tab bị ẩn
+                    const tableId = tab.getAttribute('data-table-id');
+                    orderData[tableId] = {}; // Thêm vào orderData với tableId là key và giá trị là một đối tượng trống
+                }
+            });
+        }
+
+        // Thêm sự kiện click cho nút confirm
+        confirmOrderButton.addEventListener("click", function () {
+            saveOrderToDatabase();
+        });
+
+        // Hiển thị danh sách sản phẩm theo danh mục
+        const showProducts = (category, products) => {
+            productsContent.innerHTML = ""; // Xóa nội dung cũ
+            products.forEach(product => {
+                const productCard = document.createElement("div");
+                productCard.classList.add("card", "product-card", "col-5", "m-2");
+                productCard.dataset.id = product.MaMA;
+                productCard.innerHTML = `
+                        <img src="${product.HinhAnh}" class="card-img-top product-img rounded m-2" alt="${product.Loai}" style="width: auto; max-height: 100%; aspect-ratio: 1 / 1; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title product-name">${product.TenMonAn}</h5>
+                            <p class="card-text product-price text-primary fw-bold">${product.DonGia}</p>
+                            <div class="position-absolute bottom-0 end-0 m-3">
+                                <button class="btn btn-primary order-btn">Order Now</button>
+                            <div> 
+                        </div>
+                    `;
+                productsContent.appendChild(productCard);
+            });
+        };
+
+        // Hàm tạo card món ăn bên phải
+        function createOrderCard(product, tableId) {
+            // alert(product.id)
+            const card = document.createElement("div");
+            card.className = "card mb-2";
+            card.id = `order-card-${product.id}`;
+            card.innerHTML = `
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="${product.img}" class="card-img-top rounded m-2" alt="${product.name}" style="max-width: auto; max-height: auto; aspect-ratio: 1 / 1; object-fit: cover;">
+                    </div>
+                    <div class="col-md-8 position-relative">
+                        <div class="card-body d-flex flex-column ms-2">
+                            <h5 class="card-title">${product.name}</h5>
+                            <p class="card-text">Giá: <span class="text-primary">${product.price}</span></p>
+                            <div class="d-flex align-items-center gap-2">
+                                <button class="btn btn-sm btn-outline-primary btn-decrease" data-id="${product.id}" data-table-id="${tableId}">-</button>
+                                <span class="item-quantity-${product.id}">${orderData[tableId][product.id].quantity}</span>
+                                <button class="btn btn-sm btn-outline-primary btn-increase" data-id="${product.id}" data-table-id="${tableId}">+</button>
+                            </div>                            
+                        </div>
+                        <button class="btn-close position-absolute top-0 end-0 me-2 mt-2 delete-btn"></button>
+                    </div>
+                    </div>
+                    <div class="m-3 d-flex align-items-center">
+                        <label for="note-${product.id}" class="form-label col-2 fst-italic mb-0">Ghi chú:</label>
+                        <textarea id="note-${product.id}" class="form-control" rows="1" placeholder="Nhập ghi chú cho món ăn..." 
+                            style="resize: none; box-sizing: border-box;">${product.note || ""}</textarea>
+                    </div>
+
+            `;
+
+            // Gán sự kiện onchange cho tất cả các textarea
+            card.querySelectorAll('textarea').forEach(function (textarea) {
+                textarea.addEventListener('change', function () {
+                    const productId = textarea.id.replace('note-', '');
+                    const tableId = document.querySelector(".nav-table.active").getAttribute("data-table-id");
+                    updateNote(productId, tableId);
+                });
+            });
+            return card;
+        }
+
+        // Hàm để cập nhật ghi chú cho món ăn
+        function updateNote(productId, tableId) {
+            alert("do vao")
+            const note = document.getElementById(`note-${productId}`).value.trim();
+            if (!orderData[tableId]) {
+                orderData[tableId] = {};
+            }
+            if (orderData[tableId][productId]) {
+                orderData[tableId][productId].note = note;
+            }
+            updateOrderList(tableId);
+        }
+
+        // Hàm cập nhật số lượng món ăn
+        function updateOrderQuantity(productId, tableId) {
+            const card = document.getElementById(`order-card-${productId}`);
+            // alert(productId)
+            if (orderData[tableId][productId].quantity === 0) {
+                card.remove();
+                delete orderData[tableId][productId];
+            } else {
+                // Cập nhật số lượng trong phần tử span
+                const span = card.querySelector(`.item-quantity-${productId}`);
+                span.textContent = orderData[tableId][productId].quantity;
+            }
+            toggleConfirmButton(tableId);
+        }
+
+        // Cập nhật giỏ hàng cho từng bàn
+        function updateOrderList(tableId) {
+            orderList.innerHTML = ""; // Xóa giỏ hàng cũ
+            const orderItems = orderData[tableId] || {};
+            Object.values(orderItems).forEach(product => {
+                orderList.appendChild(createOrderCard(product, tableId));
+            });
+        }
+
+        // Hàm xử lý khi bấm "Order Now"
+        function handleOrderNowClick(event, tableId) {
+            const productCard = event.target.closest(".product-card");
+            if (!productCard) return;
+
+            const product = {
+                id: productCard.dataset.id,
+                name: productCard.querySelector(".product-name").textContent,
+                price: productCard.querySelector(".product-price").textContent,
+                img: productCard.querySelector(".product-img").getAttribute("src"),
+                note: document.getElementById(`note-${productCard.dataset.id}`)?.value.trim() || ""
+            };
+
+            if (!orderData[tableId]) {
+                orderData[tableId] = {};
+            }
+
+            if (orderData[tableId][product.id]) {
+                orderData[tableId][product.id].quantity += 1;
+            } else {
+                orderData[tableId][product.id] = {
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    img: product.img,
+                    note: product.note,
+                    quantity: 1
+                };
+            }
+            // alert(product.id)
+
+            updateOrderList(tableId);
+            updateOrderQuantity(product.id, tableId);
+
+        }
+
+        // Hàm xử lý tăng/giảm số lượng món ăn
+        orderList.addEventListener("click", function (event) {
+            const button = event.target;
+            const productId = button.dataset.id;
+            const tableId = button.dataset.tableId;
+
+            // Kiểm tra xem có bấm vào nút xóa không
+            if (button.classList.contains("btn-close")) {
+                const card = button.closest(".card"); // Thẻ chứa món ăn
+                const productId = card?.id.replace("order-card-", ""); // Lấy ID sản phẩm
+                const tableId = button.closest(".card").querySelector(".btn-decrease")?.dataset.tableId; // Xác định tableId từ nút giảm số lượng
+
+                if (orderData[tableId] && orderData[tableId][productId]) {
+                    // Xóa món ăn khỏi orderData
+                    delete orderData[tableId][productId];
+                }
+
+                // Xóa card khỏi giao diện
+                card?.remove();
+
+                // Ẩn nút xác nhận nếu không còn món
+                toggleConfirmButton(tableId);
+            }
+
+            if (!productId || !orderData[tableId] || !orderData[tableId][productId]) return;
+
+            if (button.classList.contains("btn-decrease")) {
+                orderData[tableId][productId].quantity -= 1;
+            } else if (button.classList.contains("btn-increase")) {
+                orderData[tableId][productId].quantity += 1;
+            }
+
+            updateOrderQuantity(productId, tableId);
+        });
+
+        // Hiển thị nút xác nhận nếu có món trong giỏ hàng
+        function toggleConfirmButton(tableId) {
+            if (Object.keys(orderData[tableId] || {}).length > 0) {
+                confirmOrderButton.classList.remove("d-none");
+                cancelOrderButton.classList.remove("d-none");
+            } else {
+                confirmOrderButton.classList.add("d-none");
+                cancelOrderButton.classList.add("d-none");
+            }
+        }
+
+        // Gán sự kiện cho nút "Order Now"
+        productsContent.addEventListener("click", function (event) {
+            if (event.target.classList.contains("order-btn")) {
+                const tableId = document.querySelector(".nav-table.active").getAttribute("data-table-id");
+                // alert(tableId)
+                handleOrderNowClick(event, tableId);
+            }
+        });
+
+        // Chuyển tab
+        document.getElementById("myTab").addEventListener("click", function (event) {
+            if (event.target.classList.contains("nav-table")) {
+                const tableId = event.target.getAttribute("data-table-id");
+                updateOrderList(tableId);
+            }
+        });
+
+        // Hàm gửi yêu cầu lưu giỏ hàng tới server
+        function saveOrderToDatabase() {
+            idDDH = document.querySelector(`.label-ma-ddh`).getAttribute("data-ma-ddh");
+
+            if (action === "seperate") {
+                for (const [tableId, orderItems] of Object.entries(orderData)) {
+                    if (Object.keys(orderItems).length === 0) {
+                        alert(`Giỏ hàng của bàn ${tableId} trống!`);
+                        return;
+                    }
+                }
+            }
+
+            else {
+                const firstTableOrderItems = Object.values(orderData)[0];
+                if (Object.keys(firstTableOrderItems).length === 0) {
+                    alert('Giỏ hàng của bàn đầu tiên trống!');
+                    return;
+                }
+            }
+
+            console.log("Dữ liệu orderData (JSON):", JSON.stringify(orderData, null, 2));
+            const orderPayload = {
+                idDDH: idDDH,
+                tables: orderData,
+                action: action
+            };
+
+            console.log("Dữ liệu orderData (JSON):", JSON.stringify(orderPayload, null, 2));
+
+            // Gửi yêu cầu POST đến Flask
+            fetch("/order/save", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(orderPayload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const modalMessage = document.getElementById("modal-message");
+                    const returnButton = document.getElementById("return");
+                    const checkoutButton = document.getElementById("checkout");
+                    const modal = new bootstrap.Modal(document.getElementById("notifyModal"));
+
+                    if (data.success) {
+                        // Hiển thị modal thông báo
+                        modalMessage.textContent = data.message || "Đặt hàng thành công!";
+
+                        returnButton.style.display = "inline-block";
+                        checkoutButton.style.display = "inline-block";
+
+                        // Gán sự kiện cho nút "Trở về trang đặt đơn"
+                        returnButton.addEventListener("click", function () {
+                            window.location.href = "/order/list"; // Trở về trang danh sách đơn hàng
+                        });
+
+                        // Gán sự kiện cho nút "Đi đến thanh toán"
+                        checkoutButton.addEventListener("click", function () {
+                            window.location.href = "/order/payment"; // Đi đến trang thanh toán
+                        });
+
+                    } else {
+                        modalMessage.textContent = data.message || "Có lỗi xảy ra khi lưu đơn hàng.";
+
+                        returnButton.style.display = "none";
+                        checkoutButton.style.display = "none";
+
+                        // Hiển thị alert lỗi
+                        alert(data.message || "Có lỗi xảy ra khi gửi yêu cầu.");
+                    }
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error("Error saving order:", error);
+                    alert("Có lỗi khi gửi yêu cầu.");
+                });
+
+        }
+
+        // Fetch danh mục sản phẩm và tạo tab
+        fetch("/order/products/grouped")
+            .then(response => response.json())
+            .then(groupedProducts => {
+                const categories = Object.keys(groupedProducts);
+                categories.forEach((category, index) => {
+                    const navItem = document.createElement("li");
+                    navItem.classList.add("nav-item");
+                    navItem.innerHTML = `
+                    <a class="nav-link nav-food ${index === 0 ? "active" : ""}" href="#">${category}</a>
+                `;
+                    navItem.querySelector("a").addEventListener("click", event => {
+                        event.preventDefault();
+                        document.querySelectorAll(".nav-food").forEach(link => link.classList.remove("active"));
+                        navItem.querySelector("a").classList.add("active");
+                        showProducts(category, groupedProducts[category]);
+                    });
+                    navTabs.appendChild(navItem);
+                });
+
+                if (categories.length > 0) showProducts(categories[0], groupedProducts[categories[0]]);
+            })
+            .catch(error => console.error("Error fetching categories:", error));
+        
+
+        // Fetch các món ăn đã order lên để sửa đổi
+        fetch("/order/ordered_dishes_by_tables/")
+            .then(response => response.json())
+            .then(groupedDishes => {
+                const categories = Object.keys(groupedDishes);
+                // sửa tiếp đoạn này
+                tables.forEach((table, index) => {
+                    const navItem = document.createElement("li");
+                    navItem.classList.add("nav-item");
+                    navItem.innerHTML = `
+                    <a class="nav-link nav-food ${index === 0 ? "active" : ""}" href="#">${category}</a>
+                `;
+                    navItem.querySelector("a").addEventListener("click", event => {
+                        event.preventDefault();
+                        document.querySelectorAll(".nav-food").forEach(link => link.classList.remove("active"));
+                        navItem.querySelector("a").classList.add("active");
+                        showProducts(category, groupedProducts[category]);
+                    });
+                    navTabs.appendChild(navItem);
+                });
+
+                if (categories.length > 0) showProducts(categories[0], groupedProducts[categories[0]]);
+            })
+            .catch(error => console.error("Error fetching categories:", error));
+    });
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+    integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+    crossorigin="anonymous"></script>
+
+{% endblock %}
