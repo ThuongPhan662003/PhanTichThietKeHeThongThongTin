@@ -204,3 +204,5 @@ def xoa_kh(makh):
             mess = f"Lỗi xóa khách hàng {e}"
             return redirect(url_for('khachhang.khachhang_info', makh=makh, mess=mess))
 
+    return redirect(url_for('khachhang.khachhang_info', makh=kh.MaKH))
+

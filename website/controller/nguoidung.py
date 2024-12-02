@@ -25,3 +25,12 @@ def account():
                                user = user, employee = nhan_vien)
     else: flash("Bạn đang đăng nhập vào tài khoản khách hàng", 'message')
         
+
+@nguoidung.route("/<int:khachhang_id>")
+
+def khachhang_detail(khachhang_id):
+    # Lấy thông tin khách hàng theo ID
+    khachhang = KhachHang.query.get_or_404(khachhang_id)
+
+    # Truyền dữ liệu vào template
+    return render_template("user/nguoidung/nguoidung.html", khachhang=khachhang)
