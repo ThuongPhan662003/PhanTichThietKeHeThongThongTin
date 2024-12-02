@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Chỉnh sửa thông tin nhân viên
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4">
+        <h1 class="text-primary">Chỉnh sửa thông tin nhân viên</h1>
+        <form method="POST">
+            <!-- Họ tên -->
+            <div class="mb-3">
+                <label for="HoNV" class="form-label">Họ</label>
+                <input type="text" id="HoNV" class="form-control" name="HoNV" value="{{ employee.HoNV }}" readonly />
+            </div>
+            <div class="mb-3">
+                <label for="TenNV" class="form-label">Tên</label>
+                <input type="text" id="TenNV" class="form-control" name="TenNV" value="{{ employee.TenNV }}" readonly />
+            </div>
+
+            <!-- Ngày sinh -->
+            <div class="mb-3">
+                <label for="NgaySinh" class="form-label">Ngày sinh</label>
+                <input type="date" id="NgaySinh" class="form-control" name="NgaySinh" 
+                       value="{{ employee.NgaySinh.strftime('%Y-%m-%d') if employee.NgaySinh else '' }}" readonly />
+            </div>
+
+            <!-- CCCD -->
+            <div class="mb-3">
+                <label for="CCCD" class="form-label">CCCD</label>
+                <input type="text" id="CCCD" class="form-control" name="CCCD" value="{{ employee.CCCD }}" readonly />
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="Email" class="form-label">Email</label>
+                <input type="email" id="Email" class="form-control" name="Email" value="{{ employee.Email }}" required />
+            </div>
+
+            <!-- Số điện thoại -->
+            <div class="mb-3">
+                <label for="SDT" class="form-label">Số điện thoại</label>
+                <input type="text" id="SDT" class="form-control" name="SDT" value="{{ employee.SDT }}" required />
+            </div>
+
+            <!-- Ngày vào làm -->
+            <div class="mb-3">
+                <label for="NgayVaoLam" class="form-label">Ngày vào làm</label>
+                <input type="date" id="NgayVaoLam" class="form-control" name="NgayVaoLam" 
+                       value="{{ employee.NgayVaoLam.strftime('%Y-%m-%d') if employee.NgayVaoLam else '' }}" readonly />
+            </div>
+
+            <!-- Tình trạng -->
+            <div class="mb-3">
+                <label for="TinhTrang" class="form-label">Tình trạng</label>
+                <input type="text" id="TinhTrang" class="form-control" name="TinhTrang" 
+                       value="{{ employee.TinhTrang}}" readonly/>
+            </div>
+
+            <!-- Nút lưu -->
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+                <a href="{{ url_for('nguoidung.account') }}" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

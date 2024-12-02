@@ -6,45 +6,90 @@ from sqlalchemy import func, cast, Date, text
 from datetime import datetime
 from website.models import *
 from website.models import NguoiDung, NhomNguoiDung
+from sqlalchemy.exc import SQLAlchemyError
 
 bookcalendar = Blueprint("bookcalendar", __name__)
 
 
 @bookcalendar.route("/")
 def index():
-    return render_template("user/book.html")
+    khachhang = KhachHang.query.filter_by(idNguoiDung=current_user.MaND).first()
+    print(current_user.MaND)
+    print(khachhang)
+    return render_template("user/book.html", khachhang=khachhang)
 
 
 @bookcalendar.route("/save_event", methods=["POST"])
 def save_event():
-    # Lấy dữ liệu từ body request dưới dạng JSON
-    data = request.get_json()
+    try:
+        # Lấy dữ liệu từ request
+        data = request.json
+        name = data.get("name")
+        print("name", name)
+        phone = data.get("phone")
+        print("phone", phone)
+        email = data.get("email")
+        print("email", email)
+        date = datetime.strptime(data.get("date"), "%Y-%m-%d")
+        time = datetime.strptime(data.get("time"), "%H:%M").time().strftime("%H:%M:%S")
+        print("time", type(time))
+        duration = data.get("duration")
+        print("duration", duration)
+        number_persons = data.get("number_persons")
+        print("number_persons", type(number_persons))
+        
+        # Kiểm tra thông tin đầu vào
+        if not all([name, phone, email, time, duration, number_persons]):
+            return (
+                jsonify({"status": "error", "message": "Thiếu thông tin yêu cầu!"}),
+                400,
+            )
 
-    # Lấy các thông tin từ dữ liệu gửi lên
-    name = data.get("name")
-    phone = data.get("phone")
-    email = data.get("email")
-    start_time = data.get("start")
-    end_time = data.get("end")
-    duration = data.get("duration")
+        
+        new_event = DonDatHang(
+            NgayDat=date.date(),
+            HoTenNguoiDat=name,
+            Email=email,
+            SDT=phone,
+            TrangThai="Chưa bắt đầu",
+            Loai=1,
+            GioDen=time,
+            SoLuongNguoi=int(number_persons),
+            ThoiLuong=duration,
+            idNV=None,
+            ThanhTien=None,
+            GhiChu= None
+        )
+        db.session.add(new_event)
+        # Commit giao dịch
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Sự kiện đã được lưu!"}), 200
 
-    # Kiểm tra nếu có thiếu thông tin cần thiết
-    if not (name and phone and email and start_time and duration):
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        error_message = str(e.__dict__.get("orig")) or str(e)
+        print(f"Lỗi cơ sở dữ liệu: {error_message}")
         return (
-            jsonify({"status": "error", "message": "Vui lòng điền đầy đủ thông tin."}),
-            400,
+            jsonify(
+                {"status": "error", "message": f"Lỗi cơ sở dữ liệu: {error_message}"}
+            ),
+            500,
+        )
+    except Exception as e:
+        db.session.rollback()
+        error_message = str(e)
+        # print(new_event)
+        print(f"Lỗi không xác định: {error_message}")
+        return (
+            jsonify(
+                {"status": "error", "message": f"Lỗi không xác định: {error_message}"}
+            ),
+            500,
         )
 
-    # Xử lý thời gian: Từ ISO 8601 format
-    start_time = start_time.rstrip("Z")  # Loại bỏ ký tự 'Z' ở cuối
-    start_time_obj = datetime.fromisoformat(start_time)
-
-
-    # In thông tin sự kiện để kiểm tra
-    print(f"Event saved: {name}, {phone}, {email}, {start_time}, {end_time}")
-    dondathang = DonDatHang(None, )
-    # Trả về phản hồi thành công
-    return jsonify({"status": "success", "message": "Sự kiện đã được lưu thành công!"})
+    finally:
+        # Đóng kết nối nếu cần
+        db.session.close()
 
 
 # API to get all events from the database (for refreshing the calendar)
@@ -97,7 +142,7 @@ def get_unavailable_times():
                     ),
                     500,
                 )
-
+        print("ssusss")
         # Trả về dữ liệu dưới dạng JSON
         return jsonify({"status": "success", "data": unavailable_times})
 

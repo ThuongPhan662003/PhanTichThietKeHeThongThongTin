@@ -1,82 +1,127 @@
-{% extends "auth/base.html" %} {% block title %} Login {% endblock %} {% block
-content %} {% for message in get_flashed_messages() %}
-<div
-  class="alert alert-dismissible fade show custom-alert alert-warning"
-  role="alert"
->
-  <div class="d-flex align-items-center">
-    <!-- Icon for alert type -->
-    <ion-icon name="warning-outline" class="alert-icon"></ion-icon>
-    <div class="message-text">
-      <strong>{{ message }}</strong>
-    </div>
-    <!-- Close Button -->
-    <button
-      type="button"
-      class="btn-close ms-auto"
-      data-bs-dismiss="alert"
-      aria-label="Close"
-    ></button>
-  </div>
-</div>
-{% endfor %}
+{% extends "auth/base.html" %}
 
-<div class="login-container">
-  <h2>Welcome to Grilli - Amazing & Delicious Food</h2>
-  <p class="description">
-    Cùng nhau đắm chìm trong hương vị của những món ăn ngon
-  </p>
+{% block title %}
+Login
+{% endblock %}
 
-  <!-- Login Form -->
-  <form method="post" action="{{ url_for('auth.login') }}">
-    <!-- Email Input -->
-    <div class="form-group">
-      <ion-icon name="mail-outline"></ion-icon>
-      <input type="text" name="UserName" placeholder="UserName" required />
-    </div>
-
-    <!-- Password Input -->
-    <div class="form-group">
-      <ion-icon name="lock-closed-outline"></ion-icon>
-      <input
-        type="password"
-        name="MatKhau"
-        placeholder="Password"
-        required
-        id="password"
-      />
-      <ion-icon
-        name="eye-off-outline"
-        class="toggle-password"
-        onclick="togglePasswordVisibility()"
-      ></ion-icon>
-    </div>
-
-    <!-- Forgot Password Link -->
-    <div class="login-options">
-      <a href="#">Quên mật khẩu</a>
-    </div>
-
-    <!-- Login Button -->
-    <button type="submit" class="btn">Đăng nhập</button>
-
-    <!-- Social Login Buttons -->
-    <div class="btn-social">
-      <button class="btn-google">
-        <a href="{{ url_for('auth.google_login') }}">
-          <ion-icon name="logo-google"></ion-icon> Google
-        </a>
-      </button>
-      <button class="btn-facebook">
-        <ion-icon name="logo-facebook"></ion-icon> Facebook
-      </button>
-    </div>
-
-    <p class="terms">
-      Bạn chưa có tài khoản?
-      <a href="{{ url_for('auth.sign_up') }}">Đăng ký ngay</a>
+{% block content %}
+  <!-- Login Container -->
+  <div class="login-container">
+    <h2 class="text-center">Welcome to Grilli - Amazing & Delicious Food</h2>
+    <p class="description text-center">
+      Cùng nhau đắm chìm trong hương vị của những món ăn ngon
     </p>
-  </form>
-</div>
 
+    <!-- Display Flash Messages -->
+    {% for message in get_flashed_messages() %}
+      <div class="alert alert-dismissible fade show custom-alert alert-warning flash-message" role="alert">
+        <div class="d-flex align-items-center">
+          <!-- Icon for alert type -->
+          <ion-icon name="warning-outline" class="alert-icon"></ion-icon>
+          <div class="message-text">
+            <strong>{{ message }}</strong>
+          </div>
+          <!-- Close Button -->
+          <button type="button" class="btn-close ms-auto" aria-label="Close" onclick="closeFlashMessage(this)">
+            
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+
+    <!-- Login Form -->
+    <form method="post" action="{{ url_for('auth.login') }}">
+      <!-- Email Input -->
+      <div class="form-group">
+        <ion-icon name="mail-outline"></ion-icon>
+        <input type="text" name="UserName" placeholder="UserName" value="{{ request.form.get('UserName', '') }}" required class="form-control" />
+      </div>
+
+      <!-- Password Input -->
+      <div class="form-group">
+        <ion-icon name="lock-closed-outline"></ion-icon>
+        <input type="password" name="MatKhau" placeholder="Password" value="{{ request.form.get('MatKhau', '') }}" required id="password" class="form-control" />
+        <ion-icon name="eye-off-outline" class="toggle-password" onclick="togglePasswordVisibility()"></ion-icon>
+      </div>
+
+      <!-- Forgot Password Link -->
+      <div class="login-options">
+        <a href="#">Quên mật khẩu?</a>
+      </div>
+
+      <!-- Login Button -->
+      <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+
+      <!-- Social Login Buttons -->
+      <div class="btn-social mt-4">
+        <button class="btn-google w-100">
+          <a href="{{ url_for('auth.google_login') }}">
+            <ion-icon name="logo-google"></ion-icon> Google
+          </a>
+        </button>
+        <button class="btn-facebook w-100">
+          <ion-icon name="logo-facebook"></ion-icon> Facebook
+        </button>
+      </div>
+
+      <p class="terms text-center mt-3">
+        Bạn chưa có tài khoản? <a href="{{ url_for('auth.sign_up') }}">Đăng ký ngay</a>
+      </p>
+    </form>
+  </div>
+
+  <style>
+    .custom-alert {
+      background-color: #f8d7da;  /* Màu nền thông báo lỗi */
+      border: 1px solid #f5c6cb;  /* Đường viền màu nhạt */
+      color: #721c24;  /* Màu chữ thông báo lỗi */
+      border-radius: 10px;  /* Góc bo tròn */
+      padding: 15px;  /* Thêm khoảng cách bên trong thông báo */
+      margin: 10px 0;  /* Thêm khoảng cách phía trên và dưới */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  /* Bóng đổ nhẹ */
+      transition: opacity 0.5s ease;  /* Hiệu ứng mờ dần */
+    }
+
+    .custom-alert .close-btn {
+      font-size: 1.5em;
+      color: #721c24;  /* Màu chữ "X" */
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .custom-alert .close-btn:hover {
+      color: #f5c6cb;  /* Màu khi hover lên dấu "X" */
+    }
+
+    .alert-icon {
+      font-size: 1.5em;
+      margin-right: 10px;
+    }
+
+    .message-text {
+      flex: 1;
+      font-size: 1em;
+    }
+  </style>
+
+  <script>
+    // Tự động đóng tất cả các thông báo sau 3 giây
+    setTimeout(function () {
+      var flashMessages = document.querySelectorAll('.flash-message');
+      flashMessages.forEach(function(flashMessage) {
+        flashMessage.classList.remove('show');
+        flashMessage.classList.add('fade');
+      });
+    }, 3000); // 3000ms = 3s
+
+    // Hàm đóng thông báo khi người dùng nhấn nút "Close"
+    function closeFlashMessage(button) {
+      var flashMessage = button.closest('.flash-message');
+      if (flashMessage) {
+        flashMessage.classList.remove('show');
+        flashMessage.classList.add('fade');
+      }
+    }
+  </script>
 {% endblock %}

@@ -1,0 +1,157 @@
+{% extends "user/nguoidung/base_user.html" %}
+
+{% block title %}
+Thông tin người dùng
+{% endblock %}
+
+{% block header %}
+<h1 class="text-center">Thông tin người dùng</h1>
+{% endblock %}
+
+{% block content %}
+<div class=" d-flex " style="display: flex;flex-direction: column;gap: 20px;">
+  <div class="row card shadow-sm p-4 " style="width: 90%;margin: auto;">
+    <div class="d-flex align-items-center">
+      <!-- Hình đại diện -->
+      <div class="me-4">
+        <img src="{{ avatar_url }}" alt="Image" class="rounded-circle img-fluid" style="width: 150px; height: 150px" />
+      </div>
+    </div>
+    <hr />
+    <div class="row">
+      <div class="col-12">
+        <p class="text-muted">Hãy kiểm tra kỹ thông tin dưới đây.</p>
+      </div>
+
+      <div class="row">
+        <div class="col-12 col-md-6">
+          <div class="mb-3">
+            <label for="fullname" class="form-label">Họ và tên</label>
+            <input type="text" id="fullname" class="form-control" value="{{ khachhang.HoKH }} {{ khachhang.TenKH }}"
+              readonly>
+          </div>
+
+          <div class="mb-3">
+            <label for="Email" class="form-label">Email</label>
+            <input type="text" id="Email" class="form-control" value="{{ khachhang.Email }}" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label for="SDT" class="form-label">Số điện thoại</label>
+            <input type="text" id="SDT" class="form-control" value="{{ khachhang.SDT }}" readonly>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <div class="mb-3">
+            <label for="DiemTieuDung" class="form-label">Điểm tiêu dùng</label>
+            <input type="text" id="DiemTieuDung" class="form-control" value="{{ khachhang.DiemTieuDung }}" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label for="DiemTichLuy" class="form-label">Điểm tích lũy</label>
+            <input type="text" id="DiemTichLuy" class="form-control" value="{{ khachhang.DiemTichLuy }}" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label for="NgayMoThe" class="form-label">Ngày mở thẻ</label>
+            <input type="text" id="NgayMoThe" class="form-control"
+              value="{{ khachhang.NgayMoThe.strftime('%d-%m-%Y') if khachhang.NgayMoThe else '' }}" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label for="LoaiKH" class="form-label">Loại khách hàng</label>
+            <input type="text" id="LoaiKH" class="form-control" value="{{ khachhang.LoaiKH }}" readonly>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nút chỉnh sửa thông tin người dùng -->
+      <div class="text-end mt-3">
+        <a href="{{ url_for('nguoidung.edit_customer', khachhang_id=khachhang.MaKH) }}" class="btn btn-primary">Chỉnh
+          sửa thông tin</a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Thông tin tài khoản -->
+
+  <div class="row card  shadow-sm p-4" style="width: 90%;margin:auto;">
+    <div class="mb-3">
+      <label for="UserName" class="form-label">Tên tài khoản</label>
+      <input type="text" id="UserName" class="form-control" value="{{ user.UserName }}" readonly />
+    </div>
+
+    <!-- Mật khẩu -->
+    <div class="mb-3">
+      <label for="MatKhau" class="form-label">Mật khẩu</label>
+      <input type="password" id="MatKhau" class="form-control" value="{{ user.MatKhau }}" readonly />
+    </div>
+
+    <div class="form-check">
+      <input type="checkbox" class="form-check-input" id="showPassword">
+      <label class="form-check-label" for="showPassword">Hiển thị mật khẩu</label>
+    </div>
+
+    <div class="text-end mt-3">
+      <a href="{{ url_for('nguoidung.edit_account_customer', user_id=user.MaND) }}" class="btn btn-primary">Chỉnh sửa
+        tài khoản</a>
+    </div>
+  </div>
+  </div>
+</div>
+  <!-- Script hiển thị mật khẩu -->
+  <script>
+    document.getElementById('showPassword').addEventListener('change', function () {
+      var passwordField = document.getElementById('MatKhau');
+      if (this.checked) {
+        passwordField.type = 'text'; // Hiển thị mật khẩu
+      } else {
+        passwordField.type = 'password'; // Ẩn mật khẩu
+      }
+    });
+  </script>
+
+  <style>
+    .card {
+      border-radius: 10px;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      width: 100%;
+    }
+
+    img.rounded-circle {
+      object-fit: cover;
+      border: 3px solid #007bff;
+    }
+
+    .form-control[readonly] {
+      background-color: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      font-weight: 500;
+      color: #495057;
+    }
+
+    .container {
+      max-width: 1200px;
+      /* Allow the container to grow wider */
+      margin: 0 auto;
+      padding: 20px;
+      /* Keep padding consistent */
+    }
+
+    .form-control {
+      width: 100%;
+      /* Ensure input fields span full width */
+    }
+
+    /* Hỗ trợ hiển thị trên thiết bị nhỏ */
+    @media (max-width: 768px) {
+      .col-md-6 {
+        width: 100%;
+      }
+    }
+  </style>
+
+  {% endblock %}

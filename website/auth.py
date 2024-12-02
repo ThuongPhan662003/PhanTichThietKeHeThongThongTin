@@ -51,7 +51,7 @@ def role_required(required_roles):
         @wraps(f)
         def decorated_function(*args, **kwargs):
 
-            if current_user.get_id() is None:
+            if current_user.MaND is None:
                 return redirect(url_for("auth.login"))  # Trang đăng nhập
 
             if isinstance(required_roles, list):
@@ -77,13 +77,12 @@ def login():
         print(UserName)
         user = NguoiDung.query.filter_by(UserName=UserName).first()
 
-        tenNND = (
-            NhomNguoiDung.query.filter_by(MaNND=user.idNND)
-            .first()
-            .getTenNhomNguoiDung()
-        )
         if user and user.MatKhau == MatKhau:
-
+            tenNND = (
+                NhomNguoiDung.query.filter_by(MaNND=user.idNND)
+                .first()
+                .getTenNhomNguoiDung()
+            )
             if tenNND != 'Khách hàng':
                 login_user(user, remember=True)
                 flash("Login successful!", category="success")
