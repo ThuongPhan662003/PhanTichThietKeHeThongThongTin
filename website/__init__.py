@@ -55,10 +55,8 @@ def create_app():
     mail = Mail(app)
     db.init_app(app)
 
-
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SCHEDULER_API_ENABLED"] = True
-
 
     # Định nghĩa function chạy job định kỳ
     def run_scheduled_job():
@@ -115,6 +113,7 @@ def create_app():
 
     from .controller.nhanvien import nhanvien
     from .controller.khachhang import khachhang
+    from .controller.chucnang import chucnang
 
     # Đăng ký blueprints
     app.register_blueprint(views, url_prefix="/")
@@ -135,9 +134,8 @@ def create_app():
     app.register_blueprint(dondathang, url_prefix="/dondathang")
     app.register_blueprint(khachhang, url_prefix="/khachhang")
     app.register_blueprint(report, url_prefix="/report")
-
-
-
+    app.register_blueprint(nhanvien, url_prefix="/nhanvien")
+    app.register_blueprint(chucnang, url_prefix="/chucnang")
     with app.app_context():
         db.create_all()
 
