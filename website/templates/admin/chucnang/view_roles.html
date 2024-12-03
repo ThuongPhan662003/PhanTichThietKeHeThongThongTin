@@ -1,0 +1,50 @@
+{% extends "admin/base.html" %}
+{% block title %}
+Chi tiết nhóm quyền
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">Chi tiết nhóm quyền</h1>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Thông tin nhóm người dùng</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Mã nhóm:</strong> {{ nhom_nguoi_dung.MaNND }}</p>
+                <p><strong>Tên nhóm:</strong> {{ nhom_nguoi_dung.TenNhomNguoiDung }}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Danh sách chức năng được phân quyền</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Mã chức năng</th>
+                            <th scope="col">Tên chức năng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for chuc_nang in chuc_nangs %}
+                        <tr>
+                            <td>{{ chuc_nang.MaCN }}</td>
+                            <td>{{ chuc_nang.TenManHinh }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <a href="{{ url_for('chucnang.list_chucnang') }}" class="btn btn-secondary mt-4">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -190,29 +190,12 @@
               </a>
             </li>
             <li class="navbar-item">
-            <a href="{{url_for("auth.login")}}" class="navbar-link hover-underline">
+            <a href="{{url_for("nguoidung.account")}}" class="navbar-link hover-underline">
               <div class="separator"></div>
 
-              <span class="span">Login</span>
+              <span class="span">Information</span>
             </a>
-            <li class="navbar-item">
-              <a href="{{url_for("auth.login")}}" class="navbar-link hover-underline" >
-                <div class="separator"></div>
-                <span class="span">
-                  <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
-                </span>
-                
-                <!-- Icon hình người -->
-              </a>
-              <!-- <div class="login-dropdown">
-                <a href="{{ url_for('auth.login') }}" class="dropdown-item"
-                  >Login</a
-                >
-                <a href="{{ url_for('auth.logout') }}" class="dropdown-item"
-                  >Logout</a
-                >
-              </div> -->
-            </li>
+            
           </li>
             
           </ul>
@@ -261,23 +244,7 @@
     </header>
 
     <main>
-      {% with messages = get_flashed_messages(with_categories=true) %} {% if
-      messages %} {% for category, message in messages %} {% if category ==
-      'error' %}
-      <div class="alert alert-danger alter-dismissable fade show" role="alert">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      {% else %}
-      <div class="alert alert-success alter-dismissable fade show" role="alert">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      {% endif %} {% endfor %} {% endif %} {% endwith %}
+      
 
       <article>
         {% block content %}
