@@ -8,3 +8,10 @@ pandas
 openpyxl
 xlsxwriter
 Flask-APScheduler
+reportlab
+beautifulsoup4
+Flask-Mail
+redis
+fullcalendar-scheduler
+unidecode
+email-validator

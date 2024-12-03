@@ -1,0 +1,53 @@
+{% extends "user/nguoidung/base_user.html" %}
+{% block title %}
+Chỉnh sửa thông tin khách hàng
+{% endblock %}
+{% block header %}
+<h1 class="text-center">Chỉnh sửa thông tin khách hàng</h1>
+{% endblock %}
+{% block content %}
+<div class="container mt-5" style="max-width: 800px;">
+    <form method="POST">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="HoKH" class="form-label">Họ tên</label>
+                    <input type="text" class="form-control" name="HoKH" value="{{ khachhang.HoKH }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="TenKH" class="form-label">Tên</label>
+                    <input type="text" class="form-control" name="TenKH" value="{{ khachhang.TenKH }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="Email" class="form-label">Email</label>
+                    <input type="email" class="form-control" name="Email" value="{{ khachhang.Email }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="SDT" class="form-label">Số điện thoại</label>
+                    <input type="text" class="form-control" name="SDT" value="{{ khachhang.SDT }}" required>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="DiemTieuDung" class="form-label">Điểm tiêu dùng</label>
+                    <input type="text" class="form-control" name="DiemTieuDung" value="{{ khachhang.DiemTieuDung }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="DiemTichLuy" class="form-label">Điểm tích lũy</label>
+                    <input type="text" class="form-control" name="DiemTichLuy" value="{{ khachhang.DiemTichLuy }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="LoaiKH" class="form-label">Loại khách hàng</label>
+                    <input type="text" class="form-control" name="LoaiKH" value="{{ khachhang.LoaiKH }}" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+            <a href="{{url_for('nguoidung.account')}}" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

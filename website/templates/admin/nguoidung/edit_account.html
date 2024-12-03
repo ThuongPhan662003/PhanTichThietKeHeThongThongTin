@@ -1,0 +1,51 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Chỉnh sửa tài khoản
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4">
+        <h1 class="text-primary">Chỉnh sửa tài khoản</h1>
+        <form method="POST">
+            <!-- Tên người dùng -->
+            <div class="mb-3">
+                <label for="UserName" class="form-label">Tên đăng nhập</label>
+                <input type="text" id="UserName" class="form-control" name="UserName" value="{{ user.UserName }}"
+                    readonly />
+            </div>
+
+            <!-- Mật khẩu -->
+            <div class="mb-3">
+                <label for="MatKhau" class="form-label">Mật khẩu</label>
+                <input type="password" id="MatKhau" class="form-control" name="MatKhau" value="{{ user.MatKhau }}"
+                    required />
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="showPassword">
+                <label class="form-check-label" for="showPassword">Hiển thị mật khẩu</label>
+            </div>
+
+            <!-- Nút lưu -->
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+                <a href="{{ url_for('nguoidung.account') }}" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    // Lắng nghe sự thay đổi của checkbox
+    document.getElementById('showPassword').addEventListener('change', function () {
+        var passwordField = document.getElementById('MatKhau');
+
+        // Nếu checkbox được tick, chuyển type thành 'text' để hiển thị mật khẩu
+        if (this.checked) {
+            passwordField.type = 'text';
+        } else {
+            passwordField.type = 'password';
+        }
+    });
+</script>
+{% endblock %}

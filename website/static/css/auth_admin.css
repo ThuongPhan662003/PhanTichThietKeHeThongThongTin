@@ -1,0 +1,133 @@
+a{
+    color: white;
+    text-decoration: none;
+}
+/* body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    margin: 0;
+} */
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h2 {
+    color: #2fbf3b;
+    margin-bottom: 0.5rem;
+}
+
+p.description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    background-color: #f0f8ff;
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.form-group input {
+    border: none;
+    background: none;
+    flex-grow: 1;
+    font-size: 1rem;
+    padding: 0.5rem;
+    outline: none;
+}
+
+.form-group ion-icon {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+    color: #2fbf3b;
+}
+
+.form-group .toggle-password {
+    cursor: pointer;
+    color: #666;
+}
+
+.login-options {
+    text-align: left;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.login-options a {
+    color: #2fbf3b;
+    text-decoration: none;
+}
+
+.btn {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #2fbf3b;
+    color: white;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    a{
+        width: 50px;
+    }
+}
+
+.btn-social {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.btn-social button {
+    flex-grow: 1;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+}
+
+.btn-google {
+    background-color: #db4437;
+}
+
+.btn-facebook {
+    background-color: #4267b2;
+}
+
+.btn-linkedin {
+    background-color: #0077b5;
+}
+
+.terms {
+    font-size: 0.8rem;
+    color: #666;
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.terms a {
+    color: #2fbf3b;
+    text-decoration: none;
+}
+
+

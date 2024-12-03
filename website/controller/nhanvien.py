@@ -59,8 +59,8 @@ def employee():
 
     # Phân trang danh sách khách hàng
     page = request.args.get('page', 1, type=int) 
-    per_page = 3
-    pagination = NhanVien.query.paginate(page=page, per_page=per_page)
+    per_page = 5
+    pagination = NhanVien.query.order_by(NhanVien.MaNV.desc()).paginate(page=page, per_page=per_page)
     nhanvien_list = pagination.items
     return render_template('admin/nhanvien/nhanvien.html', listNV=nhanvien_list,
                         formAdd=form, formSearch=formSearch, pagination=pagination,

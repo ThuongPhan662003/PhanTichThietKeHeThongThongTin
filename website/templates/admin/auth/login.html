@@ -1,0 +1,73 @@
+<div class="container">
+    {% extends "auth/base.html" %} {% block title %} Login {% endblock %} {% block
+content %} {% for message in get_flashed_messages() %}
+<div
+  class="alert alert-dismissible fade show custom-alert alert-warning"
+  role="alert"
+>
+  <div class="d-flex align-items-center">
+    <!-- Icon for alert type -->
+    <ion-icon name="warning-outline" class="alert-icon"></ion-icon>
+    <div class="message-text">
+      <strong>{{ message }}</strong>
+    </div>
+    <!-- Close Button -->
+    <button
+      type="button"
+      class="btn-close ms-auto"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+</div>
+{% endfor %}
+
+<div class="login-container">
+  <h2>Admin Grilli - Amazing & Delicious Food</h2>
+  <!-- <p class="description">Cùng nhau đắm chìm trong hương vị của những món ăn ngon</p> -->
+
+  <!-- Login Form -->
+  <form method="post" action="{{ url_for('admin.login') }}">
+    <!-- Email Input -->
+    <div class="form-group">
+      <ion-icon name="mail-outline"></ion-icon>
+      <input type="text" name="UserName" placeholder="UserName" required />
+    </div>
+
+    <!-- Password Input -->
+    <div class="form-group">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+      <input
+        type="password"
+        name="MatKhau"
+        placeholder="Password"
+        required
+        id="password"
+      />
+      <ion-icon
+        name="eye-off-outline"
+        class="toggle-password"
+        onclick="togglePasswordVisibility()"
+      ></ion-icon>
+    </div>
+
+    <!-- Forgot Password Link -->
+    <div class="login-options">
+      <a href="#">Quên mật khẩu</a>
+    </div>
+
+    <!-- Login Button -->
+    <button type="submit" class="btn">Đăng nhập</button>
+
+    
+
+    <p class="terms">
+      Bạn chưa có tài khoản?
+      <a href="{{ url_for('admin.sign_up') }}">Đăng ký ngay</a>
+    </p>
+  </form>
+</div>
+
+{% endblock %}
+
+</div>

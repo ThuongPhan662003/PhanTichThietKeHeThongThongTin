@@ -329,6 +329,17 @@ body.nav-active { overflow: hidden; }
   margin-inline: auto;
   margin-block-start: 5px;
 }
+.login-dropdown {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  min-width: 160px;
+  right: 0;
+  top: 40px;
+  /* Tùy chỉnh khoảng cách từ biểu tượng người */
+  z-index: 1000;
+}
 
 .btn {
   position: relative;
