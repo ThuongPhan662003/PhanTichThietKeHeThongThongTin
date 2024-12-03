@@ -72,12 +72,9 @@ def create_app():
     from .controller.phieunhap import phieunhap
     from .controller.phieuxuat import phieuxuat
     from .controller.nguoidung import nguoidung
-<<<<<<< HEAD
     from .controller.nhanvien import nhanvien
     from .controller.khachhang import khachhang
-=======
     from .controller.dondathang import dondathang
->>>>>>> 12213f8ca82215827581b29b78bf4e90167baf69
 
     # Đăng ký blueprints
     app.register_blueprint(views, url_prefix="/")
@@ -86,12 +83,9 @@ def create_app():
     app.register_blueprint(phieunhap, url_prefix="/phieunhap")
     app.register_blueprint(phieuxuat, url_prefix="/phieuxuat")
     app.register_blueprint(nguoidung, url_prefix="/nguoidung")
-<<<<<<< HEAD
     app.register_blueprint(nhanvien, url_prefix="/nhanvien")
     app.register_blueprint(khachhang, url_prefix="/khachhang")
-=======
     app.register_blueprint(dondathang, url_prefix="/dondathang")
->>>>>>> 12213f8ca82215827581b29b78bf4e90167baf69
 
     with app.app_context():
         db.create_all()

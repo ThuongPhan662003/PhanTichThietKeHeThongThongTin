@@ -7,5 +7,4 @@ flask_session
 pandas
 openpyxl
 xlsxwriter
-fullcalendar-scheduler
 Flask-APScheduler

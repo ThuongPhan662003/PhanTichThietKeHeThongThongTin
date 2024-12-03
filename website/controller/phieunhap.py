@@ -226,6 +226,7 @@ def export_to_excel(note_id):
         as_attachment=True,
         download_name=filename
     )
+
 @phieunhap.route('/edit_phieunhap/<int:note_id>', methods=['GET', 'POST'])
 @login_required
 def edit_phieunhap(note_id):
@@ -272,7 +273,11 @@ def edit_phieunhap(note_id):
             flash(f'Lỗi khi cập nhật phiếu nhập: {str(e)}', 'danger')
             return redirect(url_for('phieunhap.edit_phieunhap', note_id=note_id)) 
 
-    ingredients = NguyenLieu.query.all()
+    ingredients = NguyenLieu.query.filter(
+        ~NguyenLieu.MaNL.in_(
+            db.session.query(CT_PHIEUNHAP.idNL).filter_by(idNhap=note_id)
+        )
+    ).all()
     
     return render_template(
         'admin/phieunhap/formUpdatePN.html',

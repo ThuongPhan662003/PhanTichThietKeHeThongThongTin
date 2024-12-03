@@ -47,6 +47,7 @@ class CT_MonAn(db.Model):
 
     idDDH = db.Column(db.Integer, db.ForeignKey("DonDatHang.MaDDH"), primary_key=True)
     idMA = db.Column(db.Integer, db.ForeignKey("MonAn.MaMA"), primary_key=True)
+    idBan = db.Column(db.Integer, db.ForeignKey("Ban.MaBan"), primary_key=True)
     SoLuong = db.Column(db.Integer, nullable=False)
     GiaMon = db.Column(db.Text, nullable=False)
     GhiChu = db.Column(db.String(200), nullable=True)

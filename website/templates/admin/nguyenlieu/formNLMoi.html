@@ -36,30 +36,6 @@
                     Vui lòng chọn đơn vị tính!
                 </div>
             </div>
-            {% if ingredient %}
-            {% else%}
-            <div class="col-md-6">
-                {{ form.NgayNhap.label(class="form-label") }}<span style="color: red;">*</span>
-                {{ form.NgayNhap(class="form-control", id="ngayNhap", required=True, placeholder='Bấm vào để chọn') }}
-                <div class="invalid-feedback">
-                    Vui lòng nhập ngày!
-                </div>
-            </div>
-            <script>
-                flatpickr("#ngayNhap", {
-                    enableTime: true,
-                    dateFormat: "d-m-Y H:i",
-                    maxDate: "today"
-                });
-            </script>
-            <div class="col-md-6">
-                {{ form.SoLuongTon.label(class="form-label") }}<span style="color: red;">*</span>
-                {{ form.SoLuongTon(class="form-control", id="SoLuongTon", required=True, placeholder='VD: 5') }}
-                <div class="invalid-feedback">
-                    Vui lòng nhập số lượng!
-                </div>
-            </div>
-            {% endif %}
 
             <div class="col-12">
                 <button type="submit" class="btn btn-outline-primary">
@@ -87,7 +63,7 @@
                 </a>
                 {% else %}
                 <button type="reset" class="btn btn-outline-secondary">
-                    <i class="bi bi-eraser"></i> Clear
+                    Clear
                 </button>
                 {% endif %}
             </div>
