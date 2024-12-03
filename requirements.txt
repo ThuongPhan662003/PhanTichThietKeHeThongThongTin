@@ -7,9 +7,14 @@ flask_session
 pandas
 openpyxl
 xlsxwriter
-fullcalendar-scheduler
 Flask-APScheduler
+reportlab
+beautifulsoup4
+Flask-Mail
+redis
+fullcalendar-scheduler
 unidecode
 WTForms-Alchemy
 wtforms-sqlalchemy
 weasyprint
+email-validator

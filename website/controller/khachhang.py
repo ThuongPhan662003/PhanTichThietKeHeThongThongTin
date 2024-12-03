@@ -6,7 +6,7 @@ from decimal import Decimal
 from website import db
 from website.webforms import KhachHangForm
 from website.webforms import SearchKhachHangForm
-from website.models import KhachHang
+from website.models import THAMSO, KhachHang
 from unidecode import unidecode
 import os
 
@@ -57,8 +57,8 @@ def customer():
 
     # Phân trang danh sách khách hàng
     page = request.args.get('page', 1, type=int) 
-    per_page = 3
-    pagination = KhachHang.query.paginate(page=page, per_page=per_page)
+    per_page = 5
+    pagination = KhachHang.query.order_by(KhachHang.MaKH.desc()).paginate(page=page, per_page=per_page)
     khachhang_list = pagination.items
 
     return render_template('admin/khachhang/khachhang.html', listKH=khachhang_list,
@@ -73,35 +73,53 @@ def khachhang_info(makh):
     form = KhachHangForm()
     form_error = False
 
+    mess = request.args.get('mess')
+    print (mess)
+    if mess:
+        flash(mess, 'danger')
+
     if request.method == "POST":
         if form.validate_on_submit():
+            
+            try: 
+                cus1 = KhachHang.query.filter_by(Email=form.Email.data).first()
+                cus2 = KhachHang.query.filter_by(SDT=form.SDT.data).first()
 
-            cus1 = KhachHang.query.filter_by(Email=form.Email.data).first()
-            cus2 = KhachHang.query.filter_by(SDT=form.SDT.data).first()
+                # Kiểm tra trùng mail khách hàng
+                if cus1 and cus1.MaKH != kh.MaKH:
+                    form.Email.errors.append("Email đã được sử dụng bởi một khách hàng khác")
+                    
+                # Kiểm tra trùng sdt khách hàng
+                elif cus2 and cus2.MaKH != kh.MaKH:
+                    form.SDT.errors.append("SĐT đã được sử dụng bởi một khách hàng khác")
 
-            # Kiểm tra trùng mail khách hàng
-            if cus1 and cus1.MaKH != kh.MaKH:
-                form.Email.errors.append("Email đã được sử dụng bởi một khách hàng khác")
+                else:
+                    kh.HoKH = form.HoKH.data
+                    kh.TenKH = form.TenKH.data
+                    kh.Email=form.Email.data 
+                    kh.SDT=form.SDT.data
+                    kh.NgayMoThe=datetime.strptime(form.NgayMoThe.data, '%d/%m/%Y').date()
+                    kh.DiemTieuDung=form.DiemTieuDung.data
+                    kh.DiemTichLuy=form.DiemTichLuy.data
+
+                    tham_so = THAMSO.query.get(1)
+                    if kh.DiemTichLuy >= tham_so.Vang:
+                        kh.LoaiKH = 'Vàng'
+                    elif kh.DiemTichLuy >= tham_so.Bac:
+                        kh.LoaiKH = 'Bạc'
+                    elif kh.DiemTichLuy >= tham_so.Dong:
+                        kh.LoaiKH = 'Đồng'
+                    else: kh.LoaiKH = 'Thường'
+
+                    db.session.commit()
+                    flash("Thông tin đã được cập nhật thành công!", "success")
+                    return redirect(url_for('khachhang.khachhang_info', makh=kh.MaKH))
+            except Exception as e:
+                flash("Cập nhật thông tin thất bại!", "danger")
+                print(str(e))
+                db.session.rollback()
+                form_error = True
                 
-            # Kiểm tra trùng sdt khách hàng
-            elif cus2 and cus2.MaKH != kh.MaKH:
-                form.SDT.errors.append("SĐT đã được sử dụng bởi một khách hàng khác")
-
-            else:
-                kh.HoKH = form.HoKH.data
-                kh.TenKH = form.TenKH.data,
-                kh.Email=form.Email.data,  
-                kh.SDT=form.SDT.data,
-                kh.NgayMoThe=datetime.strptime(form.NgayMoThe.data, '%d/%m/%Y').date()
-                kh.DiemTieuDung=form.DiemTieuDung.data,
-                kh.DiemTichLuy=form.DiemTichLuy.data,
-
-                db.session.commit()
-                flash("Thông tin đã được cập nhật thành công!", "success")
-                return redirect(url_for('khachhang.khachhang_info', makh=kh.MaKH))
-         
-        flash("Cập nhật thông tin thất bại!", "danger")
-        form_error = True
 
     form.HoKH.data = kh.HoKH
     form.TenKH.data = kh.TenKH
@@ -161,19 +179,30 @@ def search():
 @khachhang.route("/<int:makh>/xoa", methods=["GET", "POST"])
 @login_required
 def xoa_kh(makh):
+    form = KhachHangForm()
+    form_error = False
     kh = KhachHang.query.get_or_404(makh)
-    if request.method == "POST":
-        # Kiểm tra khách hàng có hóa đơn hoặc tài khoản không, có thì không được xóa
-        if kh.hoa_don and kh.nguoi_dung:
-            flash("Khách hàng đã có tài khoản hoặc đã đặt đơn! Không thể xóa!", "danger") # xử lý chưa ổn lắm
-        else: 
-            try:
-                db.session.delete(kh)
-                db.session.commit()
-                flash('Xóa khách hàng thành công!', 'success')
-                return redirect(url_for('khachhang.customer'))
-            except Exception as e:
-                db.session.rollback()
-                flash(f"Lỗi xóa khách hàng {e}", 'error')
+    loaikh = unidecode(kh.LoaiKH)
+
+    print(kh.hoa_don)
+    print(kh.nguoi_dung)
+ 
+    # Kiểm tra khách hàng có hóa đơn hoặc tài khoản không, có thì không được xóa
+    if kh.hoa_don or kh.nguoi_dung:
+        mess = "Không thể xóa khách hàng do đã có đơn đặt hàng/ tài khoản"
+        print(f"Không thể xóa {mess}")
+        return redirect(url_for('khachhang.khachhang_info', makh=makh, mess=mess))
+    else: 
+        try:
+            db.session.delete(kh)
+            db.session.commit()
+            flash('Xóa khách hàng thành công!', 'success')
+            return redirect(url_for('khachhang.customer'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Lỗi xóa khách hàng {e}", 'error')
+            mess = f"Lỗi xóa khách hàng {e}"
+            return redirect(url_for('khachhang.khachhang_info', makh=makh, mess=mess))
 
     return redirect(url_for('khachhang.khachhang_info', makh=kh.MaKH))
+

@@ -1,0 +1,139 @@
+<!-- Modal Nhập Số Điện Thoại
+<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderModalLabel">Nhập số điện thoại</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="phoneForm">
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label">Vui lòng nhập số điện thoại để kiểm tra đơn</label>
+                        <input type="text" class="form-control" id="phoneNumber" placeholder="Nhập số điện thoại"
+                            required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Xác nhận</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<!-- Modal Thông Tin Đơn Hàng (infoModal) -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Header của Modal -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel">Thông tin đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Body của Modal -->
+            <div class="modal-body" id="infoModalBody">
+                <!-- Nội dung sẽ được cập nhật động khi có dữ liệu -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Lắng nghe sự kiện khi bấm nút "Order đồ ăn"
+    document.getElementById('order-btn').addEventListener('click', function () {
+        var maDDH = document.getElementById('maDDH').value;
+        maDDH = parseInt(maDDH, 10); 
+        var urlCombine = `/order/?action=combine&maddh=${maDDH}`;
+        var urlSame = `/order/?action=same&maddh=${maDDH}`;
+        var urlSeperate = `/order/?action=seperate&maddh=${maDDH}`;
+        var urlNormal = `/order/?action=normal&maddh=${maDDH}`;
+        
+        console.log(`/order/getCustomerData?maddh=${maDDH}`);
+        // Gửi yêu cầu đến server để lấy dữ liệu khách hàng và đơn đặt hàng
+        fetch(`/order/getCustomerData?maddh=${maDDH}`)
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Lỗi HTTP:', response.status); // Mã lỗi HTTP (ví dụ: 404, 500, v.v.)
+                    return response.text();
+                }
+                return response.json();
+            })
+            .then(data => {
+                showCustomerOrderModal(data.KhachHang, data.DonDatHang);
+
+                // Đảm bảo tất cả modal đang mở được đóng trước khi hiển thị infoModal
+                const allModals = document.querySelectorAll('.modal');
+                allModals.forEach(modal => {
+                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                    if (modalInstance && modalInstance._isShown) {
+                        modalInstance.hide();
+                    }
+                });
+
+                // Hiển thị modal infoModal
+                const infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
+                infoModal.show()
+
+                var modalBackdrop = document.querySelectorAll('.modal-backdrop');
+                if (modalBackdrop.length > 0) {
+                    modalBackdrop.forEach(function (backdrop) {
+                        backdrop.remove();
+                    });
+                }
+            })
+            .catch(error => {
+                alert(error.message || 'Đã xảy ra lỗi.');
+                console.error('Error:', error);
+            });
+
+        // Hàm hiển thị thông tin khách hàng và đơn đặt hàng duy nhất
+        function showCustomerOrderModal(customer, order) {
+            const modalContent = `
+                <div class="modal-body">
+                    <section class="mb-4">
+                        <h6 class="text-dark">Thông tin khách hàng</h6>
+                        <div class="p-3 bg-light rounded">
+                            <p><strong>Tên:</strong> ${customer.TenKH}</p>
+                            <p><strong>Số điện thoại:</strong> ${customer.SoDienThoai}</p>
+                        </div>
+                    </section>
+
+                    <section class="mb-4">
+                        <h6 class="text-dark">Thông tin đơn đặt hàng</h6>
+                        <div class="p-3 bg-light rounded">
+                            <p><strong>Mã đơn hàng:</strong> ${order.MaDDH}</p>
+                            <p><strong>Ngày đặt:</strong> ${order.NgayDat || 'N/A'}</p>
+                            <p><strong>Trạng thái:</strong> ${order.TrangThai || 'N/A'}</p>
+                            <p><strong>Số bàn:</strong>
+                                <span>
+                                    ${order.Ban.map(ban => `<span class="badge bg-primary rounded-pill me-2">${ban}</span>`).join('')}
+                                </span>
+                            </p>
+                        </div>
+                    </section>
+
+                    <section id="orderOptions" style="display: ${order.Ban.length > 1 ? 'block' : 'none'};">
+                        <h6 class="text-secondary">Tùy chọn đặt món</h6>
+                        <div class="button-container d-flex justify-content-center gap-3">
+                            <a href='${urlCombine}' class="btn btn-success" id="combineOrder" data-action="combine" data-bs-toggle="tooltip" data-bs-placement="top" title="Đặt chung món cho các bàn">Đặt chung</a>
+                            <a href='${urlSame}' class="btn btn-warning" id="sameOrder" data-action="same" data-bs-toggle="tooltip" data-bs-placement="top" title="Đặt giống món cho các bàn">Đặt giống</a>
+                            <a href='${urlSeperate}' class="btn btn-secondary" id="separateOrder" data-action="separate" data-bs-toggle="tooltip" data-bs-placement="top" title="Đặt riêng từng bàn">Đặt riêng</a>
+                        </div>
+                    </section>
+
+                    <section id="normalOrderSection" style="display: ${order.Ban.length === 1 ? 'block' : 'none'};">
+                        <div class="d-flex justify-content-center">
+                            <a href="${urlNormal}" class="btn btn-danger" id="normalOrder" data-action="normal" data-bs-toggle="tooltip" data-bs-placement="top" title="Order món ăn">Order món ăn</a>
+                        </div>
+                    </section>
+                </div>
+            `;
+
+            // Thay thế nội dung modal
+            document.getElementById('infoModalBody').innerHTML = modalContent;
+        }
+    });
+
+</script>

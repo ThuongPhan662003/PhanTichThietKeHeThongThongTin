@@ -1,0 +1,41 @@
+
+.order-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.checkout-panel {
+    background-color: rgb(90 93 182);
+    border-radius: 15px;
+    color: white;
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-checkout {
+    background-color: #51b198;
+    color: white;
+    border: none;
+    /* padding: 10px 20px; */
+}
+
+.btn-checkout:hover {
+    background-color: #5cc0a8;
+}
+
+.total-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.product-image {
+    border-radius: 10px;
+}

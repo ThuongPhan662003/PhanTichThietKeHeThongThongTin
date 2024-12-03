@@ -1,0 +1,147 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Thanh toán{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5 p-4 bg-white rounded shadow-sm" style="max-width: 900px;">
+    <h4 class="text-center text-primary mb-4 fw-bold">HÓA ĐƠN CHI TIẾT</h4>
+
+    <!-- Thông tin đơn hàng -->
+    <div>
+        <p><strong>Số hóa đơn:</strong> #{{ invoice.info.hoadon.MaHD }}</p>
+        <p><strong>Khách hàng:</strong> {{ invoice.info.khachhang }}</p>
+        <p><strong>Ngày lập:</strong> {{ invoice.info.ngaylaphd }}</p>
+        <p><strong>Nhân viên xuất:</strong> {{ invoice.info.nhanvien }}</p>
+    </div>
+
+    <hr>
+
+    <h5 class="mb-3">Chi tiết đơn hàng</h5>
+    <!-- Danh sách món ăn -->
+    {% for order in invoice.data.values() %}
+    {% for ban in order.ban %}
+    <div class="fw-bold mt-3 mb-3">{{ ban.Ban.TenBan }}</div>
+    {% for item in ban.mon_an %}
+    <div id="order-details">
+        <div class="card mb-3 d-flex" style="border: 1px solid #ddd; border-radius: 8px;">
+            <div class="d-flex justify-content-between align-items-center p-3">
+                <div>
+                    <p class="mb-1 fw-bold">{{ item.mon_an.TenMonAn }}</p>
+                    <p class="mb-1 text-secondary">{{ item.mon_an.DonGia }} VND/1 món</p>
+                </div>
+                <div class="text-end">
+                    <p class="mb-1 quantity">x {{ item.so_luong }}</p>
+                    <p>{{ (item.so_luong | int) *
+                        (item.mon_an.DonGia | int) }} VND</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+    {% endfor %}
+
+    <hr>
+
+    <!-- Summary Section -->
+    <div class="mt-4">
+        <div class="container">
+            <div class="row mb-3">
+                <div class="col-6">Tổng số món</div>
+                <div class="col-6 text-end" id="total-items">0</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-6">Tổng tiền</div>
+                <div class="col-6 text-end">{{ invoice.info.hoadon.DiemCong * 100| int }} VND</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-6">Thuế (VAT)</div>
+                <div class="col-6 text-end">{{ invoice.info.hoadon.TienThue }} VND</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-6">Giảm bằng voucher</div>
+                <div class="col-6 text-end">{{ (invoice.info.hoadon.DiemCong * 100 | int) +
+                    (invoice.info.hoadon.TienThue | int) - (invoice.info.hoadon.TongTien|int) -
+                    (invoice.info.hoadon.DiemTru|int) }} VND</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-6">Giảm bằng điểm</div>
+                <div class="col-6 text-end">{{ invoice.info.hoadon.DiemTru }} VND</div>
+            </div>
+            <hr>
+            <div class="row mb-3">
+                <div class="col-6 fw-bold">TỔNG THANH TOÁN</div>
+                <div class="col-6 text-end fw-bold">{{ invoice.info.hoadon.TongTien | int }} VND</div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-center mt-4">
+                <button class="btn btn-outline-danger me-3" id="export-pdf">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-download" viewBox="0 0 16 16">
+                        <path
+                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                        <path
+                            d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
+                    </svg>
+                    Xuất PDF</button>
+                <a class="btn btn-outline-warning" href="">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-arrow-bar-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5" />
+                    </svg>
+                    Trở về trang đặt đơn</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script id="invoice-data" type="application/json">
+    {{ invoice | tojson }}
+</script>
+
+<script>
+    // Lấy dữ liệu JSON từ thẻ script ẩn
+    const invoiceData = JSON.parse(document.getElementById("invoice-data").textContent);
+
+    document.getElementById("export-pdf").addEventListener("click", function () {
+        console.log(invoiceData);
+
+        // Gửi dữ liệu `invoiceData` đến API
+        fetch("/checkout/export_pdf", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(invoiceData) // Chuyển đổi thành JSON string
+        })
+            .then(response => {
+                if (!response.ok) {
+                    // Nếu phản hồi không thành công, log thêm thông tin chi tiết
+                    console.error(`Lỗi xuất PDF: HTTP ${response.status} - ${response.statusText}`);
+                    return response.text().then(errorText => {
+                        console.error("Chi tiết lỗi từ server:", errorText);
+                        throw new Error(`Không thể xuất PDF: ${response.statusText}`);
+                    });
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Tạo liên kết tải về từ blob
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = "invoice.pdf"; // Tên tệp PDF tải xuống
+                document.body.appendChild(a);
+                a.click(); // Kích hoạt sự kiện tải xuống
+                window.URL.revokeObjectURL(url); // Giải phóng bộ nhớ URL
+            })
+            .catch(error => console.error("Lỗi:", error)); // Ghi lại lỗi nếu xảy ra
+    });
+
+</script>
+
+{% endblock %}

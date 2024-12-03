@@ -1,5 +1,11 @@
-from datetime import datetime
+
+from datetime import date, time
+import datetime
 from email.policy import default
+import json
+
+from flask import url_for
+
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
@@ -48,8 +54,8 @@ class CT_MonAn(db.Model):
 
     idDDH = db.Column(db.Integer, db.ForeignKey("DonDatHang.MaDDH"), primary_key=True)
     idMA = db.Column(db.Integer, db.ForeignKey("MonAn.MaMA"), primary_key=True)
+    idBan = db.Column(db.Integer, db.ForeignKey("Ban.MaBan"), primary_key=True)
     SoLuong = db.Column(db.Integer, nullable=False)
-    GiaMon = db.Column(db.Text, nullable=False)
     GhiChu = db.Column(db.String(200), nullable=True)
 
     don_dat_hang = db.relationship("DonDatHang", backref="ct_mon_an")
@@ -66,6 +72,21 @@ class CT_MonAn(db.Model):
         if value < 1000:
             raise ValueError("Giá món phải lớn hơn hoặc bằng 1000.")
         return value
+    
+    def to_dict(self):
+        """Chuyển đổi đối tượng thành dictionary để serialize."""
+        return {
+            "idDDH": self.idDDH,
+            "idMA": self.idMA,
+            "idBan": self.idBan,
+            "SoLuong": self.SoLuong,
+            "GiaMon": self.GiaMon,
+            "GhiChu": self.GhiChu,
+        }
+
+    def to_json(self):
+        """Chuyển đổi đối tượng thành JSON."""
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=4)
 
 
 class KhachHang(db.Model):
@@ -79,6 +100,7 @@ class KhachHang(db.Model):
     NgayMoThe = db.Column(db.Date, nullable=False)
     DiemTieuDung = db.Column(db.Integer, nullable=False)
     DiemTichLuy = db.Column(db.Integer, nullable=False)
+    GioiTinh = db.Column(db.Integer,nullable=False)
     idNguoiDung = db.Column(
         db.Integer,
         db.ForeignKey("NguoiDung.MaND"),
@@ -86,7 +108,7 @@ class KhachHang(db.Model):
     )
     LoaiKH = db.Column(db.String(10), nullable=False)
     nguoi_dung = db.relationship("NguoiDung", back_populates="khach_hang")
-    hoa_don = db.relationship("HoaDon", backref="khach_hang")
+    hoa_don = db.relationship("HoaDon", backref="khach_hang", uselist=False)
 
 
 class HoaDon(db.Model):
@@ -107,6 +129,7 @@ class HoaDon(db.Model):
     TienThue = db.Column(db.Text, nullable=False)
     DiemCong = db.Column(db.Integer, nullable=False)
     DiemTru = db.Column(db.Integer, nullable=False)
+    don_dat_hang = db.relationship("DonDatHang", backref="hoa_don", uselist=False)
 
     @db.validates("DiemCong")
     def validate_diem_cong(self, key, value):
@@ -119,10 +142,30 @@ class HoaDon(db.Model):
         if value < 0:
             raise ValueError("Điểm trừ không được nhỏ hơn 0.")
         return value
+    
+    def to_dict(self):
+        """Chuyển đổi đối tượng thành dictionary để serialize."""
+        return {
+            "MaHD": self.MaHD,
+            "idKH": self.idKH,
+            "idDDH": self.idDDH,
+            "idNV": self.idNV,
+            "NgayXuat": self.NgayXuat.isoformat() if self.NgayXuat else None,
+            "TongTienGiam": self.TongTienGiam,
+            "TongTien": self.TongTien,
+            "TrangThai": self.TrangThai,
+            "TienThue": self.TienThue,
+            "DiemCong": self.DiemCong,
+            "DiemTru": self.DiemTru,
+        }
+
+    def to_json(self):
+        """Chuyển đổi đối tượng thành JSON."""
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=4)
 
 
 class CT_DonDatHang(db.Model):
-    __tablename__ = "CT_DonDatHang"
+    __tablename__ = "CT_DDH"
 
     idDDH = db.Column(
         db.Integer,
@@ -130,6 +173,7 @@ class CT_DonDatHang(db.Model):
         primary_key=True,
     )
     idBan = db.Column(db.Integer, db.ForeignKey("Ban.MaBan"), primary_key=True)
+    ThanhTien = db.Column(db.Integer, nullable=False, default=0)
 
 
 class NhanVien(db.Model):
@@ -148,6 +192,27 @@ class NhanVien(db.Model):
     hoa_don = db.relationship("HoaDon", backref="nhan_vien")
     nguoi_dung = db.relationship("NguoiDung", back_populates="nhan_vien")
 
+    @db.validates("CCCD")
+    def validate_cccd(self, key, value):
+        if not value.isdigit() or len(value) != 12:
+            raise ValueError("CCCD phải là một chuỗi số 12 chữ số!")
+        return value
+
+    @db.validates("SDT")
+    def validate_sdt(self, key, value):
+        if not value.isdigit() or len(value) != 10:
+            raise ValueError("SDT phải là một chuỗi số 10 chữ số!")
+        return value
+    def getHoTenNV(self):
+        return self.HoNV + " "+ self.TenNV
+    def set_idNguoiDung(self,idNguoiDung):
+        self.idNguoiDung = idNguoiDung
+
+    def get_idNguoiDung(self):
+        return self.idNguoiDung
+
+from datetime import datetime, date, time
+
 
 
 class DonDatHang(db.Model):
@@ -155,22 +220,120 @@ class DonDatHang(db.Model):
 
     MaDDH = db.Column(db.Integer, primary_key=True, autoincrement=True)
     NgayDat = db.Column(db.Date, nullable=False)
+    HoTenNguoiDat = db.Column(db.String, nullable=False)
+    Email = db.Column(db.String, nullable=False)
+    SDT = db.Column(db.String, nullable=False)
     TrangThai = db.Column(db.String(20), nullable=False)
-    Loai = db.Column(db.Boolean, nullable=False)
+    Loai = db.Column(db.Integer, nullable=False, default=1)
     GioDen = db.Column(db.Time, nullable=False)
     ThoiLuong = db.Column(db.Float) 
     SoLuongNguoi = db.Column(db.Integer)
     idNV = db.Column(db.Integer, db.ForeignKey("NhanVien.MaNV"), nullable=False)
     ThanhTien = db.Column(db.Numeric(15, 2), nullable=False, default=0.00)
     GhiChu = db.Column(db.String(1000))
-    ct_don_dat_hang = db.relationship("CT_DonDatHang", backref="don_dat_hang")
-    hoa_don = db.relationship("HoaDon", backref="don_dat_hang")
+    ct_don_dat_hang = db.relationship("CT_DonDatHang", backref="don_dat_hang", lazy=True)
+    # hoa_don = db.relationship("HoaDon", back_populates="don_dat_hang")
 
-    @db.validates("TrangThai")
-    def validate_trang_thai(self, key, value):
+    def __init__(
+        self,
+        NgayDat,
+        HoTenNguoiDat,
+        Email,
+        SDT,
+        TrangThai,
+        Loai,
+        GioDen,
+        ThoiLuong=None,
+        idNV=None,
+        ThanhTien=None,
+    ):
+        # Xác thực và làm sạch dữ liệu
+        self.NgayDat = self.validate_ngay_dat(NgayDat)
+        self.HoTenNguoiDat = self.validate_ho_ten_nguoi_dat(HoTenNguoiDat)
+        self.Email = self.validate_email(Email)
+        self.SDT = self.validate_sdt(SDT)
+        self.TrangThai = self.validate_trang_thai(TrangThai)
+        self.Loai = self.validate_loai(Loai)
+        self.GioDen = self.validate_gio_den(GioDen)
+        self.ThoiLuong = self.validate_thoi_luong(ThoiLuong)
+        self.idNV = idNV
+        self.ThanhTien = self.validate_thanh_tien(ThanhTien)
+
+    def validate_ngay_dat(self, value):
+        if not value or not isinstance(value, date):
+            raise ValueError(
+                "Ngày đặt không được bỏ trống và phải là kiểu ngày hợp lệ!"
+            )
+        if value > datetime.now().date():
+            raise ValueError("Ngày đặt không được là ngày trong tương lai!")
+        return value
+
+    def validate_ho_ten_nguoi_dat(self, value):
+        if not value or not value.strip():
+            raise ValueError("Họ tên người đặt không được bỏ trống!")
+        if len(value) > 255:
+            raise ValueError("Họ tên người đặt không được vượt quá 255 ký tự!")
+        return value
+
+    def validate_email(self, value):
+        if not value or not value.strip():
+            raise ValueError("Email không được bỏ trống!")
+        if "@" not in value or "." not in value:
+            raise ValueError("Email không hợp lệ!")
+        return value
+
+    def validate_sdt(self, value):
+        if not value or not value.strip():
+            raise ValueError("Số điện thoại không được bỏ trống!")
+        if not value.isdigit() or len(value) < 10 or len(value) > 15:
+            raise ValueError(
+                "Số điện thoại phải là chuỗi số và có độ dài từ 10 đến 15 ký tự!"
+            )
+        return value
+
+    def validate_trang_thai(self, value):
         valid_trang_thai = ["Đã hủy", "Đang chế biến", "Đã hoàn thành", "Chưa bắt đầu"]
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
+        return value
+    
+    def to_dict(self):
+        """Chuyển đổi đối tượng thành dictionary để serialize."""
+        return {
+            "MaDDH": self.MaDDH,
+            "NgayDat": self.NgayDat.isoformat() if self.NgayDat else None,
+            "TrangThai": self.TrangThai,
+            "Loai": self.Loai,
+            "GioDen": self.GioDen.isoformat() if self.GioDen else None,
+            "ThoiLuong": self.ThoiLuong,
+            "SoLuongNguoi": self.SoLuongNguoi,
+            "idNV": self.idNV,
+            "ThanhTien": float(self.ThanhTien) if self.ThanhTien else 0.00,
+            "GhiChu": self.GhiChu,
+        }
+
+    def to_json(self):
+        """Chuyển đổi đối tượng thành JSON."""
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=4)
+
+    def validate_loai(self, value):
+        if value not in [1, 2]:  # Giả sử Loại chỉ có thể là 1 hoặc 2
+            raise ValueError("Loại không hợp lệ! Phải là 1 hoặc 2.")
+        return value
+
+    def validate_gio_den(self, value):
+        if not value or not isinstance(value, time):
+            raise ValueError("Giờ đến không được bỏ trống và phải là kiểu giờ hợp lệ!")
+        return value
+
+    def validate_thoi_luong(self, value):
+        if value is not None and (value < 0 or not isinstance(value, int)):
+            raise ValueError("Thời lượng phải là số nguyên không âm!")
+        return value
+
+    def validate_thanh_tien(self, value):
+        if value is not None and (value < 0 or not isinstance(value, (int, float))):
+            raise ValueError("Thành tiền phải là một số không âm!")
         return value
 
 
@@ -191,6 +354,16 @@ class MonAn(db.Model):
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
         return value
+    
+    def to_dict(self):
+        return {
+            "MaMA": self.MaMA,
+            "TenMonAn": self.TenMonAn,
+            "DonGia": self.DonGia,
+            "Loai": self.Loai,
+            "TrangThai": self.TrangThai,
+            "HinhAnh": url_for('static', filename=self.HinhAnh)
+        }
 
 
 class NguyenLieu(db.Model):
@@ -214,7 +387,6 @@ class NguyenLieu(db.Model):
         if value < 0:
             raise ValueError("Số lượng tồn không được âm!")
         return value
-
 
 class LoaiBan(db.Model):
     __tablename__ = "LoaiBan"
@@ -240,6 +412,15 @@ class Ban(db.Model):
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
         return value
+    
+    def to_dict(self):
+        return {
+            "MaBan": self.MaBan,
+            "TenBan": self.TenBan,
+            "ViTri": self.ViTri,
+            "TrangThai": self.TrangThai,
+            "idLoaiBan": self.idLoaiBan
+        }
 
 
 class NhomNguoiDung(db.Model):
@@ -247,6 +428,10 @@ class NhomNguoiDung(db.Model):
     MaNND = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TenNhomNguoiDung = db.Column(db.String(100))
     nguoi_dung = db.relationship("NguoiDung", backref="nhom_nguoi_dung", lazy=True)
+    def getMaNND(self):
+        return self.MaNND
+    def getTenNhomNguoiDung(self):
+        return self.TenNhomNguoiDung
 
 
 class NguoiDung(db.Model, UserMixin):
@@ -262,14 +447,22 @@ class NguoiDung(db.Model, UserMixin):
         "KhachHang", back_populates="nguoi_dung", uselist=False
     )
 
-    def get_id(self):
-        return self.MaND
-
     nhan_vien = db.relationship("NhanVien", back_populates="nguoi_dung", uselist=False)
-    
+
     # nhan_vien = db.relationship(
     #     "NhanVien", back_populates="nguoi_dung", uselist=False
     # )
+    @property
+    def is_authenticated(self):
+        return True
+    def get_id(self):
+        return self.MaND
+
+    def has_role(self, role):
+        ten_nhom_nguoi_dung = NhomNguoiDung.query.filter(
+            NhomNguoiDung.MaNND==self.idNND
+        ).first().getTenNhomNguoiDung()
+        return ten_nhom_nguoi_dung == role
 
 
 class PHANQUYEN(db.Model):
@@ -387,7 +580,7 @@ class VOUCHER(db.Model):
 class CT_VOUCHER(db.Model):
     __tablename__ = 'CT_VOUCHER'
     CodeVoucher = db.Column(db.String(10), db.ForeignKey('VOUCHER.CodeVoucher', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
-    idHD = db.Column(db.Integer, db.ForeignKey('HOADON.MaHD', ondelete='CASCADE'), primary_key=True)
+    idHD = db.Column(db.Integer, db.ForeignKey('HoaDon.MaHD', ondelete='CASCADE'), primary_key=True)
 
 class THAMSO(db.Model):
     __tablename__ = 'THAMSO'
@@ -402,4 +595,3 @@ class THAMSO(db.Model):
     Bac = db.Column(db.Integer, nullable=False)
     Dong = db.Column(db.Integer, nullable=False)
     PhanTramThue = db.Column(db.Integer, nullable=False)
-

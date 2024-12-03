@@ -60,14 +60,14 @@ Quản lý nhân viên
                                 <div class="row">
                                     <div class="col-8 mb-3">
                                         <label for="honv">{{ formAdd.HoNV.label }}</label>
-                                        {{ formAdd.HoNV(class="form-control mt-2") }}
+                                        {{ formAdd.HoNV(class="form-control mt-2", placeholder="Nhập họ và tên lót - VD: Nguyễn Văn") }}
                                         {% if formAdd.HoNV.errors %}
                                         <span class="form-error">{{ formAdd.HoNV.errors[0] }}</span>
                                         {% endif %}
                                     </div>
                                     <div class="col-4 mb-3">
                                         <label for="tennv">{{ formAdd.TenNV.label }}</label>
-                                        {{ formAdd.TenNV(class="form-control mt-2") }}
+                                        {{ formAdd.TenNV(class="form-control mt-2", placeholder="Nhập tên - VD: An") }}
                                         {% if formAdd.TenNV.errors %}
                                         <span class="form-error">{{ formAdd.TenNV.errors[0]}}</span>
                                         {% endif %}
@@ -76,14 +76,14 @@ Quản lý nhân viên
                                 </div>
                                 <div class="mb-3">
                                     <label for="cccd">{{ formAdd.CCCD.label }}</label>
-                                    {{ formAdd.CCCD(class="form-control mt-2") }}
+                                    {{ formAdd.CCCD(class="form-control mt-2", placeholder="Nhập 12 ký tự số - VD: 050012345678") }}
                                     {% if formAdd.CCCD.errors %}
                                     <span class="form-error">{{ formAdd.CCCD.errors[0]}}</span>
                                     {% endif %}
                                 </div>
                                 <div class="mb-3">
                                     <label for="email">{{ formAdd.Email.label }}</label>
-                                    {{ formAdd.Email(class="form-control mt-2") }}
+                                    {{ formAdd.Email(class="form-control mt-2", placeholder="Nhập email - VD: ngvana@gmail.com") }}
                                     {% if formAdd.Email.errors %}
                                     <span class="form-error">{{ formAdd.Email.errors[0]}}</span>
                                     {% endif %}
@@ -94,7 +94,7 @@ Quản lý nhân viên
                             <div class="col-6">
                                 <div class="mb-3">
                                     <label for="sdt">{{ formAdd.SDT.label }}</label>
-                                    {{ formAdd.SDT(class="form-control mt-2") }}
+                                    {{ formAdd.SDT(class="form-control mt-2", placeholder="Nhập số điện thoại - VD: 0123456789") }}
                                     {% if formAdd.SDT.errors %}
                                     <span class="form-error">{{ formAdd.SDT.errors[0]}}</span>
                                     {% endif %}
@@ -102,14 +102,14 @@ Quản lý nhân viên
                                 <div class="row">
                                     <div class="col-6 mb-3">
                                         <label for="ngaysinh">{{ formAdd.NgaySinh.label }}</label>
-                                        {{ formAdd.NgaySinh(class="form-control mt-2") }}
+                                        {{ formAdd.NgaySinh(class="form-control mt-2", placeholder="Nhập ngày sinh - VD: 12/12/2003") }}
                                         {% if formAdd.NgaySinh.errors %}
                                         <span class="form-error">{{ formAdd.NgaySinh.errors[0]}}</span>
                                         {% endif %}
                                     </div>
                                     <div class=" col-6 mb-3">
                                         <label for="ngayvaolam">{{ formAdd.NgayVaoLam.label }}</label>
-                                        {{ formAdd.NgayVaoLam(class="form-control mt-2") }}
+                                        {{ formAdd.NgayVaoLam(class="form-control mt-2", placeholder="Nhập ngày vào làm - VD: 22/11/2024") }}
                                         {% if formAdd.NgayVaoLam.errors %}
                                         <span class="form-error">{{ formAdd.NgayVaoLam.errors[0]}}</span>
                                         {% endif %}
@@ -143,21 +143,21 @@ Quản lý nhân viên
                                 <div class="row">
                                     <div class="col-2 mb-3">
                                         <label for="cccd">{{ formSearch.MaNV.label }}</label>
-                                        {{ formSearch.MaNV(class="form-control mt-2") }}
+                                        {{ formSearch.MaNV(class="form-control mt-2", placeholder="VD: 1") }}
                                         {% if formSearch.MaNV.errors %}
                                         <span class="form-error">{{ formSearch.MaNV.errors[0]}}</span>
                                         {% endif %}
                                     </div>
                                     <div class="col-7 mb-3">
                                         <label for="honv">{{ formSearch.HoNV.label }}</label>
-                                        {{ formSearch.HoNV(class="form-control mt-2") }}
+                                        {{ formSearch.HoNV(class="form-control mt-2", placeholder="VD: Nguyễn Văn") }}
                                         {% if formSearch.HoNV.errors %}
                                         <span class="form-error">{{ formSearch.HoNV.errors[0] }}</span>
                                         {% endif %}
                                     </div>
                                     <div class="col-3 mb-3">
                                         <label for="tennv">{{ formSearch.TenNV.label }}</label>
-                                        {{ formSearch.TenNV(class="form-control mt-2") }}
+                                        {{ formSearch.TenNV(class="form-control mt-2", placeholder="VD: An") }}
                                         {% if formSearch.TenNV.errors %}
                                         <span class="form-error">{{ formSearch.TenNV.errors[0]}}</span>
                                         {% endif %}
@@ -170,7 +170,7 @@ Quản lý nhân viên
                                 <div class="row">
                                     <div class=" col-6 mb-3">
                                         <label for="ngayvaolam">{{ formSearch.NgayVaoLam.label }}</label>
-                                        {{ formSearch.NgayVaoLam(class="form-control mt-2") }}
+                                        {{ formSearch.NgayVaoLam(class="form-control mt-2", placeholder="Nhập ngày vào làm - VD: 22/11/2024") }}
                                         {% if formSearch.NgayVaoLam.errors %}
                                         <span class="form-error">{{ formSearch.NgayVaoLam.errors[0]}}</span>
                                         {% endif %}
@@ -283,12 +283,12 @@ Quản lý nhân viên
 </script>
 
 <script>
-    // Khởi tạo Flatpickr trên input ngày sinh với định dạng dd/mm/yyyy
     flatpickr("#ngaysinh", {
-        dateFormat: "d/m/Y"  // Định dạng ngày dd/mm/yyyy (d và m không có leading zero)
+        dateFormat: "d/m/Y",
+        maxDate: new Date().setFullYear(new Date().getFullYear() - 18)
     });
     flatpickr("#ngayvaolam", {
-        dateFormat: "d/m/Y",  // Định dạng ngày dd/mm/yyyy (d và m không có leading zero)
+        dateFormat: "d/m/Y",  
         maxDate: "today"
     });
 </script>
