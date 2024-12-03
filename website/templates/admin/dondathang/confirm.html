@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluld">
+    <h2>Danh sách đơn đặt hàng chưa xác nhận</h2>
+
+    {% if orders %}
+    <div>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Ngày đặt</th>
+                    <th>Giờ đến</th>
+                    <th>Số người</th>
+                    <th>Trạng thái</th>
+                    <th>Thành tiền</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.MaDDH }}</td>
+                    <td>{{ order.NgayDat.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ order.GioDen.strftime('%H:%M') }}</td>
+                    <td>{{ order.SoLuongNguoi }}</td>
+                    <td>{{ order.TrangThai }}</td>
+                    <td>{{ "{:,.0f}".format(order.ThanhTien) }} VNĐ</td>
+                    <td>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Không có đơn đặt hàng nào cần xác nhận.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

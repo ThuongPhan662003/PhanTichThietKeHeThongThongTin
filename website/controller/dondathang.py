@@ -9,6 +9,23 @@ from sqlalchemy import func, extract
 
 dondathang = Blueprint("dondathang", __name__)
 
+@dondathang.route("/confirm", methods=["GET"])
+@login_required
+def confirm():
+
+    unconfirmed_orders = db.session.query(DonDatHang).outerjoin(
+        CT_DonDatHang,
+        DonDatHang.MaDDH == CT_DonDatHang.idDDH
+    ).filter(
+            CT_DonDatHang.idDDH.is_(None),
+            DonDatHang.Loai == 1
+    ).all()
+
+    return render_template(
+        "admin/dondathang/confirm.html",
+        orders=unconfirmed_orders
+    )
+
 
 @dondathang.route("/ds-dondathang", methods=["GET"])
 @login_required

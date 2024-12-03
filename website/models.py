@@ -270,7 +270,7 @@ class DonDatHang(db.Model):
     MaDDH = db.Column(db.Integer, primary_key=True, autoincrement=True)
     NgayDat = db.Column(db.Date, nullable=False)
     TrangThai = db.Column(db.String(20), nullable=False)
-    Loai = db.Column(db.Integer, nullable=False, default=1)
+    Loai = db.Column(db.Integer, nullable=False, default=0)
     GioDen = db.Column(db.Time, nullable=False)
     ThoiLuong = db.Column(db.Float)
     SoLuongNguoi = db.Column(db.Integer)
