@@ -58,9 +58,7 @@ Quản lý loại voucher
                     </td>
                     <td>
                         {% if voucher.ct_vouchers %}
-                        {% for ct_voucher in voucher.ct_vouchers %}
-                            {{ ct_voucher.idHD }} link :
-                        {% endfor %}
+                        Đã có hóa đơn
                         {% else %}
                         Chưa có hóa đơn
                         {% endif %}

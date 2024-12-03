@@ -132,7 +132,6 @@ def create_app():
 
     app.register_blueprint(nhanvien, url_prefix="/nhanvien")
 
-    app.register_blueprint(khachhang, url_prefix="/khachhang")
     app.register_blueprint(dondathang, url_prefix="/dondathang")
     app.register_blueprint(order, url_prefix="/order")
     app.register_blueprint(checkout, url_prefix="/checkout")

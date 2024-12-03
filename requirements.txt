@@ -18,3 +18,5 @@ WTForms-Alchemy
 wtforms-sqlalchemy
 weasyprint
 email-validator
+flask_paginate
+xhtml2pdf
