@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block title %}Sửa chức năng{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1 class="mb-4">Sửa chức năng</h1>
+        <form method="POST" action="{{ url_for('chucnang.edit', id=chucnang.MaCN) }}">
+            <div class="mb-3">
+                <label for="MaCN" class="form-label">Mã chức năng</label>
+                <input type="text" class="form-control" id="MaCN" name="MaCN" value="{{ chucnang.MaCN }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="TenManHinh" class="form-label">Tên chức năng</label>
+                <input type="text" class="form-control" id="TenManHinh" name="TenManHinh" value="{{ chucnang.TenManHinh }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="Quyen" class="form-label">Quyền</label>
+                <select class="form-select" name="role">
+                    {% for nhom in nhom_nguoi_dung %}
+                    <option value="{{ nhom.MaNND }}" {% if role == nhom.MaNND %}selected{% endif %}>
+                        {{ nhom.TenNhomNguoiDung }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a href="{{ url_for('chucnang.list_chucnang') }}" class="btn btn-secondary">Hủy</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

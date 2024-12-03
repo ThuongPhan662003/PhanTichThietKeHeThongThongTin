@@ -1,16 +1,28 @@
-
 from datetime import date, time
 import datetime
 from email.policy import default
 import json
+import re
+import secrets
+import string
 
-from flask import url_for
+from flask import flash, url_for
 
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, UniqueConstraint, CheckConstraint, Boolean
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Float,
+    DateTime,
+    ForeignKey,
+    UniqueConstraint,
+    CheckConstraint,
+    Boolean,
+)
 
 
 __all__ = [
@@ -35,7 +47,6 @@ __all__ = [
     "VOUCHER",
     "CT_VOUCHER",
     "THAMSO",
-
 ]
 
 
@@ -47,6 +58,9 @@ class ChucNang(db.Model):
 
     def __repr__(self):
         return f"<ChucNang(MaCN={self.MaCN}, TenManHinh='{self.TenManHinh}')>"
+
+    def __init__(self, tenmanhinh):
+        self.TenManHinh = tenmanhinh
 
 
 class CT_MonAn(db.Model):
@@ -72,7 +86,7 @@ class CT_MonAn(db.Model):
         if value < 1000:
             raise ValueError("Giá món phải lớn hơn hoặc bằng 1000.")
         return value
-    
+
     def to_dict(self):
         """Chuyển đổi đối tượng thành dictionary để serialize."""
         return {
@@ -100,7 +114,7 @@ class KhachHang(db.Model):
     NgayMoThe = db.Column(db.Date, nullable=False)
     DiemTieuDung = db.Column(db.Integer, nullable=False)
     DiemTichLuy = db.Column(db.Integer, nullable=False)
-    GioiTinh = db.Column(db.Integer,nullable=False)
+    GioiTinh = db.Column(db.Integer, nullable=False)
     idNguoiDung = db.Column(
         db.Integer,
         db.ForeignKey("NguoiDung.MaND"),
@@ -109,6 +123,38 @@ class KhachHang(db.Model):
     LoaiKH = db.Column(db.String(10), nullable=False)
     nguoi_dung = db.relationship("NguoiDung", back_populates="khach_hang")
     hoa_don = db.relationship("HoaDon", backref="khach_hang", uselist=False)
+
+    def __init__(
+        self,
+        ho_kh,
+        ten_kh,
+        sdt,
+        email,
+        ngay_mo_the,
+        diem_tieu_dung,
+        diem_tich_luy,
+        gioi_tinh,
+        id_nguoi_dung,
+        loai_kh="Thường",
+    ):
+
+        self.HoKH = ho_kh
+        self.TenKH = ten_kh
+        self.SDT = sdt
+        self.Email = email
+        self.NgayMoThe = ngay_mo_the
+        self.DiemTieuDung = diem_tieu_dung
+        self.DiemTichLuy = diem_tich_luy
+        self.GioiTinh = gioi_tinh
+        self.idNguoiDung = id_nguoi_dung
+        self.LoaiKH = loai_kh
+
+    def getHoTen(self):
+        return self.HoKH + " " + self.TenKH
+    def getHoKH(self):
+        return self.HoKH
+    def getTenKH(self):
+        return self.TenKH
 
 
 class HoaDon(db.Model):
@@ -142,7 +188,7 @@ class HoaDon(db.Model):
         if value < 0:
             raise ValueError("Điểm trừ không được nhỏ hơn 0.")
         return value
-    
+
     def to_dict(self):
         """Chuyển đổi đối tượng thành dictionary để serialize."""
         return {
@@ -191,6 +237,7 @@ class NhanVien(db.Model):
     NgayVaoLam = db.Column(db.Date, nullable=False)
     hoa_don = db.relationship("HoaDon", backref="nhan_vien")
     nguoi_dung = db.relationship("NguoiDung", back_populates="nhan_vien")
+    GioiTinh = db.Column(db.Integer, nullable=False)
 
     @db.validates("CCCD")
     def validate_cccd(self, key, value):
@@ -203,16 +250,18 @@ class NhanVien(db.Model):
         if not value.isdigit() or len(value) != 10:
             raise ValueError("SDT phải là một chuỗi số 10 chữ số!")
         return value
+
     def getHoTenNV(self):
-        return self.HoNV + " "+ self.TenNV
-    def set_idNguoiDung(self,idNguoiDung):
+        return self.HoNV + " " + self.TenNV
+
+    def set_idNguoiDung(self, idNguoiDung):
         self.idNguoiDung = idNguoiDung
 
     def get_idNguoiDung(self):
         return self.idNguoiDung
 
-from datetime import datetime, date, time
 
+from datetime import datetime, date, time
 
 
 class DonDatHang(db.Model):
@@ -226,12 +275,14 @@ class DonDatHang(db.Model):
     TrangThai = db.Column(db.String(20), nullable=False)
     Loai = db.Column(db.Integer, nullable=False, default=1)
     GioDen = db.Column(db.Time, nullable=False)
-    ThoiLuong = db.Column(db.Float) 
+    ThoiLuong = db.Column(db.Float)
     SoLuongNguoi = db.Column(db.Integer)
     idNV = db.Column(db.Integer, db.ForeignKey("NhanVien.MaNV"), nullable=False)
     ThanhTien = db.Column(db.Numeric(15, 2), nullable=False, default=0.00)
     GhiChu = db.Column(db.String(1000))
-    ct_don_dat_hang = db.relationship("CT_DonDatHang", backref="don_dat_hang", lazy=True)
+    ct_don_dat_hang = db.relationship(
+        "CT_DonDatHang", backref="don_dat_hang", lazy=True
+    )
     # hoa_don = db.relationship("HoaDon", back_populates="don_dat_hang")
 
     def __init__(
@@ -296,7 +347,7 @@ class DonDatHang(db.Model):
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
         return value
-    
+
     def to_dict(self):
         """Chuyển đổi đối tượng thành dictionary để serialize."""
         return {
@@ -353,7 +404,7 @@ class MonAn(db.Model):
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
         return value
-    
+
     def to_dict(self):
         return {
             "MaMA": self.MaMA,
@@ -361,7 +412,7 @@ class MonAn(db.Model):
             "DonGia": self.DonGia,
             "Loai": self.Loai,
             "TrangThai": self.TrangThai,
-            "HinhAnh": url_for('static', filename=self.HinhAnh)
+            "HinhAnh": url_for("static", filename=self.HinhAnh),
         }
 
 
@@ -387,6 +438,7 @@ class NguyenLieu(db.Model):
             raise ValueError("Số lượng tồn không được âm!")
         return value
 
+
 class LoaiBan(db.Model):
     __tablename__ = "LoaiBan"
     MaLB = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -411,14 +463,14 @@ class Ban(db.Model):
         if value not in valid_trang_thai:
             raise ValueError(f"{value} không phải là trạng thái hợp lệ!")
         return value
-    
+
     def to_dict(self):
         return {
             "MaBan": self.MaBan,
             "TenBan": self.TenBan,
             "ViTri": self.ViTri,
             "TrangThai": self.TrangThai,
-            "idLoaiBan": self.idLoaiBan
+            "idLoaiBan": self.idLoaiBan,
         }
 
 
@@ -427,8 +479,10 @@ class NhomNguoiDung(db.Model):
     MaNND = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TenNhomNguoiDung = db.Column(db.String(100))
     nguoi_dung = db.relationship("NguoiDung", backref="nhom_nguoi_dung", lazy=True)
+
     def getMaNND(self):
         return self.MaNND
+
     def getTenNhomNguoiDung(self):
         return self.TenNhomNguoiDung
 
@@ -436,7 +490,7 @@ class NhomNguoiDung(db.Model):
 class NguoiDung(db.Model, UserMixin):
     __tablename__ = "NguoiDung"
     MaND = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    UserName = db.Column(db.String(150), nullable=False)
+    UserName = db.Column(db.String(200), nullable=False)
     TrangThai = db.Column(db.Integer)
     MatKhau = db.Column(db.String(150))
     VerifyCode = db.Column(db.String(150))
@@ -454,70 +508,158 @@ class NguoiDung(db.Model, UserMixin):
     @property
     def is_authenticated(self):
         return True
+
     def get_id(self):
         return self.MaND
 
     def has_role(self, role):
-        ten_nhom_nguoi_dung = NhomNguoiDung.query.filter(
-            NhomNguoiDung.MaNND==self.idNND
-        ).first().getTenNhomNguoiDung()
+        ten_nhom_nguoi_dung = (
+            NhomNguoiDung.query.filter(NhomNguoiDung.MaNND == self.idNND)
+            .first()
+            .getTenNhomNguoiDung()
+        )
         return ten_nhom_nguoi_dung == role
+
+    def validate(self):
+        """Method to validate the user input."""
+        if not self.validate_username():
+            return False
+        # if not self.validate_full_name():
+        #     return False
+        # if not self.validate_email():
+        #     return False
+        # if not self.validate_password():
+        #     return False
+        return True
+
+    def validate_username(self):
+        """Check if the username already exists in the database."""
+        user = NguoiDung.query.filter_by(UserName=self.UserName).first()
+        if user:
+            flash("Username alrsfsfsfseady exists.", category="error")
+            return False
+        return True
+
+    def validate_email(self):
+        """Check if the email is in a valid format."""
+        email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+        if not re.match(email_regex, self.Email):
+            flash("Invalid email format.", category="error")
+            return False
+        return True
+
+    def validate_password(self, MatKhau1, MatKhau2):
+        """Check if passwords match."""
+        if MatKhau1 != MatKhau2:
+            flash("Passwords do not match.", category="error")
+            return False
+        return True
+
+    def generate_verify_code(self):
+        """Generate a verification code."""
+        return "".join(
+            secrets.choice(string.ascii_letters + string.digits) for _ in range(6)
+        )
 
 
 class PHANQUYEN(db.Model):
-    __tablename__ = 'PHANQUYEN'
-    idNND = db.Column(db.Integer, db.ForeignKey('NHOMNGUOIDUNG.MaNND', ondelete='CASCADE'), primary_key=True)
-    idCN = db.Column(db.Integer, db.ForeignKey('CHUCNANG.MaCN', ondelete='CASCADE'), primary_key=True)
+    __tablename__ = "PHANQUYEN"
+    idNND = db.Column(
+        db.Integer,
+        db.ForeignKey("NhomNguoiDung.MaNND", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    idCN = db.Column(
+        db.Integer, db.ForeignKey("ChucNang.MaCN", ondelete="CASCADE"), primary_key=True
+    )
+
 
 class PHIEUXUAT(db.Model):
-    __tablename__ = 'PHIEUXUAT'
+    __tablename__ = "PHIEUXUAT"
     SoPhieuXuat = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
+    idNV = db.Column(
+        db.Integer, db.ForeignKey("NhanVien.MaNV", ondelete="CASCADE"), nullable=False
+    )
     NgayXuat = db.Column(db.DateTime, nullable=False)
 
-    nhan_vien = db.relationship('NhanVien', backref=db.backref('ds_phieu_xuat', lazy=True))
-    chi_tiet_phieu = db.relationship('CT_PHIEUXUAT', backref='phieu_xuat', lazy=True, cascade='all, delete-orphan')
+    nhan_vien = db.relationship(
+        "NhanVien", backref=db.backref("ds_phieu_xuat", lazy=True)
+    )
+    chi_tiet_phieu = db.relationship(
+        "CT_PHIEUXUAT", backref="phieu_xuat", lazy=True, cascade="all, delete-orphan"
+    )
+
 
 class CT_PHIEUXUAT(db.Model):
-    __tablename__ = 'CT_PHIEUXUAT'
-    idXuat = db.Column(db.Integer, db.ForeignKey('PHIEUXUAT.SoPhieuXuat', ondelete='CASCADE'), primary_key=True)
-    idNL = db.Column(db.Integer, db.ForeignKey('NguyenLieu.MaNL', ondelete='CASCADE'), primary_key=True)
+    __tablename__ = "CT_PHIEUXUAT"
+    idXuat = db.Column(
+        db.Integer,
+        db.ForeignKey("PHIEUXUAT.SoPhieuXuat", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    idNL = db.Column(
+        db.Integer,
+        db.ForeignKey("NguyenLieu.MaNL", ondelete="CASCADE"),
+        primary_key=True,
+    )
     SoLuong = db.Column(db.Float, nullable=False)
-    
-    nguyen_lieu = db.relationship('NguyenLieu', backref=db.backref('ds_nguyenlieu_xuat', lazy=True))
-    @db.validates('SoLuong')
+
+    nguyen_lieu = db.relationship(
+        "NguyenLieu", backref=db.backref("ds_nguyenlieu_xuat", lazy=True)
+    )
+
+    @db.validates("SoLuong")
     def validate_soluong(self, key, value):
         if value <= 0:
             raise ValueError("Số lượng xuất phải lớn hơn 0")
         return value
 
+
 class PHIEUNHAP(db.Model):
-    __tablename__ = 'PHIEUNHAP'
+    __tablename__ = "PHIEUNHAP"
     SoPhieuNhap = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    idNV = db.Column(db.Integer, db.ForeignKey('NhanVien.MaNV', ondelete='CASCADE'), nullable=False)
+    idNV = db.Column(
+        db.Integer, db.ForeignKey("NhanVien.MaNV", ondelete="CASCADE"), nullable=False
+    )
     NgayNhap = db.Column(db.DateTime, nullable=False)
     TongTien = db.Column(db.Float, nullable=False, default=0)
 
-    nhan_vien = db.relationship('NhanVien', backref=db.backref('ds_phieu_nhap', lazy=True))
-    chi_tiet_phieu = db.relationship('CT_PHIEUNHAP', backref='phieu_nhap', lazy=True, cascade='all, delete-orphan')
+    nhan_vien = db.relationship(
+        "NhanVien", backref=db.backref("ds_phieu_nhap", lazy=True)
+    )
+    chi_tiet_phieu = db.relationship(
+        "CT_PHIEUNHAP", backref="phieu_nhap", lazy=True, cascade="all, delete-orphan"
+    )
+
 
 class CT_PHIEUNHAP(db.Model):
-    __tablename__ = 'CT_PHIEUNHAP'
-    idNhap = db.Column(db.Integer, db.ForeignKey('PHIEUNHAP.SoPhieuNhap', ondelete='CASCADE'), primary_key=True)
-    idNL = db.Column(db.Integer, db.ForeignKey('NguyenLieu.MaNL', ondelete='CASCADE'), primary_key=True)
+    __tablename__ = "CT_PHIEUNHAP"
+    idNhap = db.Column(
+        db.Integer,
+        db.ForeignKey("PHIEUNHAP.SoPhieuNhap", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    idNL = db.Column(
+        db.Integer,
+        db.ForeignKey("NguyenLieu.MaNL", ondelete="CASCADE"),
+        primary_key=True,
+    )
     SoLuong = db.Column(db.Float, nullable=False)
     ThanhTien = db.Column(db.Float, nullable=False)
-    
-    nguyen_lieu = db.relationship('NguyenLieu', backref=db.backref('ds_nguyenlieu_nhap', lazy=True))
 
-    @db.validates('SoLuong')
+    nguyen_lieu = db.relationship(
+        "NguyenLieu", backref=db.backref("ds_nguyenlieu_nhap", lazy=True)
+    )
+
+    @db.validates("SoLuong")
     def validate_soluong(self, key, value):
         if value <= 0:
             raise ValueError("Số lượng nhập phải lớn hơn 0")
         return value
 
+
 class LOAIVOUCHER(db.Model):
-    __tablename__ = 'LOAIVOUCHER'
+    __tablename__ = "LOAIVOUCHER"
     MaLoaiVoucher = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TenLoaiVoucher = db.Column(db.String(50), nullable=False)
     PhanTram = db.Column(db.Integer, nullable=False)
@@ -529,46 +671,59 @@ class LOAIVOUCHER(db.Model):
     NgayKetThuc = db.Column(db.DateTime, nullable=False)
     GiamToiDa = db.Column(db.Integer)
     An = db.Column(db.Boolean, default=False, nullable=False)
-    
-    @db.validates('PhanTram')
+
+    @db.validates("PhanTram")
     def validate_phantram(self, key, value):
         if not (0 < value < 100):
             raise ValueError("Phần trăm giảm phải lớn hơn 0 và nhỏ hơn 100")
         return value
 
-    @db.validates('NgayBatDau', 'NgayKetThuc')
+    @db.validates("NgayBatDau", "NgayKetThuc")
     def validate_ngay(self, key, value):
-        if key == 'NgayBatDau' and value >= self.NgayKetThuc:
+        if key == "NgayBatDau" and value >= self.NgayKetThuc:
             raise ValueError("Ngày bắt đầu phải nhỏ hơn ngày kết thúc")
-        if key == 'NgayKetThuc' and value <= self.NgayBatDau:
+        if key == "NgayKetThuc" and value <= self.NgayBatDau:
             raise ValueError("Ngày kết thúc phải lớn hơn ngày bắt đầu")
         return value
 
-    @db.validates('GiamToiDa')
+    @db.validates("GiamToiDa")
     def validate_giamtoida(self, key, value):
         if value is not None and value < 0:
             raise ValueError("Giảm tối đa phải lớn hơn hoặc bằng 0")
         return value
 
-    @db.validates('SoLuong', 'SoLuongConLai')
+    @db.validates("SoLuong", "SoLuongConLai")
     def validate_soluong(self, key, value):
         if value < 0:
             raise ValueError(f"{key} phải lớn hơn hoặc bằng 0")
         return value
 
+
 class VOUCHER(db.Model):
-    __tablename__ = 'VOUCHER'
+    __tablename__ = "VOUCHER"
     CodeVoucher = db.Column(db.String(10), primary_key=True)
-    idLoaiVoucher = db.Column(db.Integer, db.ForeignKey('LOAIVOUCHER.MaLoaiVoucher', ondelete='CASCADE'), nullable=False)
+    idLoaiVoucher = db.Column(
+        db.Integer,
+        db.ForeignKey("LOAIVOUCHER.MaLoaiVoucher", ondelete="CASCADE"),
+        nullable=False,
+    )
     TrangThai = db.Column(db.Boolean, default=True)
 
+
 class CT_VOUCHER(db.Model):
-    __tablename__ = 'CT_VOUCHER'
-    CodeVoucher = db.Column(db.String(10), db.ForeignKey('VOUCHER.CodeVoucher', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
-    idHD = db.Column(db.Integer, db.ForeignKey('HoaDon.MaHD', ondelete='CASCADE'), primary_key=True)
+    __tablename__ = "CT_VOUCHER"
+    CodeVoucher = db.Column(
+        db.String(10),
+        db.ForeignKey("VOUCHER.CodeVoucher", ondelete="CASCADE", onupdate="CASCADE"),
+        primary_key=True,
+    )
+    idHD = db.Column(
+        db.Integer, db.ForeignKey("HoaDon.MaHD", ondelete="CASCADE"), primary_key=True
+    )
+
 
 class THAMSO(db.Model):
-    __tablename__ = 'THAMSO'
+    __tablename__ = "THAMSO"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TuoiToiDa = db.Column(db.Integer, nullable=False)
     TuoiToiThieu = db.Column(db.Integer, nullable=False)

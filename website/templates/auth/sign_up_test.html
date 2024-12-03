@@ -1,0 +1,65 @@
+<!-- signup.html -->
+{% extends 'auth/base.html' %}
+
+{% block title %}Đăng ký{% endblock %}
+
+{% block content %}
+    <h1>Đăng ký tài khoản</h1>
+    
+    <!-- Form -->
+    <form method="POST" action="{{ url_for('auth.signup') }}">
+        {{ form.hidden_tag() }}  <!-- Prevent CSRF attacks -->
+        
+        <div class="form-group">
+            <label for="ho_ten">Họ và Tên</label>
+            {{ form.ho_ten(class="form-control") }}
+            {% for error in form.ho_ten.errors %}
+                <p style="color:red;">{{ error }}</p>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group">
+            <label for="sdt">Số điện thoại</label>
+            {{ form.sdt(class="form-control") }}
+            {% for error in form.sdt.errors %}
+                <p style="color:red;">{{ error }}</p>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email</label>
+            {{ form.email(class="form-control") }}
+            {% for error in form.email.errors %}
+                <p style="color:red;">{{ error }}</p>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group">
+            <label for="mat_khau">Mật khẩu</label>
+            {{ form.mat_khau(class="form-control") }}
+            {% for error in form.mat_khau.errors %}
+                <p style="color:red;">{{ error }}</p>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group">
+            <label for="mat_khau_confirm">Xác nhận mật khẩu</label>
+            {{ form.mat_khau_confirm(class="form-control") }}
+            {% for error in form.mat_khau_confirm.errors %}
+                <p style="color:red;">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            <label for="gioi_tinh">Giới tính</label>
+            {{ form.gioi_tinh(class="form-control") }}
+            {% for error in form.gioi_tinh.errors %}
+                <p style="color:red;">{{ error }}</p>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+{% endblock %}
