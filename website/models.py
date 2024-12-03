@@ -269,11 +269,8 @@ class DonDatHang(db.Model):
 
     MaDDH = db.Column(db.Integer, primary_key=True, autoincrement=True)
     NgayDat = db.Column(db.Date, nullable=False)
-    HoTenNguoiDat = db.Column(db.String, nullable=False)
-    Email = db.Column(db.String, nullable=False)
-    SDT = db.Column(db.String, nullable=False)
     TrangThai = db.Column(db.String(20), nullable=False)
-    Loai = db.Column(db.Integer, nullable=False, default=1)
+    Loai = db.Column(db.Integer, nullable=False, default=0)
     GioDen = db.Column(db.Time, nullable=False)
     ThoiLuong = db.Column(db.Float)
     SoLuongNguoi = db.Column(db.Integer)
@@ -285,30 +282,25 @@ class DonDatHang(db.Model):
     )
     # hoa_don = db.relationship("HoaDon", back_populates="don_dat_hang")
 
-    def __init__(
-        self,
-        NgayDat,
-        HoTenNguoiDat,
-        Email,
-        SDT,
-        TrangThai,
-        Loai,
-        GioDen,
-        ThoiLuong=None,
-        idNV=None,
-        ThanhTien=None,
-    ):
-        # Xác thực và làm sạch dữ liệu
-        self.NgayDat = self.validate_ngay_dat(NgayDat)
-        self.HoTenNguoiDat = self.validate_ho_ten_nguoi_dat(HoTenNguoiDat)
-        self.Email = self.validate_email(Email)
-        self.SDT = self.validate_sdt(SDT)
-        self.TrangThai = self.validate_trang_thai(TrangThai)
-        self.Loai = self.validate_loai(Loai)
-        self.GioDen = self.validate_gio_den(GioDen)
-        self.ThoiLuong = self.validate_thoi_luong(ThoiLuong)
-        self.idNV = idNV
-        self.ThanhTien = self.validate_thanh_tien(ThanhTien)
+    # def __init__(
+    #     self,
+    #     NgayDat,
+    #     SoLuongNguoi,
+    #     TrangThai,
+    #     Loai,
+    #     GioDen,
+    #     ThoiLuong=None,
+    #     idNV=None,
+    #     ThanhTien=None,
+    # ):
+    #     # Xác thực và làm sạch dữ liệu
+    #     self.NgayDat = self.validate_ngay_dat(NgayDat)
+    #     self.TrangThai = self.validate_trang_thai(TrangThai)
+    #     self.Loai = self.validate_loai(Loai)
+    #     self.GioDen = self.validate_gio_den(GioDen)
+    #     self.ThoiLuong = self.validate_thoi_luong(ThoiLuong)
+    #     self.idNV = idNV
+    #     self.ThanhTien = self.validate_thanh_tien(ThanhTien)
 
     def validate_ngay_dat(self, value):
         if not value or not isinstance(value, date):
@@ -412,7 +404,7 @@ class MonAn(db.Model):
             "DonGia": self.DonGia,
             "Loai": self.Loai,
             "TrangThai": self.TrangThai,
-            "HinhAnh": url_for("static", filename=self.HinhAnh),
+            "HinhAnh": url_for("static", filename=self.HinhAnh)
         }
 
 

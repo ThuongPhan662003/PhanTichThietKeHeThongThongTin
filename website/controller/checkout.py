@@ -348,7 +348,7 @@ def export_invoice_pdf():
         c.drawString(170, y_position, f"{sum(item['so_luong'] for order in invoice_data['data'].values() for ban in order['ban'] for item in ban['mon_an'])}")
         y_position -= 20
         c.drawString(50, y_position, f"Tổng tiền:")
-        c.drawString(170, y_position, f"{int(invoice_data['info']['hoadon']['TongTien'])} VND")
+        c.drawString(170, y_position, f"{int(float(invoice_data['info']['hoadon']['DiemCong']) * 100)} VND")
         y_position -= 20
         c.drawString(50, y_position, f"Thuế (VAT):")
         c.drawString(170, y_position, f"{invoice_data['info']['hoadon']['TienThue']} VND")

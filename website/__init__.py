@@ -98,6 +98,7 @@ def create_app():
     from .controller.phieunhap import phieunhap
     from .controller.phieuxuat import phieuxuat
     from .controller.nguoidung import nguoidung
+    from .controller.dondathang import dondathang
 
     from .controller.nhanvien import nhanvien
     from .controller.khachhang import khachhang
