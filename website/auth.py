@@ -25,6 +25,7 @@ from authlib.integrations.flask_client import OAuth
 import os
 
 
+
 auth = Blueprint("auth", __name__)
 oauth = OAuth()
 google = None

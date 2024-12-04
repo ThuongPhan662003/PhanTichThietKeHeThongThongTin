@@ -23,6 +23,7 @@ from sqlalchemy import (
     CheckConstraint,
     Boolean,
 )
+from datetime import datetime, date, time
 
 
 __all__ = [
@@ -247,6 +248,7 @@ class KhachHang(db.Model):
         return self.HoKH + " " + self.TenKH
 
 
+
 class HoaDon(db.Model):
     __tablename__ = "HoaDon"
 
@@ -435,6 +437,7 @@ class NhanVien(db.Model):
     def get_idNguoiDung(self):
         return self.idNguoiDung
 
+
     def get_MaNV(self):
         return self.MaNV
 
@@ -495,6 +498,7 @@ class NhanVien(db.Model):
 
 
 from datetime import datetime, date, time
+
 
 
 class DonDatHang(db.Model):
@@ -893,6 +897,14 @@ class NguoiDung(db.Model, UserMixin):
     # nhan_vien = db.relationship(
     #     "NhanVien", back_populates="nguoi_dung", uselist=False
     # )
+    def __init__(self, MaND, UserName, TrangThai, MatKhau, VerifyCode, idNND):
+        self.MaND = MaND
+        self.UserName = UserName
+        self.TrangThai = TrangThai
+        self.MatKhau = MatKhau
+        self.VerifyCode = VerifyCode
+        self.idNND = idNND
+
     @property
     def is_authenticated(self):
         return True
