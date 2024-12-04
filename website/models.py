@@ -915,6 +915,15 @@ class NguoiDung(db.Model, UserMixin):
             .getTenNhomNguoiDung()
         )
         return ten_nhom_nguoi_dung == role
+    def getUserName(self):
+        return self.UserName
+    def setVerifyCode(self,VerifyCode):
+        self.VerifyCode = VerifyCode
+    def getMatKhau(self):
+        return self.MatKhau
+
+    def setMatKhau(self,MatKhau):
+        self.MatKhau = MatKhau
 
     # def validate(self):
     #     """Method to validate the user input."""

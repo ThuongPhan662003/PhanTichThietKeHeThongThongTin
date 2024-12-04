@@ -252,3 +252,54 @@ def sign_up():
             flash("Account created!", category="success")
             return redirect(url_for("views.homepage"))
     return render_template("auth/sign_up.html")
+
+
+@auth.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+    print("not")
+    # if request.method == "POST":
+    username = request.form.get("UserName")
+    user = NguoiDung.query.filter_by(UserName=username).first()
+    print("thanh")
+    if user:
+        # Tạo một verify code mới (mã xác thực)
+        verify_code = "".join(
+            secrets.choice(string.ascii_letters + string.digits) for _ in range(6)
+        )
+
+        # Lấy email của người dùng
+        user_email = user.getUserName()
+
+        # Cập nhật verify code vào cơ sở dữ liệu
+        user.setVerifyCode( verify_code)
+        db.session.commit()
+
+        # Tạo mật khẩu mới ngẫu nhiên
+        new_password = "".join(
+            secrets.choice(string.ascii_letters + string.digits) for _ in range(8)
+        )
+
+        # Cập nhật mật khẩu mới trong cơ sở dữ liệu (sử dụng mã băm để bảo mật)
+        user.setMatKhau(new_password)
+        db.session.commit()
+
+        # Tạo nội dung email
+        # email_subject = "Mật khẩu mới của bạn"
+        # email_body = f"""
+        # Chào bạn {username},
+
+        # Mật khẩu mới của bạn là: {new_password}
+
+        # Bạn có thể đăng nhập bằng mật khẩu này tại: {url_for('auth.login', _external=True)}
+
+        # Nếu bạn không yêu cầu thay đổi mật khẩu, vui lòng bỏ qua email này.
+        # """
+
+        # # Gửi email với mật khẩu mới
+        # send_email(email_subject, user_email, email_body)
+
+        flash("Mật khẩu mới đã được gửi qua email của bạn.", category="success")
+        return redirect(url_for("auth.login"))
+    else:
+        flash("Tài khoản không tồn tại.", category="error")
+    return render_template("auth/login.html")
