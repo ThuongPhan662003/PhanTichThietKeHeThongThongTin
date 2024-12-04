@@ -150,7 +150,6 @@ def authorize():
         NgayMoThe = datetime.datetime.now()
 
         new_customer = KhachHang(
-            MaKH=None,
             HoKH=user_info.get("family_name"),
             TenKH=user_info.get("given_name"),
             SDT="",
@@ -195,6 +194,7 @@ def sign_up():
         MatKhau1 = request.form.get("MatKhau1")
         MatKhau2 = request.form.get("MatKhau2")
         Email = request.form.get("Email")
+        GioiTinh = request.form.get("gender")
         ten_parts = str(HoTen).split()
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         print(SDT)
@@ -233,7 +233,6 @@ def sign_up():
             # db.session.commit()
             user_id = int(NguoiDung.query.filter_by(UserName=UserName).first().get_id())
             customer = KhachHang(
-                MaKH=None,
                 HoKH=ho,
                 TenKH=ten,
                 SDT=SDT,
@@ -244,9 +243,11 @@ def sign_up():
                 idNguoiDung=user_id,
                 LoaiKH="Thường",
             )
+            customer.set_GioiTinh(GioiTinh)
             print(customer)
             db.session.add(customer)
             db.session.commit()
             login_user(new_user, remember=True)
             flash("Account created!", category="success")
             return redirect(url_for("views.homepage"))
+    return render_template("auth/sign_up.html")

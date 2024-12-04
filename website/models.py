@@ -157,28 +157,27 @@ class KhachHang(db.Model):
 
     def __init__(
         self,
-        ho_kh,
-        ten_kh,
-        sdt,
-        email,
-        ngay_mo_the,
-        diem_tieu_dung,
-        diem_tich_luy,
-        gioi_tinh,
-        id_nguoi_dung,
-        loai_kh="Thường",
+        HoKH,
+        TenKH,
+        SDT,
+        Email,
+        NgayMoThe,
+        DiemTieuDung,
+        DiemTichLuy,
+        GioiTinh,
+        idNguoiDung,
+        LoaiKH="Thường",
     ):
 
-        self.HoKH = ho_kh
-        self.TenKH = ten_kh
-        self.SDT = sdt
-        self.Email = email
-        self.NgayMoThe = ngay_mo_the
-        self.DiemTieuDung = diem_tieu_dung
-        self.DiemTichLuy = diem_tich_luy
-        self.GioiTinh = gioi_tinh
-        self.idNguoiDung = id_nguoi_dung
-        self.LoaiKH = loai_kh
+        self.HoKH = HoKH
+        self.TenKH = TenKH
+        self.SDT = SDT
+        self.Email = Email
+        self.NgayMoThe = NgayMoThe
+        self.DiemTieuDung = DiemTieuDung
+        self.DiemTichLuy = DiemTichLuy
+        self.idNguoiDung = idNguoiDung
+        self.LoaiKH = LoaiKH
     # Getters
     def get_MaKH(self):
         return self.MaKH
@@ -907,46 +906,46 @@ class NguoiDung(db.Model, UserMixin):
         )
         return ten_nhom_nguoi_dung == role
 
-    def validate(self):
-        """Method to validate the user input."""
-        if not self.validate_username():
-            return False
-        # if not self.validate_full_name():
-        #     return False
-        # if not self.validate_email():
-        #     return False
-        # if not self.validate_password():
-        #     return False
-        return True
+    # def validate(self):
+    #     """Method to validate the user input."""
+    #     if not self.validate_username():
+    #         return False
+    #     # if not self.validate_full_name():
+    #     #     return False
+    #     # if not self.validate_email():
+    #     #     return False
+    #     # if not self.validate_password():
+    #     #     return False
+    #     return True
 
-    def validate_username(self):
-        """Check if the username already exists in the database."""
-        user = NguoiDung.query.filter_by(UserName=self.UserName).first()
-        if user:
-            flash("Username alrsfsfsfseady exists.", category="error")
-            return False
-        return True
+    # def validate_username(self):
+    #     """Check if the username already exists in the database."""
+    #     user = NguoiDung.query.filter_by(UserName=self.UserName).first()
+    #     if user:
+    #         flash("Username alrsfsfsfseady exists.", category="error")
+    #         return False
+    #     return True
 
-    def validate_email(self):
-        """Check if the email is in a valid format."""
-        email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-        if not re.match(email_regex, self.Email):
-            flash("Invalid email format.", category="error")
-            return False
-        return True
+    # def validate_email(self):
+    #     """Check if the email is in a valid format."""
+    #     email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    #     if not re.match(email_regex, self.Email):
+    #         flash("Invalid email format.", category="error")
+    #         return False
+    #     return True
 
-    def validate_password(self, MatKhau1, MatKhau2):
-        """Check if passwords match."""
-        if MatKhau1 != MatKhau2:
-            flash("Passwords do not match.", category="error")
-            return False
-        return True
+    # def validate_password(self, MatKhau1, MatKhau2):
+    #     """Check if passwords match."""
+    #     if MatKhau1 != MatKhau2:
+    #         flash("Passwords do not match.", category="error")
+    #         return False
+    #     return True
 
-    def generate_verify_code(self):
-        """Generate a verification code."""
-        return "".join(
-            secrets.choice(string.ascii_letters + string.digits) for _ in range(6)
-        )
+    # def generate_verify_code(self):
+    #     """Generate a verification code."""
+    #     return "".join(
+    #         secrets.choice(string.ascii_letters + string.digits) for _ in range(6)
+    #     )
 
 
 class PHANQUYEN(db.Model):
