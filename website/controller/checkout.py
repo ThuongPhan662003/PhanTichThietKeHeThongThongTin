@@ -30,6 +30,7 @@ def index():
     don_dat_hang = DonDatHang.query.get(idDDH)
     khach_hang = don_dat_hang.hoa_don[0].khach_hang
 
+    # Lấy danh sách loại voucher
     loai_vouchers = LOAIVOUCHER.query.filter(
         LOAIVOUCHER.NgayKetThuc >= date.today(),
         LOAIVOUCHER.NgayBatDau <= date.today(),
@@ -39,7 +40,7 @@ def index():
     ).all()
 
     list_loai_voucher = []
-    # Kiểm tra xem khách hàng đó đã từng dùng loại voucher đó chưa
+    ## Kiểm tra xem khách hàng đó đã từng dùng loại voucher đó chưa
     for loai_voucher in loai_vouchers:
         try:
             if CT_VOUCHER.query.filter(
@@ -51,7 +52,7 @@ def index():
                 list_loai_voucher.append(loai_voucher)
         except Exception as e:
             ValueError(e)
-    
+
     # Truyền dữ liệu đơn hàng
     ct_monan = CT_MonAn.query.filter_by(idDDH=idDDH).all()
 
@@ -96,6 +97,7 @@ def save():
         DiemCong = data.get('DiemCong')
         DiemTru = data.get('DiemTru')
         idLoaiVoucher = data.get('idLoaiVoucher')
+        payment = data.get('PhuongThucThanhToan')
 
         print(f"idDDH: {idDDH}, TongTienGiam: {TongTienGiam}, TongTien: {TongTien}, TienThue: {TienThue}, DiemCong: {DiemCong}, DiemTru: {DiemTru}, idLoaiVoucher: {idLoaiVoucher}")
 
@@ -116,6 +118,7 @@ def save():
         hoa_don.DiemCong = DiemCong
         hoa_don.DiemTru = DiemTru
         hoa_don.NgayXuat = datetime.now()
+        hoa_don.PhuongThucThanhToan = payment
 
         print("Cập nhật hóa đơn thành công:", hoa_don)
 
@@ -308,6 +311,7 @@ def export_invoice_pdf():
         c.setFont("VietFont-Bold", 12)
         for order in invoice_data["data"].values():
             for ban in order["ban"]:
+                c.setFont("VietFont-Bold", 12)
                 c.drawString(50, y_position, "Bàn:")
                 c.setFont("VietFont", 12)
                 c.drawString(100, y_position, f"{ban['Ban']['TenBan']}")
@@ -365,6 +369,8 @@ def export_invoice_pdf():
         c.line(50, y_position - 5, page_width - 50, y_position - 5)  # Kẻ đường làm nổi bật
         c.drawString(50, y_position - 20, f"TỔNG THANH TOÁN:")
         c.drawString(180, y_position - 20, f"{int(float(invoice_data['info']['hoadon']['TongTien']))} VND")
+        y_position -= 20
+        c.drawString(50, y_position - 20, f"Phương thức thanh toán: {invoice_data['info']['hoadon']['PhuongThucThanhToan']}")
         
         return y_position - 40
 

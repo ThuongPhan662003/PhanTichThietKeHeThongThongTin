@@ -8,9 +8,8 @@ from website.models import Ban, CT_DonDatHang, CT_MonAn, HoaDon, MonAn
 from website.models import KhachHang
 from website.models import DonDatHang
 
-order = Blueprint("order", __name__)
+order = Blueprint("order", __name__)    
 
-# In danh sách khách hàng/ Thêm khách hàng
 @order.route("/", methods=["GET", "POST"])
 @login_required
 def index():
@@ -158,6 +157,7 @@ def save_order():
         
         CT_MonAn.query.filter_by(idDDH=idDDH).delete()
 
+        tongtien_ddh = 0
         for table_id, ds_monan in order_data['tables'].items():
             thanhtien = 0 # Lưu thành tiền của từng bàn
             for id_monan, ct_monan in ds_monan.items():
@@ -185,7 +185,12 @@ def save_order():
             ct_don_dat_hang = CT_DonDatHang.query.filter_by(idDDH=idDDH, idBan=table_id).first()
             if ct_don_dat_hang:
                 ct_don_dat_hang.ThanhTien = thanhtien
+                tongtien_ddh += thanhtien
 
+        # Lưu thành tiền cho DonDatHang
+        don_dat_hang = DonDatHang.query.get(idDDH)
+        don_dat_hang.ThanhTien = tongtien_ddh
+        
         db.session.commit()
         return jsonify({"success": True, "message": "Đơn hàng đã được tạo thành công!"}), 201
 

@@ -89,12 +89,20 @@ Quản lý khách hàng
                             </div>
 
                             <div class="col-6">
-                                <div class="mb-3">
-                                    <label for="ngaymothe">{{ formAdd.NgayMoThe.label }}</label>
-                                    {{ formAdd.NgayMoThe(class="form-control mt-2", placeholder="Chọn ngày - VD: 20/11/2024") }}
-                                    {% if formAdd.NgayMoThe.errors %}
-                                    <span class="form-error">{{ formAdd.NgayMoThe.errors[0]}}</span>
-                                    {% endif %}
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <label for="ngaymothe">{{ formAdd.NgayMoThe.label }}</label>
+                                        {{ formAdd.NgayMoThe(class="form-control mt-2", placeholder="Chọn ngày - VD: 20/11/2024") }}
+                                        {% if formAdd.NgayMoThe.errors %}
+                                        <span class="form-error">{{ formAdd.NgayMoThe.errors[0]}}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label>{{ formAdd.GioiTinh.label }}</label><br>
+                                        <div>
+                                            {{ formAdd.GioiTinh(class="d-flex d-column gap-5 mt-2 ") }}
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="email">{{ formAdd.Email.label }}</label>

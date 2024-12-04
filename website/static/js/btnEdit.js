@@ -25,5 +25,16 @@ document.getElementById("editBtn").addEventListener("click", function () {
     // Ẩn nút "Sửa thông tin" và hiện nút "Lưu thông tin"
     document.getElementById("editBtn").style.display = "none";
     document.getElementById("saveBtn").style.display = "inline-block";
+    document.getElementById("cancelBtn").style.display = "inline-block";
+    
+    const editMode = document.querySelector('#editMode');
+    const viewMode = document.querySelector('#viewMode');
+    if (editMode.classList.contains('d-none')) {
+        editMode.classList.remove('d-none');
+        viewMode.classList.add('d-none')
+    } else {
+        viewMode.classList.remove('d-none');
+        editMode.classList.add('d-none')
+    }
 
 });

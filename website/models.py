@@ -23,6 +23,7 @@ from sqlalchemy import (
     CheckConstraint,
     Boolean,
 )
+from datetime import datetime, date, time
 
 
 __all__ = [
@@ -158,29 +159,29 @@ class KhachHang(db.Model):
     nguoi_dung = db.relationship("NguoiDung", back_populates="khach_hang")
     hoa_don = db.relationship("HoaDon", backref="khach_hang", uselist=False)
 
-    def __init__(
-        self,
-        HoKH,
-        TenKH,
-        SDT,
-        Email,
-        NgayMoThe,
-        DiemTieuDung,
-        DiemTichLuy,
-        GioiTinh,
-        idNguoiDung,
-        LoaiKH="Thường",
-    ):
+#     def __init__(
+#         self,
+#         HoKH,
+#         TenKH,
+#         SDT,
+#         Email,
+#         NgayMoThe,
+#         DiemTieuDung,
+#         DiemTichLuy,
+#         GioiTinh,
+#         idNguoiDung,
+#         LoaiKH="Thường",
+#     ):
 
-        self.HoKH = HoKH
-        self.TenKH = TenKH
-        self.SDT = SDT
-        self.Email = Email
-        self.NgayMoThe = NgayMoThe
-        self.DiemTieuDung = DiemTieuDung
-        self.DiemTichLuy = DiemTichLuy
-        self.idNguoiDung = idNguoiDung
-        self.LoaiKH = LoaiKH
+#         self.HoKH = HoKH
+#         self.TenKH = TenKH
+#         self.SDT = SDT
+#         self.Email = Email
+#         self.NgayMoThe = NgayMoThe
+#         self.DiemTieuDung = DiemTieuDung
+#         self.DiemTichLuy = DiemTichLuy
+#         self.idNguoiDung = idNguoiDung
+#         self.LoaiKH = LoaiKH
 
     # Getters
     def get_MaKH(self):
@@ -251,6 +252,7 @@ class KhachHang(db.Model):
         return self.HoKH + " " + self.TenKH
 
 
+
 class HoaDon(db.Model):
     __tablename__ = "HoaDon"
 
@@ -266,9 +268,10 @@ class HoaDon(db.Model):
     TongTienGiam = db.Column(db.Integer, nullable=False)
     TongTien = db.Column(db.Integer, nullable=False)
     TrangThai = db.Column(db.Boolean, default=None)
-    TienThue = db.Column(db.Text, nullable=False)
+    TienThue = db.Column(db.Integer, nullable=False)
     DiemCong = db.Column(db.Integer, nullable=False)
     DiemTru = db.Column(db.Integer, nullable=False)
+    PhuongThucThanhToan = db.Column(db.Integer, nullable=True)
     don_dat_hang = db.relationship("DonDatHang", backref="hoa_don", uselist=False)
 
     @db.validates("DiemCong")
@@ -297,6 +300,7 @@ class HoaDon(db.Model):
             "TienThue": self.TienThue,
             "DiemCong": self.DiemCong,
             "DiemTru": self.DiemTru,
+            "PhuongThucThanhToan": self.PhuongThucThanhToan
         }
 
     def to_json(self):
@@ -439,6 +443,7 @@ class NhanVien(db.Model):
     def get_idNguoiDung(self):
         return self.idNguoiDung
 
+
     def get_MaNV(self):
         return self.MaNV
 
@@ -499,6 +504,7 @@ class NhanVien(db.Model):
 
 
 from datetime import datetime, date, time
+
 
 
 class DonDatHang(db.Model):
@@ -901,6 +907,14 @@ class NguoiDung(db.Model, UserMixin):
     # nhan_vien = db.relationship(
     #     "NhanVien", back_populates="nguoi_dung", uselist=False
     # )
+    def __init__(self, MaND, UserName, TrangThai, MatKhau, VerifyCode, idNND):
+        self.MaND = MaND
+        self.UserName = UserName
+        self.TrangThai = TrangThai
+        self.MatKhau = MatKhau
+        self.VerifyCode = VerifyCode
+        self.idNND = idNND
+
     @property
     def is_authenticated(self):
         return True
