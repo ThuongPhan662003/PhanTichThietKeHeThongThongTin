@@ -19,14 +19,24 @@ python main.py
 ```
 
 ## Change the app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:passwword@localhost/database_name'
+
 ## Mọi người thêm một file config.json và thư mục json rồi bổ sung những thông tin như username, password, database
+
 ví dụ:
 {
     "username": "root",
     "password": "thuong",
-    "database": "qlnh"
-}
+    "database": "qlnh",
+    "SQLALCHEMY_TRACK_MODIFICATIONS":"False",
+    "SECRET_KEY":"hjshjhdjah kjshkjdhjs",
+    "MAIL_USERNAME":"phanthuong2468@gmail.com",
+    "MAIL_PORT":587,
+    "MAIL_SERVER":"smtp.gmail.com",
+    "MAIL_USE_TLS":"True",
+    "MAIL_PASSWORD":"pnlf rsqv wowr ljon"
 
+
+}
 
 ## Viewing The App
 
@@ -37,7 +47,9 @@ Go to `http://127.0.0.1:5000/auth/login`
 ### Chú ý: ghi tên bảng them dạng capital (ví dụ: NhomNguoiDung)
 
 ### Chú ý: ghi tên thuộc tính giống như trong db(MySQL)
+
 ### Đánh [X] là đã xong
+
 Thương:
 
 - loaiban [x]
@@ -63,4 +75,3 @@ Thương:
 - ct_phieuxuat
 - ct_voucher
 - thamso
-

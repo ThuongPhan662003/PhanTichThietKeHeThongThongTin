@@ -1,69 +1,147 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
+
 {% block title %}
-Người dùng
+Thông tin người dùng
 {% endblock %}
 
 {% block content %}
-<div class="container center mt-5">
-    <div class="header-box">
-
-        <h1>Thông tin người dùng</h1>
-    </div>
-    <!-- <div class="row"> -->
-        <div class="left-box">
-            <img src="https://avatar.iran.liara.run/public" alt="Image" class="left-image" />
+<div class="container mt-5">
+    <div class="card shadow-sm p-4">
+        <div class="d-flex align-items-center">
+            <!-- Hình đại diện -->
+            <div class="me-4">
+                <img src="{{ avatar_url }}" alt="Image" class="rounded-circle img-fluid" style="width: 150px; height: 150px" />
+            </div>
+            <!-- Tiêu đề -->
+            <div>
+                <h1 class="text-primary">Thông tin người dùng</h1>
+                <p class="text-muted">Hãy kiểm tra kỹ thông tin dưới đây.</p>
+            </div>
         </div>
-        <div class="right-box">
-            <div class="row">
-                <div class="col-6">
-                    <div class="mb-3">
-                        <label for="hoten" class="form-label">Họ tên</label>
-                        <input type="text" id="fullname" class="form-control" 
-                               value="{{ employee.HoNV }} {{ employee.TenNV }}" readonly>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="ngaysinh" class="form-label">Ngày sinh</label>
-                        <input type="text" id="fullname" class="form-control" 
-                        value="{{ employee.NgaySinh.strftime('%d-%m-%Y') if employee.NgayVaoLam else '' }}" readonly>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="cccd" class="form-label">CCCD</label>
-                        <input type="text" id="fullname" class="form-control" value="{{employee.CCCD}}" readonly>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="chucvu" class="form-label">Chức vụ</label>
-                        <input type="text" id="fullname" class="form-control" value="{{user.nhom_nguoi_dung.TenNhomNguoiDung}}" readonly>
-                    </div>
-
+        <hr />
+        <!-- Thông tin chi tiết -->
+        <div class="row">
+            <div class="col-md-6">
+                <!-- Thông tin cột trái -->
+                <div class="mb-3">
+                    <label for="fullname" class="form-label">Họ tên</label>
+                    <input type="text" id="fullname" class="form-control" value="{{ employee.HoNV }} {{ employee.TenNV }}" readonly />
                 </div>
-
-                <div class="col-6">
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="text" id="fullname" class="form-control" value="{{employee.Email}}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="sdt" class="form-label">SDT</label>
-                        <input type="text" id="fullname" class="form-control" value="{{employee.SDT}}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label for="ngayvaolam" class="form-label">Ngày Vào Làm</label>
-                        <input type="text" id="fullname" class="form-control" 
-                        value="{{ employee.NgayVaoLam.strftime('%d-%m-%Y') if employee.NgayVaoLam else '' }}" readonly>
-
-                    </div>
-                    <div class="mb-3">
-                        <label for="tinhtrang" class="form-label">Tình trạng</label>
-                        <input type="text" id="fullname" class="form-control" value="{{ 'Còn làm việc' if employee.TinhTrang else 'Đã nghỉ làm' }}" readonly>
-                    </div>
+                <div class="mb-3">
+                    <label for="birthdate" class="form-label">Ngày sinh</label>
+                    <input type="text" id="birthdate" class="form-control" value="{{ employee.NgaySinh.strftime('%d-%m-%Y') if employee.NgaySinh else '' }}" readonly />
+                </div>
+                <div class="mb-3">
+                    <label for="cccd" class="form-label">CCCD</label>
+                    <input type="text" id="cccd" class="form-control" value="{{ employee.CCCD }}" readonly />
+                </div>
+                <div class="mb-3">
+                    <label for="position" class="form-label">Chức vụ</label>
+                    <input type="text" id="position" class="form-control" value="{{ user.nhom_nguoi_dung.TenNhomNguoiDung }}" readonly />
                 </div>
             </div>
 
+            <div class="col-md-6">
+                <!-- Thông tin cột phải -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="text" id="email" class="form-control" value="{{ employee.Email }}" readonly />
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Số điện thoại</label>
+                    <input type="text" id="phone" class="form-control" value="{{ employee.SDT }}" readonly />
+                </div>
+                <div class="mb-3">
+                    <label for="hire_date" class="form-label">Ngày vào làm</label>
+                    <input type="text" id="hire_date" class="form-control" value="{{ employee.NgayVaoLam.strftime('%d-%m-%Y') if employee.NgayVaoLam else '' }}" readonly />
+                </div>
+                <div class="mb-3">
+                    <label for="status" class="form-label">Tình trạng</label>
+                    <input type="text" id="status" class="form-control" value="{{ 'Còn làm việc' if employee.TinhTrang else 'Đã nghỉ làm' }}" readonly />
+                </div>
+            </div>
         </div>
 
-    <!-- </div> -->
+        <!-- Nút chỉnh sửa thông tin người dùng -->
+        <div class="text-end">
+            <a href="{{ url_for('nguoidung.edit_employee', employee_id=employee.MaNV) }}" class="btn btn-primary">Chỉnh sửa thông tin</a>
+        </div>
+    </div>
 </div>
+
+<div class="container mt-5">
+    <div class="card shadow-sm p-4">
+        <div class="row">
+            <h1 class="text-primary">Tài khoản</h1>
+            <hr />
+            <div class="col-md-6">
+                <!-- Thông tin cột trái -->
+                <div class="mb-3">
+                    <label for="Username" class="form-label">UserName</label>
+                    <input type="text" id="UserName" class="form-control" value="{{ user.UserName }}" readonly />
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- Thông tin cột trái -->
+                <div class="mb-3">
+                    <label for="MatKhau" class="form-label">Mật khẩu</label>
+                    <input type="password" id="MatKhau" class="form-control" value="{{ user.MatKhau }}" readonly />
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="showPassword">
+                    <label class="form-check-label" for="showPassword">Hiển thị mật khẩu</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nút chỉnh sửa tài khoản -->
+        <div class="text-end mt-3">
+            <a href="{{ url_for('nguoidung.edit_account_employee', user_id=user.MaND) }}" class="btn btn-primary">Chỉnh sửa tài khoản</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+    }
+
+    .card h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+    }
+
+    .card p {
+        margin: 0;
+    }
+
+    img.rounded-circle {
+        object-fit: cover;
+        border: 3px solid #007bff;
+    }
+
+    .form-control[readonly] {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        font-weight: 500;
+        color: #495057;
+    }
+</style>
+
+<script>
+    // Lắng nghe sự thay đổi của checkbox
+    document.getElementById('showPassword').addEventListener('change', function() {
+        var passwordField = document.getElementById('MatKhau');
+        
+        // Nếu checkbox được tick, chuyển type thành 'text' để hiển thị mật khẩu
+        if (this.checked) {
+            passwordField.type = 'text';
+        } else {
+            passwordField.type = 'password';
+        }
+    });
+</script>
+
 {% endblock %}

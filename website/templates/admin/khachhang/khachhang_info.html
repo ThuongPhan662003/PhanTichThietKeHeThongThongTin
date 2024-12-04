@@ -1,0 +1,240 @@
+{% extends "admin/base.html" %}
+{% block title %}
+Thông tin khách hàng
+{% endblock %}
+
+{% block content%}
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=True) %}
+{% if messages %}
+{% for category, message in messages %}
+{% if category == 'success' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% elif category == 'danger' %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<h1>Thông tin khách hàng</h1>
+<div class="container">
+    <div class="container d-flex flex-column container-center">
+        <div class="container d-flex justify-content-end mt-3">
+            <div class="me-2">
+                <button type="button" id="editBtn" class="btn btn-outline-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-pencil" viewBox="0 0 16 16">
+                        <path
+                            d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325" />
+                    </svg>
+                    Sửa thông tin</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                    data-bs-target="#modalDelete">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-trash" viewBox="0 0 16 16">
+                        <path
+                            d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                        <path
+                            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                    </svg>
+                    Xóa khách hàng</button>
+
+                <!-- Modal ẩn nhân viên -->
+                <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Xác nhận xóa khách hàng ?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary"
+                                    data-bs-dismiss="modal">No</button>
+                                <form action="{{ url_for('khachhang.xoa_kh', makh=kh.MaKH) }}" method="POST">
+                                    <button type="submit" class="btn btn-outline-primary">Yes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="me-2">
+                <a href="{{ url_for('khachhang.customer') }}">
+                    <button type="button" class="btn btn-outline-primary ms-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
+                        </svg>
+                        Quay lại DSKH
+                    </button>
+                </a>
+            </div>
+        </div>
+
+
+        <div class="container-body d-flex flex-row">
+            <div class="left-box">
+                <img src="https://avatar.iran.liara.run/public" alt="Image" class="left-image" />
+            </div>
+            <div class="right-box" id="formThongTin" data-error="{{ 'true' if form_error else 'false' }}">
+                <form class="row g-3 needs-validation" action="{{ url_for('khachhang.khachhang_info', makh=kh.MaKH) }}"
+                    method="POST">
+                    <div class="col-6">
+                        {{ form.hidden_tag() }}
+
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label for="makh" class="form-label">Mã khách hàng</label>
+                                <input type="text" id="fullname" class="form-control"
+                                    aria-describedby="inputGroup-sizing-default" value="{{ kh.MaKH }}" readonly>
+                            </div>
+
+                            <div class="col-6 mb-3" style="margin-block: auto;">
+                                <div class="highlight-label {{ loaikh | lower }}">
+                                    <span class="label-text">{{ form.LoaiKH.data }}</span>
+                                </div>
+                                {% if form.LoaiKH.errors %}
+                                <span class="form-error">{{ form.LoaiKH.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-8 mb-3">
+                                <label for="honv">{{ form.HoKH.label }}</label>
+                                {{ form.HoKH(class="form-control editable-field mt-2",
+                                placeholder="Nhập họ và tên lót - VD: Nguyễn Văn", readonly=True, required=True) }}
+                                {% if form.HoKH.errors %}
+                                <span class="form-error">{{ form.HoKH.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-4 mb-3">
+                                <label for="tennv">{{ form.TenKH.label }}</label>
+                                {{ form.TenKH(class="form-control editable-field mt-2",
+                                placeholder="Nhập tên - VD: An", readonly=True, required=True) }}
+                                {% if form.TenKH.errors %}
+                                <span class="form-error">{{ form.TenKH.errors[0]}}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            {{ form.Email(class="form-control editable-field", placeholder="Nhập Email - VD:
+                            ngvana@gmail.com",
+                            readonly=True, required=True) }}
+                            {% if form.Email.errors %}
+                            <span class="form-error">{{ form.Email.errors[0] }}</span>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label for="ngaymothe">{{ form.NgayMoThe.label }}</label>
+                                {{ form.NgayMoThe(class="form-control editable-field mt-2",
+                                placeholder="Chọn ngày mở thẻ - VD: 20/11/2024") }}
+                                {% if form.NgayMoThe.errors %}
+                                <span class="form-error">{{ form.NgayMoThe.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label for="sdt">{{ form.SDT.label }}</label>
+                                {{ form.SDT(class="form-control editable-field mt-2",
+                                placeholder="Nhập SDT - VD: 0123456789", readonly=True,
+                                required=True) }}
+                                {% if form.SDT.errors %}
+                                <span class="form-error">{{ form.SDT.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label for="diemtieudung">{{ form.DiemTieuDung.label }}</label>
+                                {{ form.DiemTieuDung(class="form-control editable-field mt-2",
+                                placeholder="Nhập điểm tiêu dùng", readonly=True,
+                                required=True) }}
+                                {% if form.DiemTieuDung.errors %}
+                                <span class="form-error">{{ form.DiemTieuDung.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label for="diemtichluy">{{ form.DiemTichLuy.label }}</label>
+                                {{ form.DiemTichLuy(class="form-control editable-field mt-2",
+                                placeholder="Nhập điểm tích lũy", readonly=True,
+                                required=True) }}
+                                {% if form.DiemTichLuy.errors %}
+                                <span class="form-error">{{ form.DiemTichLuy.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="col-12" style="text-align: right;">
+                        {{ form.submit(class="btn btn-success", style="display: none;") }}
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+
+<script>
+    window.addEventListener('load', function () {
+        var collapse1 = document.getElementById('formThongTin');
+        if (collapse1.getAttribute('data-error') === 'true') {
+            // alert("Sai rồi")
+            document.getElementById('editBtn').click();
+        }
+    });
+
+</script>
+
+<script>
+    // Khởi tạo Flatpickr trên input ngày sinh với định dạng dd/mm/yyyy
+    // flatpickr("#ngaymothe", {
+    //     dateFormat: "d/m/Y",
+    //     maxDate: "today",
+    //     clickOpens: false
+    // });
+</script>
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nhanvien_info.css') }}">
+<!-- <script src="{{ url_for('static', filename='js/novalidate.js') }}"></script> -->
+<script src="{{ url_for('static', filename='js/btnEdit.js') }}"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+
+
+
+
+{% endblock %}

@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
+
+from website.auth import role_required
 from .models import *
 from . import db
 import json
@@ -19,6 +21,7 @@ def get_functions():
 
 
 @views.route("/users")
+@login_required
 def get_users():
     users = NguoiDung.query.all()
     results = [{"id": user.MaND, "name": user.UserName} for user in users]
@@ -50,7 +53,8 @@ def get_orders():
                 "idDDH": order.MaDDH,
                 "NgayDat": order.NgayDat,
                 "TrangThai": order.TrangThai,
-                "ThanhTien": str(order.ThanhTien),  # Chuyển đổi thành chuỗi nếu cần
+                "ThanhTien": str(order.ThanhTien),
+                "Loai": order.Loai,  # Chuyển đổi thành chuỗi nếu cần
             }
         )
     return jsonify(results)
@@ -136,115 +140,152 @@ def get_bills():
     ]
     return jsonify(results)
 
+
 # Route để xem dữ liệu bảng PHANQUYEN
-@views.route('/phanquyen')
-#@login_required
+@views.route("/phanquyen")
+# @login_required
 def get_phanquyen():
     phanquyen = PHANQUYEN.query.all()
-    result = [{'idNND': pq.idNND, 'idCN': pq.idCN} for pq in phanquyen]
+    result = [{"idNND": pq.idNND, "idCN": pq.idCN} for pq in phanquyen]
     return jsonify(result)
 
-# # Route để xem dữ liệu bảng PHIEUXUAT
-# @views.route('/phieuxuat', methods=['GET'])
-# #@login_required
-# def get_phieuxuat():
-#     phieuxuat = PHIEUXUAT.query.all()
-#     result = [{'SoPhieuXuat': px.SoPhieuXuat, 'idNV': px.idNV, 'NgayXuat': px.NgayXuat} for px in phieuxuat]
-#     return jsonify(result)
 
-# # Route để xem dữ liệu bảng CT_PHIEUXUAT
-# @views.route('/ct_phieuxuat', methods=['GET'])
-# #@login_required
-# def get_ct_phieuxuat():
-#     ct_phieuxuat = CT_PHIEUXUAT.query.all()
-#     result = [{'idXuat': ct.idXuat, 'idNL': ct.idNL, 'SoLuong': ct.SoLuong} for ct in ct_phieuxuat]
-#     return jsonify(result)
+# Route để xem dữ liệu bảng PHIEUXUAT
+@views.route("/phieuxuat", methods=["GET"])
+# @login_required
+def get_phieuxuat():
+    phieuxuat = PHIEUXUAT.query.all()
+    result = [
+        {"SoPhieuXuat": px.SoPhieuXuat, "idNV": px.idNV, "NgayXuat": px.NgayXuat}
+        for px in phieuxuat
+    ]
+    return jsonify(result)
 
-# # Route để xem dữ liệu bảng PHIEUNHAP
-@views.route('/phieunhap', methods=['GET'])
-#@login_required
+
+# Route để xem dữ liệu bảng CT_PHIEUXUAT
+@views.route("/ct_phieuxuat", methods=["GET"])
+# @login_required
+def get_ct_phieuxuat():
+    ct_phieuxuat = CT_PHIEUXUAT.query.all()
+    result = [
+        {"idXuat": ct.idXuat, "idNL": ct.idNL, "SoLuong": ct.SoLuong}
+        for ct in ct_phieuxuat
+    ]
+    return jsonify(result)
+
+
+# Route để xem dữ liệu bảng PHIEUNHAP
+@views.route("/phieunhap", methods=["GET"])
+# @login_required
 def get_phieunhap():
     phieunhap = PHIEUNHAP.query.all()
-    result = [{'SoPhieuNhap': pn.SoPhieuNhap, 'idNV': pn.idNV, 'NgayNhap': pn.NgayNhap} for pn in phieunhap]
+    result = [
+        {"SoPhieuNhap": pn.SoPhieuNhap, "idNV": pn.idNV, "NgayNhap": pn.NgayNhap}
+        for pn in phieunhap
+    ]
     return jsonify(result)
 
-# # Route để xem dữ liệu bảng CT_PHIEUNHAP
-# @views.route('/ct_phieunhap', methods=['GET'])
-# #@login_required
-# def get_ct_phieunhap():
-#     ct_phieunhap = CT_PHIEUNHAP.query.all()
-#     result = [{'idNhap': ct.idNhap, 'idNL': ct.idNL, 'SoLuong': ct.SoLuong, 'ThanhTien': ct.ThanhTien} for ct in ct_phieunhap]
-#     return jsonify(result)
 
-# # Route để xem dữ liệu bảng LOAIVOUCHER
-# @views.route('/loaivoucher', methods=['GET'])
-# #@login_required
-# def get_loaivoucher():
-#     loaivoucher = LOAIVOUCHER.query.all()
-#     result = [{
-#         'MaLoaiVoucher': lv.MaLoaiVoucher,
-#         'TenLoaiVoucher': lv.TenLoaiVoucher,
-#         'PhanTram': lv.PhanTram,
-#         'MoTa': lv.MoTa,
-#         'SoLuong': lv.SoLuong,
-#         'SoLuongConLai': lv.SoLuongConLai,
-#         'LoaiKH': lv.LoaiKH,
-#         'NgayBatDau': lv.NgayBatDau,
-#         'NgayKetThuc': lv.NgayKetThuc,
-#         'GiamToiDa': lv.GiamToiDa,
-#         'An': lv.An
-#     } for lv in loaivoucher]
-#     return jsonify(result)
+# Route để xem dữ liệu bảng CT_PHIEUNHAP
+@views.route("/ct_phieunhap", methods=["GET"])
+# @login_required
+def get_ct_phieunhap():
+    ct_phieunhap = CT_PHIEUNHAP.query.all()
+    result = [
+        {
+            "idNhap": ct.idNhap,
+            "idNL": ct.idNL,
+            "SoLuong": ct.SoLuong,
+            "ThanhTien": ct.ThanhTien,
+        }
+        for ct in ct_phieunhap
+    ]
+    return jsonify(result)
 
-# # Route để xem dữ liệu bảng VOUCHER
-@views.route('/voucher', methods=['GET'])
-#@login_required
+
+# Route để xem dữ liệu bảng LOAIVOUCHER
+@views.route("/loaivoucher", methods=["GET"])
+# @login_required
+def get_loaivoucher():
+    loaivoucher = LOAIVOUCHER.query.all()
+    result = [
+        {
+            "MaLoaiVoucher": lv.MaLoaiVoucher,
+            "TenLoaiVoucher": lv.TenLoaiVoucher,
+            "PhanTram": lv.PhanTram,
+            "MoTa": lv.MoTa,
+            "SoLuong": lv.SoLuong,
+            "SoLuongConLai": lv.SoLuongConLai,
+            "LoaiKH": lv.LoaiKH,
+            "NgayBatDau": lv.NgayBatDau,
+            "NgayKetThuc": lv.NgayKetThuc,
+            "GiamToiDa": lv.GiamToiDa,
+            "An": lv.An,
+        }
+        for lv in loaivoucher
+    ]
+    return jsonify(result)
+
+
+# Route để xem dữ liệu bảng VOUCHER
+@views.route("/voucher", methods=["GET"])
+# @login_required
 def get_voucher():
     voucher = VOUCHER.query.all()
-    result = [{'CodeVoucher': v.CodeVoucher, 'idLoaiVoucher': v.idLoaiVoucher, 'TrangThai': v.TrangThai} for v in voucher]
+    result = [
+        {
+            "CodeVoucher": v.CodeVoucher,
+            "idLoaiVoucher": v.idLoaiVoucher,
+            "TrangThai": v.TrangThai,
+        }
+        for v in voucher
+    ]
     return jsonify(result)
 
-# # Route để xem dữ liệu bảng CT_VOUCHER
-# @views.route('/ct_voucher', methods=['GET'])
-# #@login_required
-# def get_ct_voucher():
-#     ct_voucher = CT_VOUCHER.query.all()
-#     result = [{'CodeVoucher': ct.CodeVoucher, 'idHD': ct.idHD} for ct in ct_voucher]
-#     return jsonify(result)
+
+# Route để xem dữ liệu bảng CT_VOUCHER
+@views.route("/ct_voucher", methods=["GET"])
+# @login_required
+def get_ct_voucher():
+    ct_voucher = CT_VOUCHER.query.all()
+    result = [{"CodeVoucher": ct.CodeVoucher, "idHD": ct.idHD} for ct in ct_voucher]
+    return jsonify(result)
+
 
 # Route để xem dữ liệu bảng THAMSO
-@views.route('/thamso', methods=['GET'])
-#@login_required
+@views.route("/thamso", methods=["GET"])
+# @login_required
 def get_thamso():
     thamso = THAMSO.query.all()
-    result = [{
-        'id': ts.id,
-        'TuoiToiDa': ts.TuoiToiDa,
-        'TuoiToiThieu': ts.TuoiToiThieu,
-        'DiemChiaTichLuy': ts.DiemChiaTichLuy,
-        'SoVoucherApDung_Ngay': ts.SoVoucherApDung_Ngay,
-        'SoNguyenLieuNhap': ts.SoNguyenLieuNhap,
-        'PhanTramGiamVoucherToiDa': ts.PhanTramGiamVoucherToiDa,
-        'Vang': ts.Vang,
-        'Bac': ts.Bac,
-        'Dong': ts.Dong,
-        'PhanTramThue': ts.PhanTramThue
-    } for ts in thamso]
+    result = [
+        {
+            "id": ts.id,
+            "TuoiToiDa": ts.TuoiToiDa,
+            "TuoiToiThieu": ts.TuoiToiThieu,
+            "DiemChiaTichLuy": ts.DiemChiaTichLuy,
+            "SoVoucherApDung_Ngay": ts.SoVoucherApDung_Ngay,
+            "SoNguyenLieuNhap": ts.SoNguyenLieuNhap,
+            "PhanTramGiamVoucherToiDa": ts.PhanTramGiamVoucherToiDa,
+            "Vang": ts.Vang,
+            "Bac": ts.Bac,
+            "Dong": ts.Dong,
+            "PhanTramThue": ts.PhanTramThue,
+        }
+        for ts in thamso
+    ]
     return jsonify(result)
 
 
-@views.route("/homepage")
+@views.route("/")
 def homepage():
-    return render_template("homepage.html")
+    print("session")
+    menu_items = MonAn.query.all()
+    return render_template("user/homepage.html", menu=menu_items)
+
 
 
 @views.route("/admin-home")
+@role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân"])
 def admin_home():
+    print(current_user)
     return render_template("admin/admin-home.html")
-
-
-
-
-
-
-

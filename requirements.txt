@@ -4,3 +4,13 @@ flask-login
 authlib
 flask_wtf
 flask_session
+pandas
+openpyxl
+xlsxwriter
+Flask-APScheduler
+reportlab
+beautifulsoup4
+Flask-Mail
+redis
+unidecode
+email-validator
