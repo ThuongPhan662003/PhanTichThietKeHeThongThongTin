@@ -129,6 +129,12 @@ class NhanVienForm(FlaskForm):
         default="0",
         coerce=int,
     )
+    GioiTinh = RadioField(
+        "Giới tính",
+        choices=[("0", "Nam"), ("1", "Nữ")],
+        default="0",
+        coerce=int,
+    )
     submit = SubmitField("Lưu Thông Tin", id="saveBtn")
 
     def validate_NgaySinh(self, field):
@@ -210,6 +216,13 @@ class KhachHangForm(FlaskForm):
         default="Thường",
         validators=[DataRequired()],
     )
+    GioiTinh = RadioField(
+        "Giới tính",
+        choices=[("0", "Nam"), ("1", "Nữ")],
+        default="0",
+        coerce=int,
+    )
+
     submit = SubmitField("Lưu Thông Tin", id="saveBtn")
 
 

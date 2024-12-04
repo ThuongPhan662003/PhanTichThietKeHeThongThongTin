@@ -190,11 +190,28 @@ Thông tin khách hàng
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="cccd">{{ form.GioiTinh.label }}</label>
+                            <div id="viewMode" class="d-flex d-column gap-5 mt-2">
+                                <input type="text" class="form-control"
+                                    value="{{ 'Nam' if kh.GioiTinh == 0 else 'Nữ' }}" readonly>
+                            </div>
+
+                            <!-- Chế độ chỉnh sửa (ẩn mặc định) -->
+                            <div id="editMode" class="d-flex d-column gap-5 mt-2 d-none">
+                                {{ form.GioiTinh(class="d-flex d-column gap-5 mt-2") }} 
+                            </div>
+
+                            {% if form.GioiTinh.errors %}
+                            <span class="form-error">{{ form.GioiTinh.errors[0] }}</span>
+                            {% endif %}
+                        </div>
 
                     </div>
 
                     <div class="col-12" style="text-align: right;">
                         {{ form.submit(class="btn btn-success", style="display: none;") }}
+                        <a type="button" id="cancelBtn" class="btn btn-secondary" href="{{url_for('khachhang.khachhang_info', makh=kh.MaKH)}}" style="display: none;">Cancel</a> 
                     </div>
 
                 </form>
@@ -209,7 +226,6 @@ Thông tin khách hàng
     window.addEventListener('load', function () {
         var collapse1 = document.getElementById('formThongTin');
         if (collapse1.getAttribute('data-error') === 'true') {
-            // alert("Sai rồi")
             document.getElementById('editBtn').click();
         }
     });
@@ -227,7 +243,6 @@ Thông tin khách hàng
 
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/nhanvien_info.css') }}">
-<!-- <script src="{{ url_for('static', filename='js/novalidate.js') }}"></script> -->
 <script src="{{ url_for('static', filename='js/btnEdit.js') }}"></script>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
