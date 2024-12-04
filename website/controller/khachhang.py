@@ -44,7 +44,8 @@ def customer():
                 NgayMoThe=datetime.strptime(form.NgayMoThe.data, '%d/%m/%Y').date(),
                 DiemTieuDung=form.DiemTieuDung.data,
                 DiemTichLuy=form.DiemTichLuy.data,
-                LoaiKH=form.LoaiKH.data
+                LoaiKH=form.LoaiKH.data,
+                GioiTinh = form.GioiTinh.data
                 )
                 db.session.add(kh)
                 db.session.commit()
@@ -101,6 +102,7 @@ def khachhang_info(makh):
                     kh.NgayMoThe=datetime.strptime(form.NgayMoThe.data, '%d/%m/%Y').date()
                     kh.DiemTieuDung=form.DiemTieuDung.data
                     kh.DiemTichLuy=form.DiemTichLuy.data
+                    kh.GioiTinh=form.GioiTinh.data
 
                     tham_so = THAMSO.query.get(1)
                     if kh.DiemTichLuy >= tham_so.Vang:
@@ -129,6 +131,7 @@ def khachhang_info(makh):
     form.DiemTieuDung.data = kh.DiemTieuDung
     form.DiemTichLuy.data = kh.DiemTichLuy
     form.LoaiKH.data = kh.LoaiKH
+    form.GioiTinh.data = kh.GioiTinh
     loaikh = unidecode(form.LoaiKH.data)
     return render_template('admin/khachhang/khachhang_info.html', kh=kh, form=form, loaikh=loaikh, form_error=form_error)
 

@@ -28,14 +28,15 @@ Nguyên liệu
 </script>
 
 <!-- form thêm nguyên liệu có sẵn -->
-<h1>Thêm nguyên liệu đã có</h1>
+<h1>Thêm phiếu nhập</h1>
 <br />
-<div class="shadow p-3 mb-5 bg-body rounded">
+<div class="shadow p-3 mb-3 bg-body rounded">
     <form method="POST" action="{{ url_for('nguyenlieu.add_ingredients') }}" class="row g-3 needs-validation"
         novalidate>
-        <div class="col-md-12">
+        <div class="col mb-3">
             <label for="ngayNhap" class="form-label">Ngày nhập<span style="color: red;">*</span></label>
-            <input type="date" class="form-control" id="ngayNhap" name="ngayNhap" required>
+            <input type="date" class="form-control" id="ngayNhap" name="ngayNhap" placeholder="Bấm vào để chọn..."
+                required>
             <div class="invalid-feedback">
                 Vui lòng nhập ngày!
             </div>
@@ -47,7 +48,8 @@ Nguyên liệu
                 });
             </script>
         </div>
-        <h3>Danh sách nguyên liệu</h3>
+
+        <h3 class="mb-3">Danh sách nguyên liệu</h3>
 
         <div class="row justify-content-center">
             <div class="col-8">
@@ -72,7 +74,6 @@ Nguyên liệu
         </div>
         <div class="col-md-6">
             <label class="form-label">Tên nguyên liệu<span style="color: red;">*</span></label>
-
             <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Nhập để tìm kiếm..."
                 name="ingredient_name" onchange="document.getElementById('selectedIngredientId').value=this.value">
             <datalist id="datalistOptions">
@@ -91,7 +92,7 @@ Nguyên liệu
         <div class="col-md-4">
             <label for="soLuongNhap" class="form-label">Số lượng nhập<span style="color: red;">*</span></label>
             <div data-mdb-input-init class="form-outline">
-                <input type="number" id="soLuongNhap" class="form-control" required />
+                <input type="number" id="soLuongNhap" class="form-control" placeholder="VD: 5" required />
                 <div class="invalid-feedback">
                     Vui lòng nhập số lượng nguyên liệu!
                 </div>
@@ -121,9 +122,11 @@ Nguyên liệu
                 </svg>
                 Lưu
             </button>
+            <a href="{{url_for('phieunhap.received_notes')}}" class="btn btn-outline-secondary">Quay lại</a>
         </div>
     </form>
 </div>
+
 <script>
     document.getElementById('saveButton').addEventListener('click', function (event) {
         const ngayNhap = document.getElementById('ngayNhap').value;
