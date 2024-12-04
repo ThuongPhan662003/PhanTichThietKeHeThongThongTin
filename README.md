@@ -24,18 +24,17 @@ python main.py
 
 ví dụ:
 {
-"username": "root",
-"password": "thuong",
-"database": "qlnh",
-"SQLALCHEMY_TRACK_MODIFICATIONS":"False",
-"SECRET_KEY":"hjshjhdjah kjshkjdhjs",
-"MAIL_USERNAME":"n21dccn184@student.ptithcm.edu.vn",
-"MAIL_PORT":587,
-"MAIL_SERVER":"smtp.gmail.com",
-"MAIL_USE_TLS":"True",
-"MAIL_USE_SSL":"False",
-"MAIL_PASSWORD":"irzy hzyd qrms eapz",
-"MAIL_DEFAULT_SENDER":"n21dccn184@student.ptithcm.edu.vn"
+    "username": "root",
+    "password": "thuong",
+    "database": "qlnh",
+    "SQLALCHEMY_TRACK_MODIFICATIONS":"False",
+    "SECRET_KEY":"hjshjhdjah kjshkjdhjs",
+    "MAIL_USERNAME":"phanthuong2468@gmail.com",
+    "MAIL_PORT":587,
+    "MAIL_SERVER":"smtp.gmail.com",
+    "MAIL_USE_TLS":"True",
+    "MAIL_PASSWORD":"pnlf rsqv wowr ljon"
+
 
 }
 
