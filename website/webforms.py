@@ -2,6 +2,8 @@ from winreg import REG_EXPAND_SZ
 from flask_wtf import FlaskForm
 from wtforms.widgets import TextArea
 
+from wtforms import BooleanField, FileField, FloatField, RadioField, StringField, DateField, DecimalField, IntegerField, DateTimeField, SubmitField, PasswordField, SelectField
+from wtforms.validators import DataRequired, Email, Length, NumberRange, ValidationError, Optional, Regexp
 from wtforms import (
     RadioField,
     StringField,
@@ -45,10 +47,136 @@ from wtforms.validators import (
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 
 from datetime import datetime
-from website.models import NhanVien
-from website.models import KhachHang
 from website.models import THAMSO
 from wtforms.validators import ValidationError
+
+from flask_wtf import FlaskForm
+from wtforms_alchemy import ModelForm
+from .models import Ban, LoaiBan, MonAn  
+from wtforms_sqlalchemy.fields import QuerySelectField
+
+from flask_wtf import FlaskForm
+from wtforms import SelectField, StringField, TextAreaField, IntegerField, DateTimeField, BooleanField
+from wtforms.validators import DataRequired, Length, NumberRange, Optional
+
+
+class MonAnForm(FlaskForm):
+    TenMonAn = StringField('Tên Món Ăn', validators=[DataRequired()])
+    DonGia = DecimalField('Đơn Giá', validators=[DataRequired()])
+    Loai = SelectField('Loại', choices=[], coerce=str)  # Dùng SelectField với choices động
+    TrangThai = SelectField('Trạng Thái', choices=[('Còn phục vụ', 'Còn phục vụ'), 
+                                                   ('Ngừng phục vụ', 'Ngừng phục vụ'), 
+                                                   ('Tạm hết', 'Tạm hết')], validators=[DataRequired()])
+    HinhAnh = FileField('Hình Ảnh')
+    Submit = SubmitField('Thêm')
+
+    def __init__(self, *args, **kwargs):
+        super(MonAnForm, self).__init__(*args, **kwargs)
+        # Truy vấn để lấy các giá trị duy nhất cho Loai
+        loai_choices = MonAn.query.with_entities(MonAn.Loai).distinct().all()
+        self.Loai.choices = [(loai.Loai, loai.Loai) for loai in loai_choices]
+
+class LoaiVoucherForm(FlaskForm):
+    TenLoaiVoucher = StringField(
+        "Tên Loại Voucher",
+        validators=[
+            DataRequired(message="Tên loại voucher không được để trống."),
+            Length(max=50, message="Tên loại voucher không được vượt quá 50 ký tự.")
+        ]
+    )
+    PhanTram = IntegerField(
+        "Phần Trăm Giảm",
+        validators=[
+            DataRequired(message="Phần trăm giảm không được để trống."),
+            NumberRange(min=1, max=99, message="Phần trăm giảm phải từ 1 đến 99.")
+        ]
+    )
+    MoTa = TextAreaField("Mô Tả", validators=[Optional(), Length(max=500)])
+    SoLuong = IntegerField(
+        "Số Lượng",
+        validators=[
+            DataRequired(message="Số lượng không được để trống."),
+            NumberRange(min=0, message="Số lượng phải lớn hơn hoặc bằng 0.")
+        ]
+    )
+    SoLuongConLai = IntegerField(
+        "Số Lượng Còn Lại"
+        # validators=[
+        #     DataRequired(message="Số lượng còn lại không được để trống."),
+        #     NumberRange(min=-1, message="Số lượng còn lại phải lớn hơn hoặc bằng 0.")
+        # ]
+    )
+    LoaiKH = SelectField(
+        "Loại Khách Hàng",
+        choices=[
+            ("Thường", "Thường"),
+            ("Đồng", "Đồng"),
+            ("Bạc", "Bạc"),
+            ("Vàng", "Vàng"),
+            ("Bạch kim", "Bạch kim"),
+            ("Kim Cương", "Kim Cương")
+        ],
+        validators=[DataRequired(message="Loại khách hàng không được để trống.")]
+    )
+    NgayBatDau = DateTimeField(
+        "Ngày Bắt Đầu",
+        validators=[DataRequired(message="Ngày bắt đầu không được để trống.")]
+    )
+    NgayKetThuc = DateTimeField(
+        "Ngày Kết Thúc",
+        validators=[DataRequired(message="Ngày kết thúc không được để trống.")]
+    )
+    GiamToiDa = IntegerField(
+        "Giảm Tối Đa",
+        validators=[Optional(), NumberRange(min=0, message="Giảm tối đa phải lớn hơn hoặc bằng 0.")]
+    )
+    An = BooleanField("Ẩn")
+    def validate_NgayKetThuc(form, field):
+        if form.NgayBatDau.data <form.NgayBatDau.data: 
+                raise ValidationError('Ngày kết thúc không thể nhỏ hơn ngày bắt đầu.')
+
+class LoaiBanForm(ModelForm, FlaskForm):
+    class Meta:
+        model = LoaiBan
+        include_primary_keys = False  # Không hiển thị trường khóa chính (nếu cần)
+
+class BanForm(FlaskForm):
+    MaBan = IntegerField("Mã bàn", render_kw={"readonly": True})  # Thông thường không cho phép chỉnh sửa
+    TenBan = StringField(
+        "Tên bàn",
+        validators=[
+            DataRequired(message="Tên bàn không được để trống."),
+            Length(max=30, message="Tên bàn không được vượt quá 30 ký tự.")
+        ]
+    )
+    ViTri = StringField(
+        "Vị trí",
+        validators=[
+            DataRequired(message="Vị trí không được để trống."),
+            Length(max=10, message="Vị trí không được vượt quá 10 ký tự.")
+        ]
+    )
+    TrangThai = SelectField(
+        "Trạng thái",
+        choices=[("Còn trống", "Còn trống"), ("Đang dùng bữa", "Đang dùng bữa"), ("Đã đặt trước", "Đã đặt trước")],
+        validators=[DataRequired(message="Vui lòng chọn trạng thái.")]
+    )
+    idLoaiBan = QuerySelectField(
+         "Loại Bàn",
+        query_factory=lambda: LoaiBan.query.all(),  # Truy vấn tất cả loại bàn
+        get_label="TenLoaiBan",  # Hiển thị tên loại bàn
+        allow_blank=True,
+        blank_text="-- Chọn loại bàn --",
+        validators=[DataRequired("Vui lòng chọn loại bàn")]
+    )
+    submit = SubmitField("Lưu")
+
+    # Custom validation for TrangThai (nếu cần thêm logic)
+    def validate_TrangThai(self, field):
+        valid_trang_thai = ["Còn trống", "Đang dùng bữa", "Đã đặt trước"]
+        if field.data not in valid_trang_thai:
+            raise ValidationError(f"{field.data} không phải là trạng thái hợp lệ!")
+
 
 
 class NguyenLieuForm(FlaskForm):
