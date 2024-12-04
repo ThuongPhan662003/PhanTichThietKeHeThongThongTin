@@ -10,10 +10,11 @@ import redis
 from flask_session import Session  # Đảm bảo đây là flask_session
 from flask_apscheduler import APScheduler
 
+from flask_mail import Mail
 
 db = SQLAlchemy()
 scheduler = APScheduler()
-
+mail_app = Mail()
 
 def create_app():
 
@@ -32,9 +33,9 @@ def create_app():
     mail_port = config_data["MAIL_PORT"]
     mail_server = config_data["MAIL_SERVER"]
     mail_use_tls = config_data["MAIL_USE_TLS"]
-    mail_use_ssl = config_data["MAIL_USE_SSL"]
+    # mail_use_ssl = config_data["MAIL_USE_SSL"]
     mail_password = config_data["MAIL_PASSWORD"]
-    mail_default_sender = config_data["MAIL_DEFAULT_SENDER"]
+    # mail_default_sender = config_data["MAIL_DEFAULT_SENDER"]
     sqlalchemy_track_modifications = config_data["SQLALCHEMY_TRACK_MODIFICATIONS"]
     app.config["SECRET_KEY"] = secret
     app.config["SQLALCHEMY_DATABASE_URI"] = (
@@ -47,12 +48,12 @@ def create_app():
     app.config["MAIL_SERVER"] = mail_server
     app.config["MAIL_PORT"] = mail_port
     app.config["MAIL_USE_TLS"] = mail_use_tls
-    app.config["MAIL_USE_SSL"] = mail_use_ssl
+    # app.config["MAIL_USE_SSL"] = mail_use_ssl
     app.config["MAIL_USERNAME"] = mail_username
     app.config["MAIL_PASSWORD"] = mail_password
-    app.config["MAIL_DEFAULT_SENDER"] = mail_default_sender
+    # app.config["MAIL_DEFAULT_SENDER"] = mail_default_sender
 
-    mail = Mail(app)
+    # mail = Mail(app)
     db.init_app(app)
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -105,7 +106,6 @@ def create_app():
     from .controller.order import order
     from .controller.checkout import checkout
 
-
     from .controller.bookcalendar import bookcalendar
     from .controller.dondathang import dondathang
     from .controller.report import report
@@ -133,6 +133,7 @@ def create_app():
     app.register_blueprint(khachhang, url_prefix="/khachhang")
     app.register_blueprint(report, url_prefix="/report")
     app.register_blueprint(chucnang, url_prefix="/chucnang")
+
     with app.app_context():
         db.create_all()
 
@@ -143,9 +144,11 @@ def create_app():
 
     # Khởi tạo OAuth
     from .auth import init_oauth
-
+    global mail_app
     init_oauth(app)
-
+    mail_app = Mail(app)
+    from .controller.mail import mail_sender
+    app.register_blueprint(mail_sender, url_prefix="/mail")
     @login_manager.user_loader
     def load_user(id):
         return NguoiDung.query.get(int(id))
