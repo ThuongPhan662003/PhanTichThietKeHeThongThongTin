@@ -280,7 +280,7 @@ def get_thamso():
 def homepage():
     print("session")
     menu_items = MonAn.query.all()
-    return render_template("user/homepage.html", menu=menu_items)
+    return render_template("user/homepage.html", menu=menu_items,user = current_user)
 
 
 

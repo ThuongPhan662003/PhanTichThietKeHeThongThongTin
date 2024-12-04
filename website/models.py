@@ -894,7 +894,7 @@ class NguoiDung(db.Model, UserMixin):
     MaND = db.Column(db.Integer, primary_key=True, autoincrement=True)
     UserName = db.Column(db.String(200), nullable=False)
     TrangThai = db.Column(db.Integer)
-    MatKhau = db.Column(db.String(150))
+    MatKhau = db.Column(db.String(200))
     VerifyCode = db.Column(db.String(150))
     idNND = db.Column(db.Integer, db.ForeignKey("NhomNguoiDung.MaNND"), nullable=False)
 
@@ -933,10 +933,10 @@ class NguoiDung(db.Model, UserMixin):
         return self.UserName
     def setVerifyCode(self,VerifyCode):
         self.VerifyCode = VerifyCode
-    def getMatKhau(self):
+    def get_MatKhau(self):
         return self.MatKhau
 
-    def setMatKhau(self,MatKhau):
+    def set_MatKhau(self,MatKhau):
         self.MatKhau = MatKhau
 
     # def validate(self):
