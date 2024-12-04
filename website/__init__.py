@@ -32,9 +32,7 @@ def create_app():
     mail_port = config_data["MAIL_PORT"]
     mail_server = config_data["MAIL_SERVER"]
     mail_use_tls = config_data["MAIL_USE_TLS"]
-    mail_use_ssl = config_data["MAIL_USE_SSL"]
     mail_password = config_data["MAIL_PASSWORD"]
-    mail_default_sender = config_data["MAIL_DEFAULT_SENDER"]
     sqlalchemy_track_modifications = config_data["SQLALCHEMY_TRACK_MODIFICATIONS"]
     app.config["SECRET_KEY"] = secret
     app.config["SQLALCHEMY_DATABASE_URI"] = (
@@ -47,10 +45,8 @@ def create_app():
     app.config["MAIL_SERVER"] = mail_server
     app.config["MAIL_PORT"] = mail_port
     app.config["MAIL_USE_TLS"] = mail_use_tls
-    app.config["MAIL_USE_SSL"] = mail_use_ssl
     app.config["MAIL_USERNAME"] = mail_username
     app.config["MAIL_PASSWORD"] = mail_password
-    app.config["MAIL_DEFAULT_SENDER"] = mail_default_sender
 
     mail = Mail(app)
     db.init_app(app)
