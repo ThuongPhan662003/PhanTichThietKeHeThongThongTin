@@ -16,7 +16,7 @@ chucnang = Blueprint("chucnang", __name__)
 def list_chucnang():
     search = request.args.get("search", "")
     role = request.args.get("role", "")
-
+    quyen = PHANQUYEN.query.all()
     # Lọc theo nhóm quyền nếu có
     if role:
         nhom_nguoi_dung = NhomNguoiDung.query.filter_by(MaNND=role).first()
@@ -37,12 +37,17 @@ def list_chucnang():
         )
 
     nhom_nguoi_dung_list = NhomNguoiDung.query.all()
+    nhom_nguoi_dung_dict = {
+        nhom.MaNND: nhom.TenNhomNguoiDung for nhom in nhom_nguoi_dung_list
+    }
     return render_template(
         "admin/chucnang/chucnang.html",
         funcs=funcs,
         search=search,
         role=role,  # Trả về giá trị 'role' đã lọc
         nhom_nguoi_dung=nhom_nguoi_dung_list,
+        quyen=quyen,
+        dict=nhom_nguoi_dung_dict,
     )
 
 
@@ -52,7 +57,11 @@ def add():
     nhom_nguoi_dung = NhomNguoiDung.query.all()
     if request.method == "POST":
         ten_mh = request.form["TenManHinh"]
-
+        if ChucNang.query.filter(ChucNang.TenManHinh == ten_mh).first():
+            flash("Tên chức năng là duy nhất!", "error")
+            return render_template(
+                "admin/chucnang/add.html", nhom_nguoi_dung=nhom_nguoi_dung
+            )
         new_chucnang = ChucNang(ten_mh)
         db.session.add(new_chucnang)
         db.session.commit()
@@ -69,8 +78,15 @@ def edit(id):
     nhom_nguoi_dung = NhomNguoiDung.query.all()
     if request.method == "POST":
 
-        chucnang.TenManHinh = request.form["TenManHinh"]
-        chucnang.Quyen = request.form["Quyen"]
+        chucnang.setTenManHinh(request.form["TenManHinh"])
+        if  ChucNang.query.filter(ChucNang.TenManHinh == chucnang.getTenManHinh).first():
+            flash("Tên chức năng là duy nhất!", "error")
+            return render_template(
+                "admin/chucnang/edit.html",
+                chucnang=chucnang,
+                nhom_nguoi_dung=nhom_nguoi_dung,
+            )
+        # chucnang.Quyen = request.form["Quyen"]
         db.session.commit()
         flash("Cập nhật chức năng thành công!", "success")
         return redirect(url_for("chucnang.list_chucnang"))
@@ -84,6 +100,9 @@ def edit(id):
 @role_required(["Quản lý"])
 def delete(id):
     chucnang = ChucNang.query.get_or_404(id)
+    if PHANQUYEN.query.filter(PHANQUYEN.idCN == id):
+        flash("Chức năng này đã được phân quyền!", "error")
+        return redirect(url_for("chucnang.list_chucnang"))
     db.session.delete(chucnang)
     db.session.commit()
     flash("Xóa chức năng thành công!", "success")
@@ -110,4 +129,22 @@ def assign_role(id):
     db.session.commit()
 
     flash("Phân quyền thành công!", "success")
+    return redirect(url_for("chucnang.list_chucnang"))
+
+
+@chucnang.route("/chucnang/remove_role/<int:idCN>/<int:idNND>", methods=["GET"])
+def remove_role(idCN, idNND):
+    try:
+        # Tìm và xóa phân quyền
+        quyen = PHANQUYEN.query.filter_by(idCN=idCN, idNND=idNND).first()
+        if quyen:
+            db.session.delete(quyen)
+            db.session.commit()
+            flash("Xóa phân quyền thành công!", "success")
+        else:
+            flash("Phân quyền không tồn tại.", "warning")
+    except Exception as e:
+        flash(f"Có lỗi xảy ra: {str(e)}", "danger")
+
+    # Quay lại trang danh sách chức năng
     return redirect(url_for("chucnang.list_chucnang"))

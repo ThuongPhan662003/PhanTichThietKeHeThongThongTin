@@ -102,7 +102,6 @@ def create_app():
     from .controller.order import order
     from .controller.checkout import checkout
 
-
     from .controller.bookcalendar import bookcalendar
     from .controller.dondathang import dondathang
     from .controller.report import report
@@ -111,6 +110,7 @@ def create_app():
     from .controller.nhanvien import nhanvien
     from .controller.khachhang import khachhang
     from .controller.chucnang import chucnang
+    from .controller.nhomnguoidung import nhomnguoidung
 
     # Đăng ký blueprints
     app.register_blueprint(views, url_prefix="/")
@@ -129,6 +129,7 @@ def create_app():
     app.register_blueprint(bookcalendar, url_prefix="/bookcalendar")
     app.register_blueprint(report, url_prefix="/report")
     app.register_blueprint(chucnang, url_prefix="/chucnang")
+    app.register_blueprint(nhomnguoidung, url_prefix="/nhomnguoidung")
     with app.app_context():
         db.create_all()
 

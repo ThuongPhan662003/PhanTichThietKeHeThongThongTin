@@ -81,13 +81,14 @@ def login():
         MatKhau = request.form.get("MatKhau")
         print(UserName)
         user = NguoiDung.query.filter_by(UserName=UserName).first()
-
+        print(user)
         if user and user.MatKhau == MatKhau:
             tenNND = (
                 NhomNguoiDung.query.filter_by(MaNND=user.idNND)
                 .first()
                 .getTenNhomNguoiDung()
             )
+            print("current_user", current_user.get_id())
             if tenNND != "Khách hàng":
                 login_user(user, remember=True)
                 flash("Login successful!", category="success")
