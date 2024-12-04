@@ -46,7 +46,6 @@
     <!-- Lọc theo thời gian -->
     <p class='text-muted fw-bold mb-2'>Theo thời gian</p>
     <div class="mb-3">
-        <!-- Lọc theo năm -->
         <div class="mb-2">
             <label class="form-label">Năm</label>
             <select class="form-select form-select-sm" name="year" id="yearFilter">
@@ -61,7 +60,7 @@
         </div>
 
         <!-- Lọc theo tháng -->
-        <div class=" mb-2">
+        <div class="mb-2">
             <label class="form-label">Tháng</label>
             <select class="form-select form-select-sm" name="month" id="monthFilter">
                 <option value="">-- Chọn tháng --</option>
@@ -70,6 +69,31 @@
                     Tháng {{ month }}
                 </option>
                 {% endfor %}
+            </select>
+        </div>
+        <!-- Lọc theo ngày -->
+        <div class="mb-2">
+            <label class="form-label">Ngày</label>
+            <select class="form-select form-select-sm" name="day" id="dayFilter">
+                <option value="">-- Chọn ngày --</option>
+                {% if selected_month %}
+                {% set days_in_month = 31 %}
+                {% if selected_month in [4, 6, 9, 11] %}
+                {% set days_in_month = 30 %}
+                {% elif selected_month == 2 %}
+                {% if selected_year and selected_year % 4 == 0 and (selected_year % 100 != 0 or selected_year % 400 ==
+                0) %}
+                {% set days_in_month = 29 %}
+                {% else %}
+                {% set days_in_month = 28 %}
+                {% endif %}
+                {% endif %}
+                {% for day in range(1, days_in_month + 1) %}
+                <option value="{{ day }}" {% if selected_day==day %}selected{% endif %}>
+                    Ngày {{ day }}
+                </option>
+                {% endfor %}
+                {% endif %}
             </select>
         </div>
     </div>
@@ -115,5 +139,51 @@
                 this.value = value;
             });
         });
+
+        const yearSelect = document.getElementById('yearFilter');
+        const monthSelect = document.getElementById('monthFilter');
+        const daySelect = document.getElementById('dayFilter');
+
+        function updateDays() {
+            const year = parseInt(yearSelect.value);
+            const month = parseInt(monthSelect.value);
+            const selectedDay = daySelect.value;
+
+            // Xóa tất cả các option ngày cũ
+            daySelect.innerHTML = '<option value="">-- Chọn ngày --</option>';
+
+            if (!month) return;
+
+            // Tính số ngày trong tháng
+            let daysInMonth = 31;
+            if ([4, 6, 9, 11].includes(month)) {
+                daysInMonth = 30;
+            } else if (month === 2) {
+                // Kiểm tra năm nhuận
+                if (year && year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
+                    daysInMonth = 29;
+                } else {
+                    daysInMonth = 28;
+                }
+            }
+
+            // Thêm các ngày vào select
+            for (let i = 1; i <= daysInMonth; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Ngày ${i}`;
+                if (i.toString() === selectedDay) {
+                    option.selected = true;
+                }
+                daySelect.appendChild(option);
+            }
+        }
+
+        // Cập nhật danh sách ngày khi thay đổi năm hoặc tháng
+        yearSelect.addEventListener('change', updateDays);
+        monthSelect.addEventListener('change', updateDays);
+
+        // Khởi tạo danh sách ngày ban đầu
+        updateDays();
     });
 </script>
