@@ -115,10 +115,18 @@ Quản lý nhân viên
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label>{{ formAdd.TinhTrang.label }}</label><br>
-                                    <div>
-                                        {{ formAdd.TinhTrang(class="d-flex d-column gap-5 mt-2 ") }}
+                                <div class="row">
+                                    <div class="col-6 mb-3">
+                                        <label>{{ formAdd.TinhTrang.label }}</label><br>
+                                        <div>
+                                            {{ formAdd.TinhTrang(class="d-flex d-column gap-5 mt-2 ") }}
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <label>{{ formAdd.GioiTinh.label }}</label><br>
+                                        <div>
+                                            {{ formAdd.GioiTinh(class="d-flex d-column gap-5 mt-2 ") }}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -201,6 +209,7 @@ Quản lý nhân viên
                     <th scope="col">Họ tên</th>
                     <th scope="col">Ngày sinh</th>
                     <th scope="col">Chức vụ</th>
+                    <th scope="col">Giới tính</th>
                     <th scope="col">Tình trạng</th>
                 </tr>
             </thead>
@@ -213,6 +222,7 @@ Quản lý nhân viên
                     <td>{{ "Chưa xác định" if nv.idNguoiDung == None else
                         nv.nguoi_dung.nhom_nguoi_dung.TenNhomNguoiDung}}
                     </td>
+                    <td>{{ "Nam" if nv.GioiTinh == 0 else "Nữ" }}</td>
                     <td>{{ "Đã nghỉ làm" if nv.TinhTrang == 1 else "Đang làm việc" }}</td>
 
                     <td>

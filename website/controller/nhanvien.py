@@ -46,7 +46,8 @@ def employee():
                 SDT=form.SDT.data,
                 NgaySinh=datetime.strptime(form.NgaySinh.data, '%d/%m/%Y').date(),
                 NgayVaoLam=datetime.strptime(form.NgayVaoLam.data, '%d/%m/%Y').date(),
-                TinhTrang=form.TinhTrang.data
+                TinhTrang=form.TinhTrang.data,
+                GioiTinh = form.GioiTinh.data
                 )
                 db.session.add(nv)
                 db.session.commit()
@@ -95,12 +96,13 @@ def nhanvien_info(manv):
 
             else:
                 nv.HoNV = form.HoNV.data
-                nv.TenNV = form.TenNV.data,
-                nv.CCCD = form.CCCD.data,
-                nv.Email = form.Email.data,
-                nv.SDT = form.SDT.data,
+                nv.TenNV = form.TenNV.data
+                nv.CCCD = form.CCCD.data
+                nv.Email = form.Email.data
+                nv.SDT = form.SDT.data
                 nv.NgaySinh = datetime.strptime(form.NgaySinh.data, '%d/%m/%Y').date()
-                nv.NgayVaoLam = datetime.strptime(form.NgayVaoLam.data, '%d/%m/%Y').date()      
+                nv.NgayVaoLam = datetime.strptime(form.NgayVaoLam.data, '%d/%m/%Y').date()
+                nv.GioiTinh = form.GioiTinh.data  
 
                 db.session.commit()
                 flash("Thông tin đã được cập nhật thành công!", "success")
@@ -116,6 +118,7 @@ def nhanvien_info(manv):
     form.SDT.data = nv.SDT
     form.NgayVaoLam.data = nv.NgayVaoLam.strftime('%d/%m/%Y')
     form.TinhTrang.data = nv.TinhTrang
+    form.GioiTinh.data = nv.GioiTinh
     return render_template('admin/nhanvien/nhanvien_info.html', nv=nv, form=form, form_error=form_error)
         
 # Ẩn nhân viên (tinhtrang = 1)

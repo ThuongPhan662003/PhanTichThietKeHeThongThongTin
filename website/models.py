@@ -124,31 +124,6 @@ class KhachHang(db.Model):
     nguoi_dung = db.relationship("NguoiDung", back_populates="khach_hang")
     hoa_don = db.relationship("HoaDon", backref="khach_hang", uselist=False)
 
-    def __init__(
-        self,
-        ho_kh,
-        ten_kh,
-        sdt,
-        email,
-        ngay_mo_the,
-        diem_tieu_dung,
-        diem_tich_luy,
-        gioi_tinh,
-        id_nguoi_dung,
-        loai_kh="Thường",
-    ):
-
-        self.HoKH = ho_kh
-        self.TenKH = ten_kh
-        self.SDT = sdt
-        self.Email = email
-        self.NgayMoThe = ngay_mo_the
-        self.DiemTieuDung = diem_tieu_dung
-        self.DiemTichLuy = diem_tich_luy
-        self.GioiTinh = gioi_tinh
-        self.idNguoiDung = id_nguoi_dung
-        self.LoaiKH = loai_kh
-
     def getHoTen(self):
         return self.HoKH + " " + self.TenKH
     def getHoKH(self):
@@ -172,9 +147,10 @@ class HoaDon(db.Model):
     TongTienGiam = db.Column(db.Integer, nullable=False)
     TongTien = db.Column(db.Integer, nullable=False)
     TrangThai = db.Column(db.Boolean, default=None)
-    TienThue = db.Column(db.Text, nullable=False)
+    TienThue = db.Column(db.Integer, nullable=False)
     DiemCong = db.Column(db.Integer, nullable=False)
     DiemTru = db.Column(db.Integer, nullable=False)
+    PhuongThucThanhToan = db.Column(db.Integer, nullable=True)
     don_dat_hang = db.relationship("DonDatHang", backref="hoa_don", uselist=False)
 
     @db.validates("DiemCong")
@@ -203,6 +179,7 @@ class HoaDon(db.Model):
             "TienThue": self.TienThue,
             "DiemCong": self.DiemCong,
             "DiemTru": self.DiemTru,
+            "PhuongThucThanhToan": self.PhuongThucThanhToan
         }
 
     def to_json(self):

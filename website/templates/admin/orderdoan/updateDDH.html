@@ -135,6 +135,7 @@
                 paymentProgress.innerHTML = '';
 
 
+                // Điều kiện trạng thái đơn đặt hàng
                 if (order.TrangThai === 'Chưa bắt đầu') {
                     if (order.Ban.length === 1) {
                         orderProgress.innerHTML += `
@@ -169,6 +170,12 @@
                 if (order.TrangThaiHD === 'Đã thanh toán') {
                     paymentProgress.innerHTML += `
                     <a href="${urlViewInvoice}" class="btn btn-outline-primary mb-2">Xem hóa đơn</a>`;
+                }
+
+                // Nếu đơn đặt hàng đã hủy
+                if (order.TrangThai === 'Đã hủy') {
+                    orderProgress.innerHTML = ``
+                    paymentProgress.innerHTML = ``
                 }
 
                 // Ẩn cột nếu rỗng
