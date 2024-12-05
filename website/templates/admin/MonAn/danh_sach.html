@@ -141,7 +141,7 @@ Quản lý loại voucher
                 <td>{{ mon_an.TrangThai }}</td>
                 <td>
                     {% if mon_an.HinhAnh %}
-                    <img src="{{ url_for('static', filename='images/monan/' + mon_an.HinhAnh) }}"
+                    <img src="{{ url_for('static', filename= mon_an.HinhAnh) }}"
                         alt="{{ mon_an.TenMonAn }}" width="100">
                     {% else %}
                     Chưa có hình
