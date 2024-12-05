@@ -38,10 +38,10 @@ def danh_sach_loai_ban():
 def add_loai_ban():
     form = LoaiBanForm()
     if form.validate_on_submit():
-        # Kiểm tra nếu tên loại bàn mới đã tồn tại và không phải là tên của loại bàn hiện tại
-        if LoaiBan.query.filter_by(TenLoaiBan=form.TenLoaiBan.data).first() != None:
+        existing_loai_ban = LoaiBan.query.filter(LoaiBan.TenLoaiBan == form.TenLoaiBan.data).first()
+        if existing_loai_ban:
             flash("Tên loại bàn đã tồn tại, vui lòng chọn tên khác.", "danger")
-            return redirect(url_for('loaiban.danh_sach_loai_ban'))  # Quay lại trang danh sách khi trùng tên
+            return redirect(url_for('loaiban.danh_sach_loai_ban')) # Quay lại trang chỉnh sửa khi trùng tên
         loai_ban = LoaiBan(TenLoaiBan=form.TenLoaiBan.data)
         db.session.add(loai_ban)
         db.session.commit()
