@@ -165,7 +165,7 @@ class BanForm(FlaskForm):
     )
     TrangThai = SelectField(
         "Trạng thái",
-        choices=[("Còn trống", "Còn trống"), ("Đang dùng bữa", "Đang dùng bữa"), ("Đã đặt trước", "Đã đặt trước")],
+        choices=[("Còn trống", "Còn trống"), ("Đang dùng bữa", "Đang dùng bữa"), ("Đã đặt trước", "Đã đặt trước"), ("Ẩn", "Ẩn")],
         validators=[DataRequired(message="Vui lòng chọn trạng thái.")]
     )
     idLoaiBan = QuerySelectField(

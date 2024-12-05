@@ -21,6 +21,7 @@ def get_received_notes(page, start_date=None, end_date=None, min_amount=None, ma
         PHIEUNHAP.TongTien, 
         func.concat(NhanVien.HoNV, ' ', NhanVien.TenNV).label("NhanVienNhap")
     ).join(PHIEUNHAP.nhan_vien) 
+    print("fdfdfd",query.all())
     if query_search:
         query = query.filter(func.concat(NhanVien.HoNV, ' ', NhanVien.TenNV).ilike(f'%{query_search}%'))
 
@@ -31,22 +32,24 @@ def get_received_notes(page, start_date=None, end_date=None, min_amount=None, ma
         if end_date:
             end_date_dt = datetime.strptime(end_date, '%Y-%m-%d').date()
             query = query.filter(cast(PHIEUNHAP.NgayNhap, Date) <= end_date_dt)
-
+        
     if min_amount or max_amount:
         if min_amount:
             query = query.filter(PHIEUNHAP.TongTien >= float(min_amount))
         if max_amount:
             query = query.filter(PHIEUNHAP.TongTien <= float(max_amount))
-
+    if query.all():
+        print("tất cả")
+    else:
+        print("none")
     return query.order_by(PHIEUNHAP.NgayNhap.desc()).paginate(page=page, per_page=9)
 
 @phieunhap.route('/received_notes', methods=['GET', 'POST'])
 @role_required(["Quản lý","Nhân viên kho"])
 def received_notes():
     page = request.args.get('page', 1, type=int)
-
     results = get_received_notes(page)
-
+    print("rel",results.items)
     return render_template('admin/phieunhap/phieunhap.html', results=results)
 
 @phieunhap.route('/received_note/<int:note_id>', methods=['GET'])

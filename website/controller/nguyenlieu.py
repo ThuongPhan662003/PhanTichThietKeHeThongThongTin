@@ -162,14 +162,14 @@ def add_ingredients():
             ingredients = json.loads(ingredient_list_json)
             existing_phieu_nhap = PHIEUNHAP.query.filter_by(
                 NgayNhap= datetime.strptime(ngay_nhap, '%d-%m-%Y %H:%M'),
-                idNV=current_user.MaND
+                idNV=current_user.nhan_vien.MaNV
             ).first()
 
             if existing_phieu_nhap:
                 new_phieu_nhap = existing_phieu_nhap
             else:
                 new_phieu_nhap = PHIEUNHAP(
-                    idNV=current_user.MaND,
+                    idNV=current_user.nhan_vien.MaNV,
                     NgayNhap=datetime.strptime(ngay_nhap, '%d-%m-%Y %H:%M'),
                     TongTien=Decimal(0)
                 )
