@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required
 from website import db
+from website.auth import role_required
 from website.webforms import  LoaiBanForm
 from unidecode import unidecode
 from website.models import LoaiBan
@@ -9,7 +10,7 @@ from flask_paginate import Pagination, get_page_parameter
 
 loaiban = Blueprint("loaiban", __name__)
 @loaiban.route('/loaiban')
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def danh_sach_loai_ban():
 # Lấy tham số trang hiện tại từ URL
     form = LoaiBanForm()
@@ -33,7 +34,7 @@ def danh_sach_loai_ban():
                            pagination=pagination,form=form)
 
 @loaiban.route('/loaiban/add', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def add_loai_ban():
     form = LoaiBanForm()
     if form.validate_on_submit():
@@ -50,7 +51,7 @@ def add_loai_ban():
 
 
 @loaiban.route('/loaiban/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def edit_loai_ban(id):
     loai_ban = LoaiBan.query.get_or_404(id)  # Lấy loại bàn theo ID
     form = LoaiBanForm(obj=loai_ban)  # Gắn dữ liệu của loại bàn vào form
@@ -78,7 +79,7 @@ from flask_wtf.csrf import validate_csrf
 from flask import abort
 
 @loaiban.route('/loaiban/delete/<int:id>', methods=['POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def delete_loai_ban(id):
     try:
         validate_csrf(request.form.get('csrf_token'))  # Kiểm tra token CSRF

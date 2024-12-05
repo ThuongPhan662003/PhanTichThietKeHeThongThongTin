@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, request, flash, jsonify, redirect,
 from flask_login import login_required, current_user
 from decimal import Decimal
 from website import db
+from website.auth import role_required
 from website.models import NhanVien
 from website.webforms import NhanVienForm   
 from website.webforms import SearchNhanVienForm
@@ -12,7 +13,7 @@ nhanvien = Blueprint("nhanvien", __name__)
 
 # In danh sách nhân viên/ Thêm nhân viên
 @nhanvien.route("/", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý"])
 def employee():
 
     # Tạo nhân viên mới từ form
@@ -69,7 +70,7 @@ def employee():
 
 # Chỉnh sửa thông tin nhân viên
 @nhanvien.route("/<int:manv>", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý"])
 def nhanvien_info(manv):
     nv = NhanVien.query.get_or_404(manv)
     form = NhanVienForm()
@@ -123,7 +124,7 @@ def nhanvien_info(manv):
         
 # Ẩn nhân viên (tinhtrang = 1)
 @nhanvien.route("/<int:manv>/an", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý"])
 def an_nhanvien(manv):
     nv = NhanVien.query.get_or_404(manv)
     if request.method == "POST":
@@ -136,7 +137,7 @@ def an_nhanvien(manv):
 
 # Tìm kiếm danh sách nhân viên
 @nhanvien.route("/search", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý"])
 def search():
     form = SearchNhanVienForm()
     form_NV = NhanVienForm()

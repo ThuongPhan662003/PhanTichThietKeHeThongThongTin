@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, flash, jsonify, redirect,
 from flask_login import login_required, current_user
 
 from website import db
+from website.auth import role_required
 
 from website.models import LOAIVOUCHER, VOUCHER
 
@@ -11,7 +12,7 @@ from flask_paginate import Pagination, get_page_args,get_page_parameter
 voucher = Blueprint('voucher', __name__)
 
 @voucher.route('/voucher/list', methods=['GET'])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def danh_sach_vouchers():
     # Lấy từ request để kiểm tra nếu có từ khóa tìm kiếm
     code_voucher = request.args.get('code_voucher', '')

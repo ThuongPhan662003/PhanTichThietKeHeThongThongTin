@@ -2,6 +2,7 @@ from flask import session
 from flask import Blueprint, render_template, request
 from flask_login import login_required
 from sqlalchemy import func
+from website.auth import role_required
 from website.models import CT_PHIEUNHAP, CT_PHIEUXUAT, PHIEUNHAP, PHIEUXUAT, NguyenLieu
 from website import db
 from flask import make_response
@@ -10,7 +11,7 @@ nhp_xuat = Blueprint("report_ty_le_nhap_xuat", __name__)
 
 
 @nhp_xuat.route('/bao-cao-phieu', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý"])
 def bao_cao_phieu():
     start_date = request.form.get('start_date', None)
     end_date = request.form.get('end_date', None)
@@ -56,7 +57,7 @@ from weasyprint import HTML
 from flask import make_response, session
 
 @nhp_xuat.route('/bao-cao-phieu-pdf', methods=['GET'])
-@login_required
+@role_required(["Quản lý"])
 def bao_cao_phieu_pdf():
     # Lấy dữ liệu từ session
     report_data = session.get('report_data', [])

@@ -9,6 +9,8 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 
+from website.auth import role_required
+
 # pdfmetrics.registerFont(TTFont("Arial", '/website/static/fonts/arial-unicode-ms-regular.ttf'))
 
 # Đường dẫn font hỗ trợ tiếng Việt
@@ -24,7 +26,7 @@ from website.models import VOUCHER, LOAIVOUCHER, Ban, CT_DonDatHang, DonDatHang,
 checkout = Blueprint("checkout", __name__)
 
 @checkout.route("/", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def index():
     idDDH = request.args.get("maddh")       
     don_dat_hang = DonDatHang.query.get(idDDH)
@@ -84,7 +86,7 @@ def index():
 
 # Xem danh sách hóa đơn
 @checkout.route("/xemdshoadon", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def xem_hoa_don():
     # Phân trang danh sách khách hàng
     page = request.args.get('page', 1, type=int) 
@@ -96,7 +98,7 @@ def xem_hoa_don():
 
 # Lưu dữ liệu vào database
 @checkout.route("/save", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def save():
     try:
         data = request.get_json()
@@ -199,6 +201,7 @@ def save():
 
 # Xem hóa đơn
 @checkout.route('/viewInvoice', methods=["GET", "POST"])
+@role_required(["Quản lý","Nhân viên"])
 def trang_hoa_don():
     maddh = request.args.get('maddh')
 
@@ -257,6 +260,7 @@ import os
 import io
 
 @checkout.route("/export_pdf", methods=["GET", "POST"])
+@role_required(["Quản lý","Nhân viên"])
 def export_invoice_pdf():
     invoice_data = request.json
     buffer = io.BytesIO()

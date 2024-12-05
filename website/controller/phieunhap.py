@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from website import db
 from sqlalchemy import func, cast, Date
 from datetime import datetime
+from website.auth import role_required
 from website.models import *
 from website.models import PHIEUNHAP, CT_PHIEUNHAP
 import pandas as pd
@@ -40,7 +41,7 @@ def get_received_notes(page, start_date=None, end_date=None, min_amount=None, ma
     return query.order_by(PHIEUNHAP.NgayNhap.desc()).paginate(page=page, per_page=9)
 
 @phieunhap.route('/received_notes', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def received_notes():
     page = request.args.get('page', 1, type=int)
 
@@ -49,7 +50,7 @@ def received_notes():
     return render_template('admin/phieunhap/phieunhap.html', results=results)
 
 @phieunhap.route('/received_note/<int:note_id>', methods=['GET'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def received_note_detail(note_id):
     received_note = PHIEUNHAP.query.get_or_404(note_id)
 
@@ -74,7 +75,7 @@ def received_note_detail(note_id):
     )
 
 @phieunhap.route('/filter_received_notes', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def filter_received_notes():
     page = request.args.get('page', 1, type=int)
 
@@ -96,7 +97,7 @@ def filter_received_notes():
     )
 
 @phieunhap.route('/export-to-excel/<int:note_id>')
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def export_to_excel(note_id):
     received_note = PHIEUNHAP.query.get_or_404(note_id)
     
@@ -229,7 +230,7 @@ def export_to_excel(note_id):
     )
 
 @phieunhap.route('/edit_phieunhap/<int:note_id>', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def edit_phieunhap(note_id):
     phieu_nhap = PHIEUNHAP.query.get_or_404(note_id)
     
@@ -287,7 +288,7 @@ def edit_phieunhap(note_id):
     )
 
 @phieunhap.route('/delete_phieunhap/<int:note_id>', methods=['POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def delete_phieunhap(note_id):
     try:
         with db.session.begin_nested():
@@ -316,7 +317,7 @@ import os, json
 from website.utils import BackupUtils
 
 @phieunhap.route('/view_backups')
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def view_backups():
     try:
         backups = BackupUtils.get_all_backups()
@@ -327,7 +328,7 @@ def view_backups():
         return redirect(url_for('nguyenlieu.ingredients'))
 
 @phieunhap.route('/restore_phieunhap/<string:filename>', methods=['POST'])
-@login_required 
+@role_required(["Quản lý","Nhân viên kho"]) 
 def restore_phieunhap(filename):
     try:
         if not BackupUtils.can_restore(filename):

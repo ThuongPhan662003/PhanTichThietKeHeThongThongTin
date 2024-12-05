@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request, flash, jsonify, redirect,
 from flask_login import login_required, current_user
 from decimal import Decimal
 from website import db
+from website.auth import role_required
 from website.models import Ban, CT_DonDatHang, CT_MonAn, HoaDon, MonAn
 from website.models import KhachHang
 from website.models import DonDatHang
@@ -11,7 +12,7 @@ from website.models import DonDatHang
 order = Blueprint("order", __name__)    
 
 @order.route("/", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def index():
     action = request.args.get('action') 
     id_order = request.args.get('maddh')
@@ -87,7 +88,7 @@ def index():
 
 
 @order.route("/takeaway", methods=["GET"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def takeaway():
     maddh = request.args.get('maddh')
     action = request.args.get('action')
@@ -103,6 +104,7 @@ def takeaway():
 
 
 @order.route("/products/grouped", methods=["GET"])
+@role_required(["Quản lý","Nhân viên"])
 def get_grouped_products():
     # Lấy tất cả các món ăn từ cơ sở dữ liệu
     all_products = MonAn.query.all()
@@ -128,6 +130,7 @@ def get_grouped_products():
 
 
 @order.route('/getCustomerData', methods=['GET'])
+@role_required(["Quản lý","Nhân viên"])
 def get_customer_data():
     maddh = request.args.get('maddh')
     
@@ -166,6 +169,7 @@ def get_customer_data():
 
 # Lưu thông tin order đơn hàng
 @order.route("/save", methods=["POST"])
+@role_required(["Quản lý","Nhân viên"])
 def save_order():
     try:
         order_data = request.get_json()
@@ -226,6 +230,7 @@ def save_order():
     
 # Cập nhật trạng thái đơn hàng
 @order.route('/updateStatus', methods=['GET', 'POST'])
+@role_required(["Quản lý","Nhân viên"])
 def update_order_status():
     order_id = request.args.get('maddh')
     status = request.args.get('status')

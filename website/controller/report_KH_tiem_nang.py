@@ -2,13 +2,14 @@ from flask import Blueprint, make_response, render_template, request, session
 from sqlalchemy import func
 from weasyprint import HTML
 from website import db
+from website.auth import role_required
 from website.models import KhachHang, HoaDon
 from flask_login import login_required
 
 kh_tiemng = Blueprint("report_KH", __name__)
 
 @kh_tiemng.route('/bao-cao-khach-hang', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý"])
 def bao_cao_khach_hang():
     start_date = request.form.get('start_date', None)
     end_date = request.form.get('end_date', None)
@@ -49,7 +50,7 @@ def bao_cao_khach_hang():
 
     return render_template('admin/report/bao_cao_khach_hang.html', report_data=report_data, start_date=start_date, end_date=end_date)
 @kh_tiemng.route('/bao-cao-khach-hang-pdf', methods=['GET'])
-@login_required
+@role_required(["Quản lý"])
 def bao_cao_khach_hang_pdf():
     # Lấy dữ liệu từ session
     report_data = session.get('report_data', [])

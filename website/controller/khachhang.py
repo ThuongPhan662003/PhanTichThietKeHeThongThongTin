@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request, flash, jsonify, redirect,
 from flask_login import login_required, current_user
 from decimal import Decimal
 from website import db
+from website.auth import role_required
 from website.webforms import KhachHangForm
 from website.webforms import SearchKhachHangForm
 from website.models import THAMSO, KhachHang
@@ -14,7 +15,7 @@ khachhang = Blueprint("khachhang", __name__)
 
 # In danh sách khách hàng/ Thêm khách hàng
 @khachhang.route("/", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def customer():
 
     # Tạo khách hàng mới từ form
@@ -77,7 +78,7 @@ def customer():
 
 # Chỉnh sửa thông tin nhân viên
 @khachhang.route("/<int:makh>", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def khachhang_info(makh):
     kh = KhachHang.query.get_or_404(makh)
     form = KhachHangForm()
@@ -147,7 +148,7 @@ def khachhang_info(makh):
 
 # Tìm kiếm danh sách nhân viên
 @khachhang.route("/search", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def search():
     form = SearchKhachHangForm()
     form_KH = KhachHangForm()
@@ -226,7 +227,7 @@ def search():
 
 # Xóa khách hàng 
 @khachhang.route("/<int:makh>/xoa", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def xoa_kh(makh):
     form = KhachHangForm()
     form_error = False

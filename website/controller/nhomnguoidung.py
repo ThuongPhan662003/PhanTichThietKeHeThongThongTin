@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, jsonify, request, flash, redirect,
 from flask_login import login_required, current_user
 from website import db
 from datetime import datetime, timedelta
+from website.auth import role_required
 from website.models import *
 from sqlalchemy import func, extract
 
@@ -10,6 +11,7 @@ nhomnguoidung = Blueprint("nhomnguoidung", __name__)
 
 
 @nhomnguoidung.route("/")
+@role_required(["Quản lý"])
 def list_nhom_nguoi_dung():
     # Lấy danh sách nhóm người dùng
     nhom_nguoi_dung = NhomNguoiDung.query.all()
@@ -28,6 +30,7 @@ def list_nhom_nguoi_dung():
 
 
 @nhomnguoidung.route("/add", methods=["GET", "POST"])
+@role_required(["Quản lý"])
 def add_nhom_nguoi_dung():
     if request.method == "POST":
         ten_nhom = request.form["TenNhomNguoiDung"]
@@ -52,6 +55,7 @@ def add_nhom_nguoi_dung():
 
 
 @nhomnguoidung.route("/delete/<int:id>", methods=["GET"])
+@role_required(["Quản lý"])
 def delete_nhom_nguoi_dung(id):
     nhom = NhomNguoiDung.query.get_or_404(id)
     if PHANQUYEN.query.filter(PHANQUYEN.idNND == id).first() :

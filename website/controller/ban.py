@@ -6,14 +6,14 @@ from unidecode import unidecode
 from flask import render_template, jsonify
 from website.models import CT_DonDatHang, db, Ban, LoaiBan
 from flask_paginate import Pagination, get_page_parameter
-
+from website.auth import role_required
 from website.webforms import BanForm
 
 ban = Blueprint("ban", __name__)
 
 
 @ban.route("/ban", methods=["GET"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def danh_sach_ban():
     # try:
         # Lấy tham số tìm kiếm và trang hiện tại từ URL
@@ -67,7 +67,7 @@ def danh_sach_ban():
     #     return jsonify({"error": str(e)}), 500
     
 @ban.route("/add", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def add_ban():
     form = BanForm()
     if form.validate_on_submit():
@@ -88,7 +88,7 @@ def add_ban():
     return render_template("admin/loaiban/danh_sach_ban.html", form=form)
 
 @ban.route("/ban/edit/<int:id>", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def edit_ban(id):
     ban = Ban.query.get_or_404(id)  # Tìm bàn theo ID, nếu không có thì trả về 404
     form = BanForm(obj=ban)  # Khởi tạo form với dữ liệu hiện tại của bàn
@@ -117,7 +117,7 @@ def edit_ban(id):
 
 
 @ban.route('/ban/delete/<int:id>', methods=['POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def delete_ban(id):
     ban = Ban.query.get_or_404(id)  # Lấy thông tin bàn cần xóa
 
