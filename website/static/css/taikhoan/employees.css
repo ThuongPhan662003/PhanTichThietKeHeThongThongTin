@@ -1,0 +1,128 @@
+/* Tạo khoảng cách giữa các thành phần */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    color: #333;
+    padding: 20px;
+}
+
+.d-flex {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+/* Phần Form Tạo Tài Khoản */
+.col-md-6 {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+input.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+input.form-control:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+}
+
+ion-icon {
+    margin-right: 10px;
+    color: #666;
+}
+
+/* Button Style */
+button.btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button.btn:hover {
+    background-color: #45a049;
+}
+
+/* Tạo khoảng cách giữa phần form và bảng */
+.table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Phần Bảng Nhân Viên */
+table.table-hover {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.table-hover th,
+table.table-hover td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table.table-hover tr:hover {
+    background-color: #f1f1f1;
+}
+
+table.table-hover .selected {
+    font-weight: bold;
+    background-color: #e2f7e2;
+}
+
+/* Tìm kiếm */
+#searchField,
+#searchInput {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .d-flex {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .col-md-6 {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}
+/* Đánh dấu hàng đã chọn */
+table.table-hover .selected {
+    font-weight: bold;
+    background-color: #f0f0f0;
+    /* Đổi màu nền khi chọn hàng */
+}

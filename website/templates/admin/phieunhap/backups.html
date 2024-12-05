@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% block content %}
+{% if backups|length > 0 %}
+<h1>Phiếu nhập đã xóa</h1>
+<table class="table table-bordered table-hover" style="vertical-align: middle;">
+    <thead>
+        <tr class="text-center">
+            <th>Số phiếu</th>
+            <th>Ngày nhập</th>
+            <th>Tổng tiền</th>
+            <th>Ngày xóa</th>
+            <th>Người xóa</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        {% for backup in backups %}
+        <tr class="text-center">
+            <td>{{ backup.SoPhieuNhap }}</td>
+            <td>{{ backup.NgayNhap }}</td>
+            <td>{{ '{:,.0f}'.format(backup.TongTien) }}</td>
+            <td>{{ backup.NgayXoa }}</td>
+            <td>{{ backup.NguoiXoa }}</td>
+            <td>
+                {% if backup.DaKhoiPhuc %}
+                <span class="badge bg-success">Đã khôi phục</span>
+                <small class="text-muted d-block">{{ backup.NgayKhoiPhuc }}</small>
+                {% elif backup.can_restore %}
+                <form action="{{ url_for('phieunhap.restore_phieunhap', filename=backup.filename) }}" method="POST"
+                    style="display: inline;">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-undo"></i> Khôi phục
+                    </button>
+                </form>
+                {% else %}
+                <button class="btn btn-secondary btn-sm" disabled
+                    title="Chỉ có thể khôi phục phiếu nhập trong ngày và chưa được khôi phục">
+                    <i class="fas fa-undo"></i> Khôi phục
+                </button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="shadow p-5 mb-5 bg-body rounded text-center">
+    <div class="text-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive"
+            viewBox="0 0 16 16">
+            <path
+                d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5zm13-3H1v2h14zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5" />
+        </svg>
+    </div>
+    <h5 class="text-muted mb-0">Không có phiếu nhập nào đã được xóa</h5>
+</div>
+{% endif %}
+<a href="{{url_for('phieuxuat.delivery_notes')}}" class="btn btn-outline-secondary">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+        class="bi bi-arrow-left-circle  mb-1" viewBox="0 0 16 16">
+        <path fill-rule="evenodd"
+            d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z" />
+    </svg>
+    Quay lại
+</a>
+{% endblock %}

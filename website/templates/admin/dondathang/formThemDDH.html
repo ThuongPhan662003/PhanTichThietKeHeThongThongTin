@@ -1,0 +1,129 @@
+<!-- modal thêm đơn đặt hàng -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Đặt bàn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form class="needs-validation" action="{{ url_for('dondathang.them_don_dat_hang') }}" method="POST"
+                novalidate>
+                <div class="modal-body">
+                    <div class="row">
+                        <div style="display: none">
+                            <input type="text" list="dummy-datalist">
+                            <datalist id="dummy-datalist">
+                                <option value="dummy"></option>
+                            </datalist>
+                        </div>
+
+                        <div class="col-md-8 mb-3">
+                            <label for="khachHangInput" class="form-label">Khách hàng <span
+                                    style="color:red">*</span></label>
+                            <input type="text" class="form-control" list="datalistOptions" id="khachHangInput"
+                                placeholder="Nhập để tìm kiếm..." autocomplete="off" required>
+                            <datalist id="datalistOptions">
+                                {% for kh in customers %}
+                                <option value="{{ kh.HoKH }} {{ kh.TenKH }} - {{kh.SDT}}" data-id="{{ kh.MaKH }}">
+                                    {% endfor %}
+                            </datalist>
+                            <input type="hidden" id="maKH" name="maKH">
+                            <div class="invalid-feedback" id="customerError">
+                                Vui lòng chọn khách hàng!
+                            </div>
+                        </div>
+
+                        <script>
+                            document.getElementById('khachHangInput').addEventListener('input', function (e) {
+                                const input = e.target;
+                                const datalist = document.getElementById('datalistOptions');
+                                const options = datalist.getElementsByTagName('option');
+                                const maKHInput = document.getElementById('maKH');
+
+                                for (let option of options) {
+                                    if (option.value === input.value) {
+                                        maKHInput.value = option.dataset.id;
+                                        break;
+                                    }
+                                }
+                            });
+                        </script>
+
+                        <!-- Button thêm khách hàng -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <a href="{{url_for('khachhang.customer')}}" type="button" class="btn btn-primary w-100">
+                                Thêm khách hàng
+                            </a>
+                        </div>
+
+                        <!-- Ngày đặt -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày đặt <span style="color:red">*</span></label>
+                            <input type="date" class="form-control" id="bookingDate" name="ngayDat" required>
+                        </div>
+
+                        <!-- Nhân viên đặt - Hidden -->
+                        <input type="hidden" name="nhanVienDat" value="{{ current_user.id }}">
+
+                        <!-- Giờ đến -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giờ đến <span style="color:red">*</span></label>
+                            <input type="time" class="form-control" id="bookingTime" name="gioDen" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số lượng người <span style="color:red">*</span></label>
+                            <input type="number" class="form-control" id="soLuongNguoi" name="soLuongNguoi" min="1"
+                                required>
+                            <div class="invalid-feedback" id="quantityError">
+                                Vui lòng nhập số lượng khách!
+                            </div>
+                        </div>
+                        <!-- Thời lượng -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Thời lượng (giờ) <span style="color:red">*</span></label>
+                            <input type="number" class="form-control" id="bookingDurationDisplay" step="0.5">
+                            <input type="hidden" id="bookingDuration" name="thoiLuong">
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Bàn đã chọn <span style="color:red">*</span></label>
+                            <div id="selectedTablesContainer" class="mb-2"></div>
+                            <select class="form-select" id="tableSelect">
+                                <option value="">-- Chọn thêm bàn --</option>
+                                {% for table in tables %}
+                                <option value="{{ table.MaBan }}" data-name="{{ table.TenBan }}" class="table-option">
+                                    {{ table.TenBan }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <input type="hidden" id="maBan" name="maBan">
+                            <small class="text-muted">Chỉ hiển thị các bàn còn trống trong khoảng thời gian đã
+                                chọn</small>
+                        </div>
+
+                        <style>
+                            option[disabled] {
+                                color: #999;
+                                font-style: italic;
+                            }
+                        </style>
+
+                        <!-- Ghi chú -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="ghiChu" name="ghiChu" rows="3"
+                                placeholder="Nhập ghi chú nếu có..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button class="btn btn-primary" id="saveBooking">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

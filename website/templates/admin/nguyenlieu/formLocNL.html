@@ -1,0 +1,97 @@
+<form method="POST" action="{{ url_for('nguyenlieu.filter_ingredients') }}">
+    <p class='text-muted'>Theo đơn vị tính</p>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="units" value="kg" id="flexCheckKg" {% if 'kg' in
+            selected_units %}checked{% endif %}>
+        <label class="form-check-label" for="flexCheckKg">Kg</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="units" value="lít" id="flexCheckLit" {% if 'lít' in
+            selected_units %}checked{% endif %}>
+        <label class="form-check-label" for="flexCheckLit">Lít</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="units" value="hộp" id="flexCheckHop" {% if 'hộp' in
+            selected_units %}checked{% endif %}>
+        <label class="form-check-label" for="flexCheckHop">Hộp</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="units" value="túi" id="flexCheckTui" {% if 'túi' in
+            selected_units %}checked{% endif %}>
+        <label class="form-check-label" for="flexCheckTui">Túi</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="units" value="chai" id="flexCheckChai" {% if 'chai' in
+            selected_units %}checked{% endif %}>
+        <label class="form-check-label" for="flexCheckChai">Chai</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="units" value="thùng" id="flexCheckThg" {% if 'thùng' in
+            selected_units %}checked{% endif %}>
+        <label class="form-check-label" for="flexCheckThg">Thùng</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="units" value="cái" id="flexCheckCai" {% if 'cái' in
+            selected_units %}checked{% endif %}>
+        <label class="form-check-label" for="flexCheckCai">Cái</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="units" value="quả" id="flexCheckQua" {% if 'quả' in
+            selected_units %}checked{% endif %}>
+        <label class="form-check-label" for="flexCheckQua">Quả</label>
+    </div>
+    <hr>
+    <p class="text-muted">Đơn giá</p>
+    <div class="input-group input-group-sm mb-3">
+        <input type="text" class="form-control" id="price_min" name="price_min" placeholder="Từ (VND)"
+            value="{{ price_min }}">
+        <input type="text" class="form-control" id="price_max" name="price_max" placeholder="Đến (VND)"
+            value="{{ price_max }}">
+    </div>
+    <hr>
+    <p class="text-muted">Số lượng tồn</p>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="stock" value="out_of_stock" id="out_of_stock" {%
+            if 'out_of_stock' in selected_stock %}checked{% endif %}>
+        <label class="form-check-label" for="outofStock">Đã hết</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="stock" value="under_10" id="stockUnder10" {% if 'under_10'
+            in selected_stock %}checked{% endif %}>
+        <label class="form-check-label" for="stockUnder10">Nhỏ hơn 10</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="stock" value="10_20" id="stock1020" {% if '10_20' in
+            selected_stock %}checked{% endif %}>
+        <label class="form-check-label" for="stock1020">Từ 10 đến 20</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="stock" value="over_20" id="stockOver20" {% if 'over_20' in
+            selected_stock %}checked{% endif %}>
+        <label class="form-check-label" for="stockOver20">Từ 20 trở lên</label>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-outline-success" id="applyButton">Áp dụng</button>
+    <a href="{{ url_for('nguyenlieu.ingredients') }}" class="btn btn-outline-secondary ms-2">Bỏ lọc</a>
+</form>
+
+<script>
+    document.getElementById('applyButton').addEventListener('click', function (event) {
+        let priceMin = document.getElementById('price_min').value;
+        let priceMax = document.getElementById('price_max').value;
+
+        if (priceMin === 'None' || priceMin === '') {
+            document.getElementById('price_min').value = '';
+        }
+        else {
+            document.getElementById('price_min').value = priceMin;
+
+        }
+        if (priceMax === 'None' || priceMax === '') {
+            document.getElementById('price_max').value = '';
+        }
+        else {
+            document.getElementById('price_max').value = priceMax;
+        }
+    });
+</script>

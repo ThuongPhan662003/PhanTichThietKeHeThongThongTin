@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% block title %}Thêm nhóm người dùng{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    {% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" ">
+        <strong >{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    <h1 class="mb-4">Thêm nhóm người dùng</h1>
+    <form method="POST" action="{{ url_for('nhomnguoidung.add_nhom_nguoi_dung') }}">
+        <div class="mb-3">
+            <label for="TenNhomNguoiDung" class="form-label">Tên nhóm người dùng</label>
+            <input type="text" class="form-control" id="TenNhomNguoiDung" name="TenNhomNguoiDung" required>
+        </div>
+        <button type="submit" class="btn btn-outline-primary">Lưu</button>
+        <a href="{{ url_for('nhomnguoidung.list_nhom_nguoi_dung') }}" class="btn btn-outline-secondary">Hủy</a>
+    </form>
+</div>
+{% endblock %}

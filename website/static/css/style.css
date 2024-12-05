@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-@import url(profile.css);
+/* @import url(profile.css); */
 body {
     font-family: "Noto Sans", sans-serif;
     font-style: normal;
@@ -153,4 +153,79 @@ a.sidebar-link:hover {
 .custom-tooltip {
     --bs-tooltip-bg: var(--bd-violet-bg);
     --bs-tooltip-color: var(--bs-white);
+}
+
+.form-error {
+    margin-top: 1rem;
+    font-size: small; 
+    color: red;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0; /* Khoảng cách bên ngoài */
+}
+
+.pagination-item {
+    margin: 0 5px; /* Khoảng cách giữa các nút */
+}
+
+.pagination-item a {
+    text-decoration: none;
+    padding: 10px 15px; /* Kích thước nút */
+    border-radius: 5px;
+}
+
+/* Căn chỉnh và tạo giao diện chính */
+.highlight-label {
+    display: inline-block;
+    position: relative;
+    padding: 10px 20px;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-family: 'Poppins', sans-serif;
+    background-color: #007bff; /* Màu mặc định */
+    transform: skew(-20deg); /* Tạo hình bình hành */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin: 0 auto;
+}
+
+/* Hiệu ứng khi hover */
+.highlight-label:hover {
+    transform: skew(-20deg) scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Kiểu cho từng loại khách hàng */
+.highlight-label.vang {
+    background-color: #ffc107; /* Màu vàng */
+}
+
+.highlight-label.bac {
+    background-color: #6c757d; /* Màu bạc */
+}
+
+.highlight-label.dong {
+    background-color: #cd7f32; /* Màu đồng */
+}
+
+.highlight-label.thuong {
+    background-color: #007bff; /* Màu xanh dương */
+}
+
+/* Chỉnh font chữ */
+.label-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+.form-control::placeholder {
+    font-style: italic;
 }

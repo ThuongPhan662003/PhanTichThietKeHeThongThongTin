@@ -1,0 +1,207 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Quản lý bàn
+{% endblock %}
+
+{% block content %}
+<div class="col-md-12">
+    <h1 class="mb-4">Danh sách Bàn</h1>
+    <div class="row align-items-center mb-4">
+        <!-- Form tìm kiếm và nút thêm bàn cùng một hàng -->
+        <div class="col-md-6">
+            <form method="get" action="" class="d-flex">
+                <input type="text" name="search" value="{{ search }}" class="form-control"
+                    placeholder="Tìm kiếm theo tên bàn hoặc loại bàn">
+                <button type="submit" class="btn btn-primary ms-2">Tìm kiếm</button>
+            </form>
+        </div>
+
+        <!-- Nút mở Modal Thêm Bàn -->
+        <div class="col-md-6 text-end">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBanModal">
+                Thêm Bàn Mới
+            </button>
+        </div>
+    </div>
+
+
+
+
+    <!-- Modal Thêm Bàn -->
+    <div class="modal fade" id="addBanModal" tabindex="-1" aria-labelledby="addBanModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addBanModalLabel">Thêm Bàn Mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{{ url_for('ban.add_ban') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.TenBan.label }} <span class="text-danger">*</span>
+                            {{ form.TenBan(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.ViTri.label }} <span class="text-danger">*</span>
+                            {{ form.ViTri(class="form-control") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.TrangThai.label }} <span class="text-danger">*</span>
+                            {{ form.TrangThai(class="form-select") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.idLoaiBan.label }} <span class="text-danger">*</span>
+                            {{ form.idLoaiBan(class="form-control") }}
+                        </div>
+                </div>
+                <button type="submit" class="btn btn-success">Lưu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Sửa Bàn -->
+    <div class="modal fade" id="editBanModal" tabindex="-1" aria-labelledby="editBanModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editBanModalLabel">Chỉnh Sửa Bàn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" id="editLoaiBanForm">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.TenBan.label }} <span class="text-danger">*</span>
+                            {{ form.TenBan(class="form-control", id="editTenBan") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.ViTri.label }} <span class="text-danger">*</span>
+                            {{ form.ViTri(class="form-control", id="editViTri") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.TrangThai.label }} <span class="text-danger">*</span>
+                            {{ form.TrangThai(class="form-control", id="editTrangThai") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.idLoaiBan.label }} <span class="text-danger">*</span>
+                            {{ form.idLoaiBan(class="form-control", id="editLoaiBan") }}
+                        </div>
+                        <button type="submit" class="btn btn-success">Lưu Thay Đổi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Bảng danh sách bàn -->
+<table id="customers" class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Mã Bàn</th>
+            <th>Tên Bàn</th>
+            <th>Vị Trí</th>
+            <th>Trạng Thái</th>
+            <th>Loại Bàn</th>
+            <th>Hành Động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ban in ds_ban %}
+        <tr>
+            <td>{{ ban.MaBan }}</td>
+            <td>{{ ban.TenBan }}</td>
+            <td>{{ ban.ViTri }}</td>
+            <td>{{ ban.TrangThai }}</td>
+            <td>{{ ban.TenLoaiBan }}</td>
+            <td class="text-center">
+                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editBanModal"
+                    onclick="loadBan('{{ ban.MaBan }}', '{{ ban.TenBan }}', '{{ ban.ViTri }}', '{{ ban.TrangThai }}', '{{ ban.idLoaiBan }}')">
+                    Sửa
+                </button>
+                <!-- Nút Xóa -->
+                <form method="POST" action="{{ url_for('ban.delete_ban', id=ban.MaBan) }}" style="display: inline;">
+                    {{ form.hidden_tag() }}
+                    <!-- Thêm CSRF token -->
+                    <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="confirm('Bạn có chắc muốn xóa không?');">Xóa</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Hiển thị phân trang -->
+<div class="d-flex justify-content-center mt-4">
+    {{ pagination.links }}
+</div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="alert alert-{{ messages[0][0] }}" id="flashMessage">
+    {{ messages[0][1] }}
+</div>
+<script>
+    // Hiển thị thông báo
+    var flashMessage = document.getElementById('flashMessage');
+    flashMessage.style.display = 'block';
+
+    // Ẩn thông báo sau 2 giây
+    setTimeout(function () {
+        flashMessage.style.opacity = '1';  // Đảm bảo nó hiển thị đầy đủ trước khi bắt đầu ẩn
+        flashMessage.style.transition = 'opacity 0.5s';
+        flashMessage.style.opacity = '0';  // Làm mờ dần
+
+        setTimeout(function () {
+            flashMessage.style.display = 'none';  // Ẩn hoàn toàn
+        }, 500); // Đợi thêm 0.5 giây sau khi làm mờ
+    }, 2000); // 2 giây
+</script>
+{% endif %}
+{% endwith %}
+
+</div>
+<style>
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    #customers td,
+    #customers th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    #customers tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    #customers tr:hover {
+        background-color: #ddd;
+    }
+
+    #customers th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #04AA6D;
+        color: white;
+    }
+</style>
+
+<script>
+    function loadBan(id, tenBan, viTri, trangThai, idLoaiBan) {
+        document.getElementById('editLoaiBanForm').action = '/ban/ban/edit/' + id;  // Thiết lập action form
+        document.getElementById('editTenBan').value = tenBan;
+        document.getElementById('editViTri').value = viTri;
+        document.getElementById('editTrangThai').value = trangThai;
+        document.getElementById('editLoaiBan').value = idLoaiBan;
+    }
+</script>
+<link rel="stylesheet" href="{{url_for('static', filename='css/style_message.css')}}">
+{% endblock %}

@@ -1,0 +1,219 @@
+<!-- Modal Thông Tin Đơn Hàng (infoModal) -->
+<div class="modal fade" id="getInfoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Header của Modal -->
+            <div class="modal-header text-white" style="background-color: rgb(19, 34, 54);">
+                <h5 class="modal-title" id="infoModalLabel">Thông tin đơn hàng</h5>
+                <button type="button" class="btn-close text-white bg-dark" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <!-- Body của Modal -->
+            <div class="modal-body d-flex flex-column align-items-center justify-content-center">
+                <div class="container">
+
+                    <!-- Thông tin đơn hàng (section) -->
+                    <div class="mb-3">
+                        <h4 class="text-center text-primary">Thông tin đơn đặt hàng</h4>
+                    </div>
+                    <div class="mb-3 p-3 border rounded-3 bg-light">
+                        <div class="row mb-2">
+                            <div class="col-12 col-md-6">
+                                <div class="mb-2 d-flex">
+                                    <p class="m-2"><strong>Mã đơn: </strong></p>
+                                    <p id="maddh" class="m-2">Chưa có dữ liệu</p>
+                                </div>
+
+                                <div class="mb-2 d-flex">
+                                    <p class="m-2"><strong>Tên bàn: </strong></p>
+                                    <p id="tenban" class="m-2">Chưa có dữ liệu</p>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="mb-2 d-flex">
+                                    <p class="m-2"><strong>Trạng thái đơn hàng: </strong></p>
+                                    <p id="trangthai" class="badge bg-success text-white m-2">Đã hoàn thành</p>
+                                </div>
+
+                                <div class="mb-2 d-flex ">
+                                    <p class="m-2"><strong>Trạng thái hóa đơn: </strong></p>
+                                    <p id="trangthaihd" class="badge bg-warning text-white m-2">Chờ xử lý</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin khách hàng (section) -->
+                    <div class="mb-3">
+                        <h4 class="text-center text-primary">Thông tin khách hàng</h4>
+                    </div>
+                    <div class="mb-3 p-3 border rounded-3 bg-light">
+                        <div class="row mb-2 d-flex flex-row">
+                            <div class="col-6 d-flex flex-row">
+                                <p class="m-2"><strong>Họ tên khách hàng:</strong></p>
+                                <p id="hoten" class="m-2">Chưa có dữ liệu</p>
+                            </div>
+
+                            <div class="col-6 d-flex flex-row">
+                                <p class="m-2"><strong>Số điện thoại:</strong></p>
+                                <p id="sdt" class="m-2">Chưa có dữ liệu</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="actionButtons" class="text-center d-flex justify-content-center">
+                        <!-- Button actions will be dynamically added here -->
+                        <!-- Cột 1: Tiến trình order -->
+                        <div class="me-3" id="orderProgress">
+                            <p class="text-center text-secondary">Lựa chọn order</p>
+                            <div class="d-flex align-items-center justify-content-center"></div>
+                        </div>
+                        <div style="border-left: 1px solid rgb(190, 186, 186); height: 5rem;"></div>
+                        <!-- Cột 2: Tiến trình thanh toán -->
+                        <div class="ms-3" id="paymentProgress">
+                            <p class="text-center text-secondary">Lựa chọn thanh toán</p>
+                            <div class="d-flex align-items-center justify-content-center"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    // Hàm mở modal và điền thông tin vào các trường
+    function openOrderModal(maddh) {
+
+        // Khai báo có url cho button
+        const urlCombine = `/order/?action=combine&maddh=${maddh}`;
+        const urlSame = `/order/?action=same&maddh=${maddh}`;
+        const urlSeperate = `/order/?action=seperate&maddh=${maddh}`;
+        const urlNormal = `/order/?action=normal&maddh=${maddh}`;
+        const urlCheckout = `/checkout/?maddh=${maddh}`;
+        const urlCompleteOrder = `/order/updateStatus?status=complete&maddh=${maddh}`;
+        const urlStartCooking = `/order/updateStatus?status=start_cooking&maddh=${maddh}`;
+        const urlViewInvoice = `/checkout/viewInvoice?maddh=${maddh}`;
+        const urlCancelOrder = `/order/updateStatus?status=cancel&maddh=${maddh}`;
+
+        // Gửi yêu cầu đến API để lấy thông tin chi tiết của đơn hàng
+        fetch(`/order/getCustomerData?maddh=${maddh}`)
+            .then(response => response.json())
+            .then(data => {
+                // Kiểm tra nếu có lỗi trả về từ server
+                if (data.message) {
+                    alert(data.message);
+                    return;
+                }
+
+                console.log("Dữ liệu JSON trả về từ server:");
+                console.log(data);
+
+                const order = data.DonDatHang;
+                const customer = data.KhachHang;
+
+                // Điền thông tin đơn hàng vào modal
+                document.getElementById('maddh').innerText = order.MaDDH;
+                document.getElementById('tenban').innerText = order.Ban.join(', ');
+                document.getElementById('trangthai').innerText = order.TrangThai;
+                document.getElementById('trangthaihd').innerText = order.TrangThaiHD;
+                document.getElementById('hoten').innerText = customer.TenKH;
+                document.getElementById('sdt').innerText = customer.SoDienThoai;
+
+                // Lấy các cột
+                const orderProgress = document.getElementById('orderProgress').querySelector('div');
+                const paymentProgress = document.getElementById('paymentProgress').querySelector('div');
+
+                // Xóa nội dung cũ
+                orderProgress.innerHTML = '';
+                paymentProgress.innerHTML = '';
+
+
+                // Điều kiện trạng thái đơn đặt hàng
+                if (order.TrangThai === 'Chưa bắt đầu') {
+                    if (order.Ban.length === 1) {
+                        orderProgress.innerHTML += `
+                        <a href="${urlNormal}" class="btn btn-success mb-2 me-2">Order món ăn</a>`;
+                    } else if (order.Ban.length > 1) {
+                        orderProgress.innerHTML += `
+                        <a href="${urlCombine}" class="btn btn-success mb-2 me-2">Đặt chung</a>
+                        <a href="${urlSame}" class="btn btn-warning mb-2 me-2">Đặt giống</a>
+                        <a href="${urlSeperate}" class="btn btn-dark mb-2 me-2">Đặt riêng</a>`;
+                    }
+
+                    if (order.DaOrder === 1) {
+                        orderProgress.innerHTML += `
+                        <a href="${urlStartCooking}" class="btn btn-outline-warning mb-2 me-2">Bắt đầu chế biến</a>`;
+                    }
+
+                    orderProgress.innerHTML += `
+                    <a href="${urlCancelOrder}" class="btn btn-outline-danger mb-2 me-2">Hủy đơn hàng</a>`;
+                }
+
+                if (order.TrangThai === 'Đang chế biến') {
+                    orderProgress.innerHTML += `
+                    <a href="${urlCompleteOrder}" class="btn btn-outline-success mb-2 me-2">Hoàn thành đơn</a>`;
+                }
+
+                // Thêm nút vào Tiến trình thanh toán
+                if (order.TrangThaiHD === 'Chưa thanh toán') {
+                    paymentProgress.innerHTML += `
+                    <a href="${urlCheckout}" class="btn btn-primary mb-2">Checkout</a>`;
+                }
+
+                if (order.TrangThaiHD === 'Đã thanh toán') {
+                    paymentProgress.innerHTML += `
+                    <a href="${urlViewInvoice}" class="btn btn-outline-primary mb-2">Xem hóa đơn</a>`;
+                }
+
+                // Nếu đơn đặt hàng đã hủy
+                if (order.TrangThai === 'Đã hủy') {
+                    orderProgress.innerHTML = ``
+                    paymentProgress.innerHTML = ``
+                }
+
+                // Ẩn cột nếu rỗng
+                const orderColumn = document.getElementById('orderProgress');
+                const paymentColumn = document.getElementById('paymentProgress');
+
+                orderColumn.style.display = orderProgress.innerHTML.trim() === '' ? 'none' : 'block';
+                paymentColumn.style.display = paymentProgress.innerHTML.trim() === '' ? 'none' : 'block';
+
+                const divider = document.querySelector('#actionButtons div[style*="border-left"]');
+
+                if (orderProgress.innerHTML.trim() === '') {
+                    divider.style.display = 'none';
+                    orderColumn.style.display = 'none';
+                    document.getElementById('actionButtons').classList.add("flex-column");
+                }
+
+                else {
+                    orderColumn.style.display = 'block';
+                    divider.style.display = 'block';
+                    document.getElementById('actionButtons').classList.remove("flex-column");
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải dữ liệu đơn hàng:', error);
+                alert('Không thể lấy thông tin đơn hàng.');
+            });
+    }
+
+    // Hàm để gán sự kiện click vào các row trong bảng
+    document.querySelectorAll('.order-row').forEach(function (row) {
+        row.addEventListener('click', function () {
+            const maddh = row.dataset.maddh;
+            openOrderModal(maddh);
+            var myModal = new bootstrap.Modal(document.getElementById('getInfoModal'));
+            myModal.show();
+        });
+    });
+
+
+</script>

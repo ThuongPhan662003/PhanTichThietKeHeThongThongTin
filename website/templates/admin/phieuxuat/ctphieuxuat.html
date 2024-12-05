@@ -1,0 +1,94 @@
+{% extends "admin/base.html" %}
+{% block title %}Chi tiết phiếu xuất{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center">
+    <h1>Chi tiết phiếu xuất số {{ delivery_note.SoPhieuXuat }}</h1>
+    <a href="{{ url_for('phieuxuat.export_to_excel', note_id=delivery_note.SoPhieuXuat) }}"
+        class="btn btn-outline-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+            class="bi bi-file-earmark-excel mb-1" viewBox="0 0 16 16">
+            <path
+                d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z" />
+            <path
+                d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
+        </svg>
+        Xuất Excel
+    </a>
+</div>
+<br>
+<p><strong>Ngày xuất:</strong> {{ delivery_note.NgayXuat.strftime('%d-%m-%Y %H:%M') }}</p>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="text-center">STT</th>
+            <th class="text-center">Tên nguyên liệu</th>
+            <th class="text-center">Đơn vị tính</th>
+            <th class="text-center">Số lượng</th>
+            <th class="text-center">Đơn giá</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in details %}
+        <tr>
+            <td class="text-center">{{ item.stt }}</td>
+            <td class="text-center">{{ item.ten_nguyen_lieu }}</td>
+            <td class="text-center">{{ item.don_vi_tinh }}</td>
+            <td class="text-center">{{ "{:,.0f}".format(item.so_luong) }}</td>
+            <td class="text-center">{{ "{:,.0f}".format(item.don_gia) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<p><i><u>Lưu ý: </u>Chỉ được sửa và xóa phiếu trong ngày!</i></p>
+<a href="{{ url_for('phieuxuat.delivery_notes') }}" class="btn btn-outline-secondary">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+        class="bi bi-arrow-left-circle mb-1" viewBox="0 0 16 16">
+        <path fill-rule="evenodd"
+            d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z" />
+    </svg>
+    Quay lại phiếu xuất
+</a>
+
+{% if can_change %}
+<a href="{{ url_for('phieuxuat.edit_phieuxuat', note_id=delivery_note.SoPhieuXuat) }}" class="btn btn-outline-success">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen mb-1"
+        viewBox="0 0 16 16">
+        <path
+            d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z" />
+    </svg>
+    Sửa phiếu
+</a>
+<button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3 mb-1"
+        viewBox="0 0 16 16">
+        <path
+            d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5" />
+    </svg>
+    Xóa phiếu
+</button>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Xóa phiếu xuất</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('phieuxuat.delete_phieuxuat', note_id=delivery_note.SoPhieuXuat) }}">
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa phiếu xuất này?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger"
+                        href="{{ url_for('phieuxuat.delete_phieuxuat', note_id=delivery_note.SoPhieuXuat) }}">
+                        Xác nhận
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

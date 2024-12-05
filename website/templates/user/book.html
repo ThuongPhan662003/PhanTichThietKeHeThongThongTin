@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lịch Tương Tác</title>
+  <!-- FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- FullCalendar JS -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Roboto", sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      text-align: center;
+      color: #343a40;
+      margin-bottom: 20px;
+    }
+
+    #container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 20px;
+      flex-wrap: nowrap;
+    }
+
+    #calendar {
+      flex: 2 1 65%;
+      margin-right: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #event-form {
+      flex: 1 1 30%;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #event-form h3 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+
+    #event-form input,
+    #event-form select,
+    #event-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      background-color: #f8f9fa;
+      font-size: 16px;
+    }
+
+    #event-form input:focus,
+    #event-form select:focus,
+    #event-form textarea:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    #event-form button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+
+    #event-form button:hover {
+      background-color: #218838;
+    }
+
+    #success-message {
+      color: #28a745;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 16px;
+      display: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      #container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #calendar {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      #event-form {
+        width: 100%;
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- <h1>Đặt lịch</h1> -->
+  <div id="container">
+    <!-- Calendar -->
+    <div id="calendar"></div>
+
+    <!-- Event Form -->
+    <div id="event-form">
+      <h3>Đặt Lịch Hẹn</h3>
+      <label for="event-name">Họ và tên:</label>
+      <input type="text" id="event-name" placeholder="Họ và tên" name="event-name"
+        value="{{ khachhang.HoKH +" " +khachhang.TenKH}}" readonly />
+      <label for="event-sdt">SDT
+        <p class="note" >(Nếu có thay đổi vui lòng đổi ở thông tin cá nhân):</p>
+      </label>
+      <input type="tel" id="event-phone" placeholder="Số điện thoại" name="event-phone" value="{{khachhang.SDT}}"
+        readonly />
+      <label for="event-email">Email 
+        <p class="note" >(Nếu có thay đổi vui lòng đổi ở thông tin cá nhân):</p>
+      </label>
+      <input type="email" id="event-email" placeholder="Email" name="event-email" value="{{khachhang.Email}}"
+        readonly />
+      <div>
+        <label for="event-date">Ngày đặt <span style="color: red;">*</span></label>
+        <input type="date" id="event-date" name="event-date" required />
+      </div>
+      <div>
+        <label for="event-arrival-time">Giờ đến <span style="color: red;">*</span></label>
+        <input type="time" id="event-arrival-time" name="event-arrival-time" required />
+      </div>
+      <div>
+        <label for="event-duration">Khoảng thời gian (phút)<span style="color: red;">*</span></label>
+        <input type="number" id="event-duration" placeholder="Khoảng thời gian (phút)" min="1" name="event-duration"
+          required />
+      </div>
+      <label for="event-soluongnguoi">Số lượng người <span style="color: red;">*</span></label>
+      <input type="number" id="soluongnguoi" placeholder="Số lượng người" name="soluongnguoi" required min="1"/>
+
+      <div class="d-flex justify-content-between mt-4" style="display: flex;flex-direction: row;gap: 10px;">
+        <button id="save-event" type="submit">Lưu sự kiện</button>
+        <button>
+          <a href="{{url_for('views.homepage')}}" class="btn btn-secondary "
+            style="Text-decoration: none;color: white;">Quay lại</a>
+        </button>
+
+      </div>
+      <div id="success-message">Sự kiện đã được lưu thành công!</div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const calendarEl = document.getElementById("calendar");
+
+      // Khởi tạo lịch với các tùy chỉnh
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: "timeGridWeek",
+          headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "timeGridWeek,timeGridDay",
+          },
+          editable: false,
+          selectable: true,
+          allDaySlot: false,
+          slotDuration: "00:05:00", 
+          displayEventTime: true,
+          slotMinTime: "08:00:00",
+          slotMaxTime: "22:00:00",
+
+        // Fetch events for calendar
+        events: function (info, successCallback, failureCallback) {
+          $.ajax({
+            url: "/bookcalendar/get_unavailable_times",
+            method: "GET",
+            success: function (response) {
+              if (response.status === "success") {
+                const events = response.data.map(event => ({
+                  start: event.start_time,
+                  end: event.end_time,
+                  title: "Đã đặt lịch",
+                  rendering: "background",
+                  color: "red",
+                }));
+                successCallback(events);
+              } else {
+                failureCallback("Không tải được dữ liệu lịch");
+              }
+            },
+            error: function () {
+              failureCallback("Lỗi kết nối đến server");
+            },
+          });
+        },
+
+        // Xử lý sự kiện khi chọn trên lịch
+        select: function (info) {
+          const start = info.start;
+          const end = info.end;
+          console.log("start",start)
+          const date = start.toISOString().split("T")[0];
+          console.log("date",date)
+          const hours = start.getHours().toString().padStart(2, "0");
+
+          const minutes = start.getMinutes().toString().padStart(2, "0");
+          const duration = (end - start) / (1000 * 60);
+          console.log("duration",duration)
+          document.getElementById("event-date").value = date;
+          document.getElementById("event-arrival-time").value = `${hours}:${minutes}`;
+          document.getElementById("event-duration").value = duration;
+        },
+      });
+
+      calendar.render();
+
+      // Xử lý lưu sự kiện
+      document.getElementById("save-event").addEventListener("click", function (e) {
+        e.preventDefault();
+
+        // Lấy giá trị từ form
+        const name = document.getElementById("event-name").value.trim();
+        const phone = document.getElementById("event-phone").value.trim();
+        const email = document.getElementById("event-email").value.trim();
+        const date = document.getElementById("event-date").value;
+        const time = document.getElementById("event-arrival-time").value;
+        const duration = parseInt(document.getElementById("event-duration").value, 10);
+        const number_persons = parseInt(document.getElementById("soluongnguoi").value, 10);
+        console.log("time",time)
+        // Kiểm tra hợp lệ của form
+        if (!name || !phone || !email || !date || !time || isNaN(duration) || isNaN(number_persons)) {
+          showMessage("Vui lòng điền đầy đủ thông tin!", "error");
+          return;
+        }
+
+        if (!/^\d{10}$/.test(phone)) {
+          showMessage("Số điện thoại không hợp lệ!", "error");
+          return;
+        }
+
+        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+          showMessage("Email không hợp lệ!", "error");
+          return;
+        }
+        if (duration <30) {
+          showMessage("Thời lượng cần lớn hơn 30 phút!", "error");
+          return;
+        }
+
+
+        // Tính toán thời gian bắt đầu và kết thúc
+        const start = new Date(`${date}T${time}`);
+        const end = new Date(start.getTime() + duration * 60 * 1000);
+
+        // Gửi dữ liệu đến server
+        $.ajax({
+          url: "/bookcalendar/save_event",
+          method: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({
+            name: name,
+            phone: phone,
+            email: email,
+            date: date,
+            time: time,
+            duration: duration,
+            number_persons: number_persons,
+          }),
+          success: function (response) {
+            if (response.status === "success") {
+              showMessage("Sự kiện đã được lưu thành công!", "success");
+              calendar.refetchEvents();
+              resetForm();
+            } else {
+              showMessage("Đã xảy ra lỗi khi lưu sự kiện!", "error");
+            }
+          },
+          error: function () {
+            showMessage("Không thể kết nối đến server.", "error");
+          },
+        });
+      });
+
+      // Hàm hiển thị thông báo
+      function showMessage(message, type) {
+        const successMessage = document.getElementById("success-message");
+        successMessage.textContent = message;
+        successMessage.style.color = type === "success" ? "green" : "red";
+        successMessage.style.display = "block";
+
+        setTimeout(() => {
+          successMessage.style.display = "none";
+        }, 5000); // Tăng thời gian để người dùng đọc thông báo
+      }
+
+      // Hàm đặt lại form
+      function resetForm() {
+        document.getElementById("event-name").value = "";
+        document.getElementById("event-phone").value = "";
+        document.getElementById("event-email").value = "";
+        document.getElementById("event-date").value = "";
+        document.getElementById("event-arrival-time").value = "";
+        document.getElementById("event-duration").value = "";
+        document.getElementById("soluongnguoi").value = "";
+      }
+    });
+  </script>
+<style>
+  .note {
+            background-color: #fef8e4;
+            padding: 10px;
+            border-left: 4px solid #f0ad4e;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+</style>
+</body>
+
+</html>

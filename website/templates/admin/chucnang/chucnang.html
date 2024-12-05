@@ -1,0 +1,199 @@
+{% extends "admin/base.html" %}
+{% block title %}
+Quản lý chức năng
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">Quản lý chức năng</h1>
+
+        <!-- Flash Messages -->
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+
+        <!-- Bộ lọc -->
+        <form method="GET" action="{{ url_for('chucnang.list_chucnang') }}" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="search" placeholder="Tìm theo tên chức năng..."
+                    value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" name="role">
+                    <option value="">Lọc theo quyền</option>
+                    {% for nhom in nhom_nguoi_dung %}
+                    <option value="{{ nhom.MaNND }}" {% if role==nhom.MaNND %}selected{% endif %}>
+                        {{ nhom.TenNhomNguoiDung }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary">Lọc</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('chucnang.list_chucnang') }}" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+            </div>
+        </form>
+
+        <!-- Thêm chức năng -->
+        <div class="my-4">
+            <a href="{{ url_for('chucnang.add') }}" class="btn btn-outline-success">
+                <i class="bi bi-plus-circle"></i> Thêm chức năng
+            </a>
+        </div>
+
+        <!-- Bảng chức năng -->
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr class="text-center">
+                    <th scope="col">Mã chức năng</th>
+                    <th scope="col">Tên chức năng</th>
+                    <th scope="col">Nhóm người dùng</th>
+                    <th scope="col">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for func in funcs.items %}
+                <tr>
+                    <td class="text-center">{{ func.MaCN }}</td>
+                    <td>{{ func.TenManHinh }}
+
+
+                    </td>
+                    <td>
+                        <small>
+                            {% set has_owner = false %}
+                            {% for owner in quyen %}
+                            {% if owner.idCN == func.MaCN %}
+                            {{ dict[owner.idNND] }}
+                            {% set has_owner = true %}
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" data-bs-toggle="modal"
+                                data-bs-target="#removeRoleModal{{ func.MaCN }}{{ owner.idNND }}">
+                                <i class="bi bi-x-circle"></i> X
+                            </button>
+
+                            <!-- Modal Xóa Phân Quyền -->
+                            <div class="modal fade" id="removeRoleModal{{ func.MaCN }}{{ owner.idNND }}" tabindex="-1"
+                                aria-labelledby="removeRoleModalLabel{{ func.MaCN }}{{ owner.idNND }}"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"
+                                                id="removeRoleModalLabel{{ func.MaCN }}{{ owner.idNND }}">
+                                                Xóa phân quyền
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Bạn có chắc chắn muốn xóa phân quyền của nhóm
+                                            "{{ dict[owner.idNND] }}" cho chức năng "{{ func.TenManHinh }}" không?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Hủy</button>
+                                            <a href="{{ url_for('chucnang.remove_role', idCN=func.MaCN, idNND=owner.idNND) }}"
+                                                class="btn btn-outline-danger">Xóa</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if not loop.last %}, {% endif %}
+                            {% endif %}
+                            {% endfor %}
+                            
+                        </small>
+                    </td>
+
+
+                    </td>
+                    <td class="text-center">
+                        <!-- Sửa -->
+                        <a href="{{ url_for('chucnang.edit', id=func.MaCN) }}" class="btn btn-light btn-sm">
+                            <i class="bi bi-pencil-square text-primary"></i> Sửa
+                        </a>
+                        <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#assignRoleModal{{ func.MaCN }}">
+                            <i class="bi bi-shield-check text-success"></i> Phân quyền
+                        </button>
+                        <!-- Xóa -->
+                        <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#deleteModal{{ func.MaCN }}">
+                            <i class="bi bi-trash3 text-danger"></i> Xóa
+                        </button>
+
+                        <!-- Modal Xóa -->
+                        <div class="modal fade" id="deleteModal{{ func.MaCN }}" tabindex="-1"
+                            aria-labelledby="deleteModalLabel{{ func.MaCN }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel{{ func.MaCN }}">Xóa chức năng</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Bạn có chắc chắn muốn xóa chức năng "{{ func.TenManHinh }}" không?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Hủy</button>
+                                        <a href="{{ url_for('chucnang.delete', id=func.MaCN) }}"
+                                            class="btn btn-outline-danger">Xóa</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal Phân quyền -->
+                        <div class="modal fade" id="assignRoleModal{{ func.MaCN }}" tabindex="-1"
+                            aria-labelledby="assignRoleModalLabel{{ func.MaCN }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="assignRoleModalLabel{{ func.MaCN }}">Phân quyền cho
+                                            "{{ func.TenManHinh }}"</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST" action="{{ url_for('chucnang.assign_role', id=func.MaCN) }}">
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="roleSelect{{ func.MaCN }}" class="form-label">Chọn
+                                                    quyền</label>
+                                                <select class="form-select" id="roleSelect{{ func.MaCN }}" name="role">
+                                                    {% for nhom in nhom_nguoi_dung %}
+                                                    <option value="{{ nhom.MaNND }}">{{ nhom.TenNhomNguoiDung }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Hủy</button>
+                                            <button type="submit" class="btn btn-outline-primary">Lưu</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Phân trang -->
+        <div class="d-flex justify-content-center">
+            {{ funcs.links }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "auth/base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block content %}
+
+<!-- Sign-Up Form -->
+<div class="login-container">
+  <h2>Đăng ký tài khoản mới</h2>
+  <p class="description">
+    Cùng nhau đắm chìm trong hương vị của những món ăn ngon
+  </p>
+  <form method="post" action="{{ url_for('auth.sign_up') }}">
+    <!-- Flash Messages -->
+    <div id="flash-message-container">
+      {% for message in get_flashed_messages() %}
+      <div class="alert alert-dismissible fade show custom-alert alert-warning" role="alert" id="flash-message">
+        <div class="d-flex align-items-center">
+          <ion-icon name="warning-outline" class="alert-icon"></ion-icon>
+          <div class="message-text">
+            <strong>{{ message }}</strong>
+          </div>
+          <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Full Name Input -->
+    <div class="form-group">
+      <ion-icon name="person-outline"></ion-icon>
+      <input type="text" placeholder="Họ và Tên" name="HoTen" required id="HoTen" />
+    </div>
+
+    <!-- Email Input -->
+    <div class="form-group">
+      <ion-icon name="mail-outline"></ion-icon>
+      <input type="email" placeholder="Email" name="Email" required id="Email" />
+    </div>
+
+    <!-- Phone Number Input -->
+    <div class="form-group">
+      <ion-icon name="call-outline"></ion-icon>
+      <input type="text" placeholder="Số điện thoại" name="SDT" required id="SDT" />
+    </div>
+    <div class="form-group" tyle="display: flex;gap: 3px;flex-">
+      <label class="me-2">Giới tính</label>
+      <div class="d-flex">
+        <label class="me-2">
+          <input type="radio" name="gender" value="1" required /> Nam
+        </label>
+        <label>
+          <input type="radio" name="gender" value="0" required /> Nữ
+        </label>
+      </div>
+    </div>
+    <!-- Password Input -->
+    <div class="form-group">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+      <input type="password" placeholder="Mật khẩu" name="MatKhau1" required id="MatKhau1" />
+      <ion-icon onclick="togglePasswordVisibility('MatKhau1')"></ion-icon>
+    </div>
+
+    <!-- Confirm Password Input -->
+    <div class="form-group">
+      <ion-icon name="lock-closed-outline"></ion-icon>
+      <input type="password" placeholder="Xác nhận mật khẩu" name="MatKhau2" required id="MatKhau2" />
+      <ion-icon onclick="togglePasswordVisibility('MatKhau2')"></ion-icon>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn" style="border: solid #2fbf3b;background-color: #2fbf3b;color: white;">Đăng
+      ký</button>
+
+    <!-- Social Sign-Up Options -->
+    <div class="btn-social">
+      <button class="btn-google">
+        <a href="{{ url_for('auth.google_login') }}" style="color: white">
+          <ion-icon name="logo-google"></ion-icon> Google
+        </a>
+      </button>
+    </div>
+
+    <p class="terms">
+      Bạn đã có tài khoản?
+      <a href="{{ url_for('auth.login') }}">Đăng nhập ngay</a>
+    </p>
+  </form>
+</div>
+
+<!-- Toggle Password Visibility Script -->
+<script>
+  // Toggle password visibility
+  function togglePasswordVisibility(fieldId) {
+    const passwordField = document.getElementById(fieldId);
+    if (passwordField.type === "password") {
+      passwordField.type = "text";
+    } else {
+      passwordField.type = "password";
+    }
+  }
+
+  // Flash message auto-hide and replace logic
+  document.addEventListener("DOMContentLoaded", () => {
+    const flashContainer = document.getElementById("flash-message-container");
+    const flashMessage = flashContainer.querySelector("#flash-message");
+
+    // Auto-hide flash message after 2 seconds
+    if (flashMessage) {
+      setTimeout(() => {
+        flashMessage.classList.add("fade-out");
+        setTimeout(() => flashMessage.remove(), 500); // Remove from DOM after fade out
+      }, 2000);
+    }
+
+    // Replace with new message if any new message arrives
+    if (flashContainer) {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach(() => {
+          const newFlashMessage = flashContainer.querySelector("#flash-message");
+          if (newFlashMessage) {
+            setTimeout(() => {
+              newFlashMessage.classList.add("fade-out");
+              setTimeout(() => newFlashMessage.remove(), 500);
+            }, 2000);
+          }
+        });
+      });
+
+      observer.observe(flashContainer, { childList: true });
+    }
+  });
+</script>
+
+<!-- CSS for fade-out animation -->
+<style>
+  .fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+  }
+</style>
+
+{% endblock %}

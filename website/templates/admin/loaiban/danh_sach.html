@@ -1,0 +1,275 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Quản lý loại bàn
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-9">
+        <div class="row">
+            <!-- Tìm kiếm -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="text-center">Quản lý loại bàn</h1>
+                <button class="button-89" data-bs-toggle="modal" data-bs-target="#addLoaiBanModal">+ Thêm Loại
+                    Bàn</button>
+            </div>
+
+            <!-- Bảng danh sách loại bàn -->
+            <table id="customers" class="table table-bordered">
+                <thead>
+                    <tr class="text-center">
+                        <th scope="col">Mã Loại Bàn</th>
+                        <th scope="col">Tên Loại Bàn</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loai_ban in ds_loai_ban %}
+                    <tr class="table-group-divider">
+                        <td>{{ loai_ban.MaLB }}</td>
+                        <td>{{ loai_ban.TenLoaiBan }}</td>
+                        <td class="text-center">
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                data-bs-target="#editLoaiBanModal"
+                                onclick="loadLoaiBan('{{ loai_ban.MaLB }}','{{ loai_ban.TenLoaiBan }}')">Sửa</button>
+                            <!-- Nút Xóa -->
+                            <form method="POST" action="{{ url_for('loaiban.delete_loai_ban', id=loai_ban.MaLB) }}"
+                                style="display: inline;">
+                                {{ form.hidden_tag() }}
+                                <!-- Thêm CSRF token -->
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="confirm('Bạn có chắc chắn muốn xóa?');">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Phân trang -->
+            <div class="d-flex justify-content-center">
+                {{ pagination.links }}
+            </div>
+        </div>
+
+        <!-- Modal Thêm Loại Bàn -->
+        <div class="modal fade" id="addLoaiBanModal" tabindex="-1" aria-labelledby="addLoaiBanLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('loaiban.add_loai_ban') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addLoaiBanLabel">Thêm Loại Bàn</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Tên loại bàn</label>
+                                {{ form.TenLoaiBan(class="form-control", placeholder="Nhập tên loại bàn") }}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-primary">Lưu</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Sửa Loại Bàn -->
+        <div class="modal fade" id="editLoaiBanModal" tabindex="-1" aria-labelledby="editLoaiBanLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <form method="POST" id="editLoaiBanForm">
+                        {{ form.hidden_tag() }}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editLoaiBanLabel">Sửa Loại Bàn</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                {{ form.TenLoaiBan.label(class="form-label") }}
+                                <input type="text" name="TenLoaiBan" id="editTenLoaiBan" class="form-control"
+                                    placeholder="Tên loại bàn">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                            <button type="submit" class="btn btn-primary">Cập nhật</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="content-section">
+            <h5><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-funnel me-1" viewBox="0 0 16 16">
+                    <path
+                        d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z" />
+                </svg>Tìm kiếm</h5>
+            <br />
+            <div>
+                <form method="GET" action="{{ url_for('loaiban.danh_sach_loai_ban') }}" class="input-group mb-3">
+                    <input type="text" name="search" class="form-control me-1" placeholder="VD: Bàn chờ"
+                        value="{{ request.args.get('search', '') }}">
+                    <button type="submit" class="button-32">Tìm kiếm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="alert alert-{{ messages[0][0] }} mt-3" id="flashMessage">
+    {{ messages[0][1] }}
+</div>
+<script>
+    // Hiển thị thông báo trong vài giây
+    var flashMessage = document.getElementById('flashMessage');
+    flashMessage.style.display = 'block';  // Hiển thị thông báo
+    setTimeout(function () {
+        flashMessage.style.display = 'none';  // Ẩn thông báo sau 5 giây
+    }, 2000);  // 2000ms = 2 seconds
+</script>
+{% endif %}
+{% endwith %}
+
+<script>
+    function loadLoaiBan(id, tenLoaiBan) {
+        document.getElementById('editLoaiBanForm').action = '/loaiban/loaiban/edit/' + id;  // Thiết lập action của form
+        document.getElementById('editTenLoaiBan').value = tenLoaiBan;  // Gán giá trị của tên loại bàn vào input
+    }
+</script>
+<style>
+    /* Đảm bảo thông báo nằm dưới cùng của trang */
+    #flashMessage {
+        position: fixed;
+        bottom: 20px;
+        /* Khoảng cách từ dưới cùng của trang */
+        left: 50%;
+        transform: translateX(-50%);
+        /* Đưa thông báo vào giữa màn hình */
+        z-index: 9999;
+        /* Đảm bảo thông báo hiển thị trên các phần tử khác */
+        width: auto;
+        max-width: 80%;
+        display: none;
+        /* Mặc định ẩn */
+    }
+
+
+
+    .button-89 {
+        --b: 3px;
+        /* border thickness */
+        --s: .45em;
+        /* size of the corner */
+        --color: #373B44;
+
+        padding: calc(.5em + var(--s)) calc(.9em + var(--s));
+        color: var(--color);
+        --_p: var(--s);
+        background:
+            conic-gradient(from 90deg at var(--b) var(--b), #0000 90deg, var(--color) 0) var(--_p) var(--_p)/calc(100% - var(--b) - 2*var(--_p)) calc(100% - var(--b) - 2*var(--_p));
+        transition: .3s linear, color 0s, background-color 0s;
+        outline: var(--b) solid #0000;
+        outline-offset: .6em;
+        font-size: 16px;
+
+        border: 0;
+
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+    }
+
+    .button-89:hover,
+    .button-89:focus-visible {
+        --_p: 0px;
+        outline-color: var(--color);
+        outline-offset: .05em;
+    }
+
+    .button-89:active {
+        background: var(--color);
+        color: #fff;
+    }
+
+    /* CSS */
+    .button-32 {
+        background-color: #eae9db;
+        color: #000;
+        cursor: pointer;
+        font-weight: bold;
+        padding: 10px 15px;
+        text-align: center;
+        transition: 200ms;
+        width: 100%;
+        box-sizing: border-box;
+        border: 0;
+        font-size: 16px;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+    }
+
+    .button-32:not(:disabled):hover,
+    .button-32:not(:disabled):focus {
+        outline: 0;
+        background: #f4e603;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, .2), 0 3px 8px 0 rgba(0, 0, 0, .15);
+    }
+
+    .button-32:disabled {
+        filter: saturate(0.2) opacity(0.5);
+        -webkit-filter: saturate(0.2) opacity(0.5);
+        cursor: not-allowed;
+    }
+
+    #customers {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    #customers td,
+    #customers th {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    #customers tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    #customers tr:hover {
+        background-color: #ddd;
+    }
+
+    #customers th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #04AA6D;
+        color: white;
+
+    }
+
+    img {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px;
+        width: 150px;
+        height: 100px;
+    }
+
+    img:hover {
+        box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+    }
+</style>
+{% endblock %}

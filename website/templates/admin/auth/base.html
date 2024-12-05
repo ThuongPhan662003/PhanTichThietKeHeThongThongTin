@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Grilli</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth_user.css') }}">
+  <!-- Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS (for modal functionality) -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}">
+
+</head>
+
+<body>
+        {% block content %}
+        {% endblock %}
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script>
+    function togglePasswordVisibility() {
+      const passwordField = document.getElementById('password');
+      const toggleIcon = document.querySelector('.toggle-password');
+      if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.name = 'eye-outline';
+      } else {
+        passwordField.type = 'password';
+        toggleIcon.name = 'eye-off-outline';
+      }
+    }
+  </script>
+</body>
+
+</html>

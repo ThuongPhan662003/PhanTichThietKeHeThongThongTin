@@ -1,0 +1,429 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Thanh toán{% endblock %}
+
+{% block content %}
+
+<div class="bg-light">
+    <div class="container my-5">
+        <div class="row d-flex flex-row">
+            <!-- Order Section -->
+            <div class="col-lg-6 overflow-auto" style="max-height: 100vh;">
+                <a type="button" href="{{ url_for('dondathang.ds_dondathang') }}"
+                    class="btn btn-outline-danger mb-3 d-block">Trở về trang danh sách đơn hàng</a>
+                {% for order in result.values() %}
+                <!-- Hiển thị danh sách món ăn order của đơn hàng -->
+
+                <div class="title mb-4">Đơn hàng #{{ order.idDDH }}</div>
+                <div class="container container-tables">
+                    {% for ban in order.ban %}
+                    <div class="table fw-bold mt-3">{{ ban.Ban.TenBan }}</div>
+                    {% for item in ban.mon_an %}
+                    <div class="order-card bg-white mb-2">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ item.mon_an.HinhAnh }}" alt="Product" class="product-image me-3"
+                                style="width: 80px; height: 80px;">
+                            <div>
+                                <div class="fw-bold">{{ item.mon_an.TenMonAn }}</div>
+                                <div class="text-secondary">{{ item.mon_an.DonGia }} VND/1 món</div>
+                            </div>
+                            <div class="ms-auto text-end">
+                                <div class="quantity-text">x {{ item.so_luong }}</div>
+                                <div class="fw-bold text-primary amount-text">{{ (item.so_luong | int) *
+                                    (item.mon_an.DonGia | int) }} VND</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="col-lg-1"></div>
+
+            <!-- Checkout Section -->
+            <div class="col-lg-5 mt-5 mt-lg-0">
+                <form id="checkoutForm" action="/checkout" method="POST"></form>
+                <div class="checkout-panel">
+                    <div class="title mb-3 text-center">THANH TOÁN</div>
+
+                    <!-- Voucher -->
+                    <div class="mb-3">
+                        <label for="voucher-select" class="form-label">Voucher</label>
+                        <select id="voucher-select" class="form-select">
+                            <option selected value="" data-phantram="0">Chọn voucher</option>
+                            {% for loai_voucher in list_loai_voucher %}
+                            <option value="{{ loai_voucher.MaLoaiVoucher }}" data-phantram="{{ loai_voucher.PhanTram }}"
+                                data-giamtoida="{{ loai_voucher.GiamToiDa }}">{{ loai_voucher.TenLoaiVoucher }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Điểm tiêu dùng -->
+                    <div class="mb-3">
+                        <label for="points" class="form-label">Điểm tiêu dùng</label>
+                        {% for order in result.values() %}
+                        <div class="input-group">
+                            <input type="number" id="points"
+                                class="form-control border-primary rounded-start points-input"
+                                placeholder="Nhập số điểm tiêu dùng muốn đổi" min="0" max="{{ order.DiemTD }}"
+                                step="1000" value="0">
+                            <span class="input-group-text bg-dark text-white rounded-end" id="currentPoints">Điểm
+                                hiện có: {{ order.DiemTD }}</span>
+                            <div class="invalid-feedback" style="color: #FFD700;">
+                                Số điểm không được vượt quá số điểm hiện có!
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Chọn phương thức thanh toán -->
+                    <div class="mb-3">
+                        <label for="payment-method" class="form-label">Phương thức thanh toán</label>
+                        <select id="payment-method" class="form-select" value="credit">
+                            <option value="Thẻ ngân hàng">Thẻ</option>
+                            <option value="Tiền mặt">Tiền mặt</option>
+                            <option value="Chuyển khoản">Chuyển khoản</option>
+                        </select>
+                    </div>
+
+                    <div class="container">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <span>Tổng số món</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span id="totalItems">70</span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <span>Tổng tiền</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span id="totalAmount">$900</span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <span>Thuế</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span id="taxAmount">0</span>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Chi tiết tiền giảm -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <span>Giảm bằng voucher</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span id="discount-voucher">0 VND</span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-8">
+                                <span>Giảm bằng điểm tiêu dùng</span>
+                            </div>
+                            <div class="col-4 text-end">
+                                <span id="discount-points">0 VND</span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <span class="fw-bold">Tổng tiền giảm</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span id="total-discount">0 VND</span>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <!-- Điểm được tích -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <span>Điểm tích lũy</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span id="transform-points">0 điểm</span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <span class="fw-bold">TỔNG TIỀN</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span id="total-invoice">0 VND</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="text-center mt-4">
+                        <button class="btn-checkout btn fw-bold w-100 rounded-pill p-2">CHECKOUT</button>
+                        <button type="button" class="btn btn-dark fw-bold w-100 rounded-pill mt-3 p-2 d-none"
+                            id="showQR" data-bs-toggle="modal" data-bs-target="#">
+                            Show QR code
+                        </button>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+            <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+                <div id="lottie-icon" style="width: 150px; height: 150px;"></div>
+                <h5 class="modal-title text-success">Thanh toán thành công!</h5>
+                <p class="text-secondary">Cảm ơn bạn đã mua hàng.</p>
+                <div style="display: flex; align-items: center;">
+                    <a type="button" class="btn btn-outline-success me-2" id="invoice" href="#">Xem hóa đơn</a>
+                    <input type="hidden" id="result" value="{{ result }}">
+                    <a type="button" class="btn btn-outline-warning" id="return"
+                        href="{{ url_for('dondathang.ds_dondathang') }}">Trở về trang đặt đơn</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.10.1/lottie.min.js"></script>
+<script>
+    var animation;
+    let voucherValue = 0;
+    let totalAmount = 0;
+    let totalItems = 0;
+    let taxAmount = 0;
+    let pointAmount = 0;
+    const urlParams = new URLSearchParams(window.location.search);
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const paymentMethodSelect = document.getElementById('payment-method');
+        const qrButton = document.getElementById('showQR');
+        const cashPaymentFields = document.getElementById('cash-payment');
+        const changeMoneyInput = document.getElementById('change-money');
+
+
+        // hiện button show QR code
+        paymentMethodSelect.addEventListener('change', function () {
+            if (paymentMethodSelect.value === 'QR Code') {
+                qrButton.classList.remove('d-none');
+                cashPaymentFields.classList.add('d-none');
+            }
+            else if (paymentMethodSelect.value === 'Cash') {
+                cashPaymentFields.classList.remove('d-none');
+                qrButton.classList.add('d-none');
+            } else {
+                cashPaymentFields.classList.add('d-none');
+                qrButton.classList.add('d-none');
+                changeMoneyInput.value = '';
+            }
+        });
+
+        // Tính toán số lượng và tổng tiền
+        CalculatingQuantityAmount();
+
+        // Tính toán tiền giảm
+        CalculatingDiscountVoucher();
+
+        // khai báo hình ảnh
+        animation = lottie.loadAnimation({
+            container: document.getElementById('lottie-icon'),
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: '{{ url_for("static", filename="images/success-icon.json")}}'
+        });
+    });
+
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+
+    document.getElementById('successModal').addEventListener('shown.bs.modal', function () {
+        animation.play();
+    });
+
+    document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
+        animation.stop();
+        animation.goToAndStop(0, true);
+    });
+
+
+    // Check nhập đổi điểm tiêu dùng
+    document.addEventListener('input', function (event) {
+        if (event.target.classList.contains('points-input')) {
+            const max = parseInt(event.target.getAttribute('max'), 10);
+            const currentValue = parseInt(event.target.value, 10);
+
+            if (currentValue > max) {
+                event.target.classList.add('is-invalid');
+            } else {
+                event.target.classList.remove('is-invalid');
+            }
+
+            // Đồng bộ tiền giảm
+            const pointsValue = parseInt(document.querySelector('.points-input')?.value || '0');
+
+            const discountFromPoints = currentValue;
+            const discountFromVoucher = parseInt(document.getElementById('discount-voucher')?.textContent.replace(/[^0-9]/g, '') || '0', 10);
+
+            // Tính tổng tiền giảm
+            const totalDiscount = discountFromVoucher + discountFromPoints;
+
+            document.getElementById('total-discount').textContent = `${totalDiscount.toLocaleString()} VND`;
+            document.getElementById('discount-voucher').textContent = `${discountFromVoucher.toLocaleString()} VND`;
+            document.getElementById('discount-points').textContent = `${discountFromPoints.toLocaleString()} VND`;
+            TotalAmount(totalAmount, taxAmount, totalDiscount);
+        }
+
+        if (event.target.classList.contains('received-money')) {
+            const receivedAmount = parseInt(event.target.value?.replace(/[^0-9]/g, '') || '0', 10);
+            event.target.value = formatMoney(event.target.value);
+
+            const change = receivedAmount - totalAmount;
+            console.log(change)
+            if (change < 0) {
+                event.target.classList.add('is-invalid');
+            } else {
+                event.target.classList.remove('is-invalid');
+                document.getElementById('change-money').textContent = `${change.toLocaleString()} VND`;
+            }
+        }
+    });
+
+    function formatMoney(value) {
+        let formattedValue = value.replace(/\D/g, '');
+        if (formattedValue.length === 0) return '';
+        formattedValue = formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return formattedValue + ' VND';
+    }
+
+    function CalculatingQuantityAmount() {
+        const orderCards = document.querySelectorAll('.order-card');
+        const phantramthue = `{{ thue | tojson }}`;
+
+        // Tính toán số món và tổng tiền
+        orderCards.forEach((card) => {
+            const quantity = parseInt(card.querySelector('.quantity-text').textContent.replace('x ', '')) || 0;
+            const amount = parseInt(card.querySelector('.amount-text').textContent.replace(/[^0-9]/g, '')) || 0;
+            totalItems += quantity;
+            totalAmount += amount;
+        });
+
+        // Tính tiền thuế (10% tổng tiền)
+        taxAmount = totalAmount * phantramthue / 100;
+        pointAmount = totalAmount / 100;
+        const totalDiscount = parseInt(document.getElementById('total-discount')?.textContent.replace(/[^0-9]/g, '') || '0', 10);
+
+        document.querySelector('#totalItems').textContent = totalItems;
+        document.querySelector('#totalAmount').textContent = `${totalAmount.toLocaleString()} VND`;
+        document.querySelector('#taxAmount').textContent = `${taxAmount.toLocaleString()} VND`;
+        document.querySelector('#transform-points').textContent = `${pointAmount} điểm`;
+        TotalAmount(totalAmount, taxAmount, totalDiscount);
+    }
+
+    function CalculatingDiscountVoucher() {
+
+        const voucherSelect = document.getElementById('voucher-select');
+
+        voucherSelect.addEventListener('change', function () {
+            const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
+            const voucherValue = parseFloat(selectedOption.getAttribute('data-phantram')) || 0;
+            const maxDiscount = parseFloat(selectedOption.getAttribute('data-GiamToiDa')) || 0;
+
+            // const totalAmount = parseInt(document.getElementById('totalAmount')?.textContent.replace(/[^0-9]/g, '') || '0', 10);
+            const pointsValue = parseInt(document.querySelector('.points-input')?.value || '0');
+
+            const discountFromVoucher = Math.min(voucherValue / 100 * totalAmount, maxDiscount * 1000);
+            const discountFromPoints = pointsValue;
+            console.log(`${discountFromVoucher}`)
+            console.log(`${pointsValue}`)
+
+            // Tính tổng tiền giảm
+            const totalDiscount = discountFromVoucher + discountFromPoints;
+
+            document.getElementById('total-discount').textContent = `${totalDiscount.toLocaleString()} VND`;
+            document.getElementById('discount-voucher').textContent = `${discountFromVoucher.toLocaleString()} VND`;
+            document.getElementById('discount-points').textContent = `${discountFromPoints.toLocaleString()} VND`;
+            TotalAmount(totalAmount, taxAmount, totalDiscount);
+        });
+
+    }
+
+    function TotalAmount(total, tax, discount) {
+        total_invoice = total + tax - discount
+        document.getElementById('total-invoice').textContent = `${total_invoice.toLocaleString()} VND`;
+    }
+
+    document.querySelector('.btn-checkout').addEventListener('click', function () {
+        let pointsUsed = parseInt(document.getElementById('points').value);
+        let voucherCode = document.getElementById('voucher-select').value;
+        
+        const idDDH = urlParams.get('maddh');
+        const totalDiscount = parseInt(document.getElementById('total-discount')?.textContent.replace(/[^0-9]/g, '') || '0', 10);
+        const totalInvoice = parseInt(document.getElementById('total-invoice')?.textContent.replace(/[^0-9]/g, '') || '0', 10);
+        const minusPoint = parseInt(document.getElementById('points')?.textContent.replace(/[^0-9]/g, '') || '0', 10);
+        const idLoaiVoucher = document.getElementById('voucher-select').value;
+        const payment = document.getElementById('payment-method').value;
+
+        let requestData = {
+            idDDH: idDDH,
+            TongTienGiam: totalDiscount,
+            TongTien: totalInvoice,
+            TienThue: taxAmount,
+            DiemCong: pointAmount,
+            DiemTru: minusPoint,
+            idLoaiVoucher: idLoaiVoucher,
+            PhuongThucThanhToan: payment
+        };
+
+        // In ra dữ liệu trước khi gửi
+        console.log('Data being sent:', JSON.stringify(requestData));
+
+
+        fetch('/checkout/save', {
+            method: 'POST',
+            body: JSON.stringify(requestData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    successModal.show();
+                } else {
+                    alert('There was an error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
+
+    document.getElementById('invoice').addEventListener('click', function () {
+        const maddh = urlParams.get('maddh')
+        window.location.href = `/checkout/viewInvoice?maddh=${maddh}`;
+    });
+
+</script>
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+
+{% endblock %}

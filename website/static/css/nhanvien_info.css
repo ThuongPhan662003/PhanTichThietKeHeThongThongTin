@@ -1,0 +1,54 @@
+/* Định dạng cho khối lớn bao gồm cả 2 khối trái và phải */
+.container-center {
+    display: flex;
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+    /* box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); */
+    background-color: var(--bs-body-tertiary);
+    border-radius: 8px;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    /* text-align: center; */
+}
+
+.container-body {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    margin-top: 20px;  /* Khoảng cách từ phần tử phía trên */
+    margin-bottom: 20px; /* Khoảng cách từ phần tử phía dưới */
+    padding: 10px;  /* Khoảng cách giữa các item và viền của .container-body */
+}
+
+/* Khối bên trái chiếm 30% */
+.left-box {
+    width: 30%;
+    /* background-color: #f0f0f0; */
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    /* background-color: aliceblue; */
+
+}
+
+.left-image {
+    width: 80%; /* Chiếm 80% chiều rộng của khối */
+    height: auto; /* Giữ tỷ lệ của ảnh */
+    border-radius: 8px;
+}
+
+/* Khối bên phải chiếm 70% */
+.right-box {
+    width: 100%;
+    /* display: flex; */
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */
+    padding: 20px;
+    /* background-color: aliceblue; */
+
+    /* background-color: #ffffff; */
+}

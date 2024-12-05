@@ -1,19 +1,22 @@
-from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, send_file
 from flask_login import login_required, current_user
 from decimal import Decimal
 from website import db
-from sqlalchemy import func, cast, Date, or_, and_
+from sqlalchemy import or_, and_
 from datetime import datetime
+from website.role import role_required
 from website.models import *
 from website.models import PHIEUNHAP, CT_PHIEUNHAP
 from website.webforms import NguyenLieuForm 
 import json
+import pandas as pd
+from io import BytesIO
 
 nguyenlieu = Blueprint("nguyenlieu", __name__)
 
 @nguyenlieu.route("/ingredients", methods=["GET", "POST"])
 @nguyenlieu.route("/ingredients/edit/<int:id>", methods=["GET", "POST"])
-# @login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def ingredients(id=None):
     page = request.args.get('page', 1, type=int)
     
@@ -23,10 +26,6 @@ def ingredients(id=None):
         try:
             # thêm
             if ingredient is None:
-                if not form.NgayNhap.data:
-                    flash('Ngày nhập không được để trống!', 'danger')
-                    return redirect(url_for('nguyenlieu.ingredients'))
-
                 ingredient_name = form.TenNguyenLieu.data
                 existing_ingredient = NguyenLieu.query.filter_by(TenNguyenLieu=ingredient_name).first()
                 if existing_ingredient:
@@ -37,39 +36,10 @@ def ingredients(id=None):
                     TenNguyenLieu=form.TenNguyenLieu.data,
                     DonGia=form.DonGia.data,
                     DonViTinh=form.DonViTinh.data,
-                    SoLuongTon=form.SoLuongTon.data
+                    SoLuongTon=0
                 )
                 db.session.add(new_ingredient)
-                db.session.flush()  # Tạm lưu để lấy ID mà không commit
-
-                nhan_vien = NhanVien.query.filter_by(idNguoiDung=current_user.MaND).first()
-                if nhan_vien is None:
-                    flash('Không tìm thấy nhân viên!', 'danger')
-                    db.session.rollback()
-                    return redirect(url_for('nguyenlieu.ingredients'))
-                
-                existing_phieunhap = PHIEUNHAP.query.filter_by(NgayNhap=form.NgayNhap.data, idNV=nhan_vien.MaNV).first()
-                if existing_phieunhap:
-                    new_phieunhap = existing_phieunhap
-                    flash('Phiếu nhập đã tồn tại cho ngày này, sẽ được cập nhật thông tin.', 'info')
-                else:
-                    new_phieunhap = PHIEUNHAP(
-                        NgayNhap=form.NgayNhap.data,
-                        idNV=nhan_vien.MaNV
-                    )
-                    db.session.add(new_phieunhap)
-                    db.session.flush()  
-
-                thanh_tien = form.SoLuongTon.data * form.DonGia.data
-                new_chitietphieunhap = CT_PHIEUNHAP(
-                    SoLuong=form.SoLuongTon.data,
-                    ThanhTien=thanh_tien,
-                    idNL=new_ingredient.MaNL,
-                    idNhap=new_phieunhap.SoPhieuNhap
-                )
-                db.session.add(new_chitietphieunhap)
-                new_phieunhap.TongTien = Decimal((new_phieunhap.TongTien or 0)) + thanh_tien
-                message = 'Nguyên liệu mới và thông tin phiếu nhập đã được thêm thành công!'
+                message = 'Nguyên liệu mới đã được thêm thành công!'
             
             else:
                 ingredient_name = form.TenNguyenLieu.data
@@ -97,7 +67,7 @@ def ingredients(id=None):
    
     ingredients = NguyenLieu.query.order_by(NguyenLieu.MaNL.desc()).paginate(page=page, per_page=8)
     return render_template(
-        'nguyenlieu/nguyenlieu.html', 
+        'admin/nguyenlieu/nguyenlieu.html', 
         ingredients=ingredients, 
         form=form, 
         ingredient=ingredient, 
@@ -105,7 +75,7 @@ def ingredients(id=None):
     )
 
 @nguyenlieu.route('/filter_ingredients', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def filter_ingredients():
     form = NguyenLieuForm()
     page = request.args.get('page', 1, type=int)
@@ -124,7 +94,6 @@ def filter_ingredients():
     if price_max:
         query = query.filter(NguyenLieu.DonGia <= float(price_max))
     
-    # Tạo một danh sách các điều kiện lọc
     filters = []
 
     if 'out_of_stock' in stock:
@@ -136,16 +105,15 @@ def filter_ingredients():
     if 'over_20' in stock:
         filters.append(NguyenLieu.SoLuongTon > 20)
 
-    # Áp dụng tất cả các bộ lọc với or_
     if filters:
         query = query.filter(or_(*filters))
     
     filtered_ingredients = query.order_by(NguyenLieu.MaNL.desc()).paginate(page=page, per_page=9)
     
-    return render_template('nguyenlieu/nguyenlieu.html', form=form, ingredients=filtered_ingredients, selected_units=units, selected_stock=stock, price_min=price_min, price_max=price_max,  endpoint='nguyenlieu.filter_ingredients')
+    return render_template('admin/nguyenlieu/nguyenlieu.html', form=form, ingredients=filtered_ingredients, selected_units=units, selected_stock=stock, price_min=price_min, price_max=price_max,  endpoint='nguyenlieu.filter_ingredients')
 
 @nguyenlieu.route('/search_ingredients', methods=['GET'])
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def search_ingredients():
     form = NguyenLieuForm()
     query = request.args.get('query', '')
@@ -154,14 +122,24 @@ def search_ingredients():
         ingredients = NguyenLieu.query.filter(NguyenLieu.TenNguyenLieu.ilike(f'%{query}%')).paginate(page=page, per_page=9)
     else:
         ingredients = NguyenLieu.query.order_by(NguyenLieu.MaNL.desc()).paginate(page=page, per_page=8)
-    return render_template('nguyenlieu/nguyenlieu.html', form=form, ingredients=ingredients, query=query,  endpoint='nguyenlieu.search_ingredients')
+    return render_template('admin/nguyenlieu/nguyenlieu.html', form=form, ingredients=ingredients, query=query,  endpoint='nguyenlieu.search_ingredients')
 
 
 @nguyenlieu.route('/delete_ingredient/<int:id>')
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def delete_ingredient(id):
     try:
         ingredient = NguyenLieu.query.get_or_404(id)
+        
+        phieu_nhap_check = CT_PHIEUNHAP.query.filter_by(idNL=id).first()
+        if phieu_nhap_check:
+            flash('Không thể xóa nguyên liệu này vì nó đang tồn tại trong phiếu nhập!', 'danger')
+            return redirect(url_for('nguyenlieu.ingredients'))
+        
+        phieu_xuat_check = CT_PHIEUXUAT.query.filter_by(idNL=id).first()
+        if phieu_xuat_check:
+            flash('Không thể xóa nguyên liệu này vì nó đang tồn tại trong phiếu xuất!', 'danger')
+            return redirect(url_for('nguyenlieu.ingredients'))
         
         db.session.delete(ingredient)
         db.session.commit()
@@ -172,18 +150,14 @@ def delete_ingredient(id):
         flash(f'Lỗi khi xóa nguyên liệu: {str(e)}', 'danger')
     
     return redirect(url_for('nguyenlieu.ingredients'))
-
     
 @nguyenlieu.route('/add_ingredients', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def add_ingredients():
     if request.method == 'POST':
         ngay_nhap = request.form.get("ngayNhap")
         ingredient_list_json = request.form.get("ingredientList")
         total_amount = Decimal(0) 
-        # if not ngay_nhap:
-        #     flash('Ngày nhập không được để trống!', 'danger')
-        #     return redirect(url_for('nguyenlieu.add_ingredients'))
         try:
             ingredients = json.loads(ingredient_list_json)
             existing_phieu_nhap = PHIEUNHAP.query.filter_by(
@@ -243,4 +217,100 @@ def add_ingredients():
             return redirect(url_for('nguyenlieu.add_ingredients'))
 
     ingredients = NguyenLieu.query.all()
-    return render_template('nguyenlieu/formNLDaCo.html', ingredients=ingredients)
+    return render_template('admin/nguyenlieu/formNLDaCo.html', ingredients=ingredients)
+
+
+@nguyenlieu.route('/import-ingredients', methods=['POST'])
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
+def import_ingredients():
+    if 'excel_file' not in request.files:
+        flash('No file part', 'danger')
+        return redirect(url_for('nguyenlieu.ingredients'))
+
+    file = request.files['excel_file']
+    if file.filename == '':
+        flash('Bạn chưa chọn file nào! Vui lòng chọn lại!', 'danger')
+        return redirect(url_for('nguyenlieu.ingredients'))
+
+    if file and file.filename.endswith(('.xls', '.xlsx')):
+        try:
+            df = pd.read_excel(file)
+            new_count = 0  # Đếm số nguyên liệu thêm mới
+            update_count = 0  # Đếm số nguyên liệu được cập nhật
+
+            for _, row in df.iterrows():
+                ten_nguyen_lieu = row['Tên nguyên liệu']
+                don_vi_tinh = row['Đơn vị tính']
+                don_gia = row['Đơn giá']
+
+                existing_ingredient = NguyenLieu.query.filter_by(TenNguyenLieu=ten_nguyen_lieu).first()
+
+                if not existing_ingredient:
+                    new_ingredient = NguyenLieu(
+                        TenNguyenLieu=ten_nguyen_lieu,
+                        DonViTinh=don_vi_tinh,
+                        DonGia=don_gia,
+                        SoLuongTon=0  
+                    )
+                    db.session.add(new_ingredient)
+                    new_count += 1
+                else:
+                    existing_ingredient.DonGia = don_gia
+                    existing_ingredient.DonViTinh = don_vi_tinh
+                    update_count += 1
+                    
+            db.session.commit()
+            
+            message = f'Hoàn tất! Đã thêm {new_count} nguyên liệu mới'
+            if update_count > 0:
+                message += f' và cập nhật {update_count} nguyên liệu'
+            flash(message, 'success')
+
+        except KeyError as e:
+            db.session.rollback()
+            flash('Lỗi: Tên cột không đúng định dạng. Vui lòng kiểm tra lại file mẫu!', 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Lỗi khi thêm danh sách nguyên liệu: {str(e)}', 'danger')
+    else:
+        flash('Định dạng file không hợp lệ. Vui lòng tải lên file excel!', 'danger')
+
+    return redirect(url_for('nguyenlieu.ingredients'))
+
+@nguyenlieu.route('/download-template')
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
+def download_template():
+    sample_data = {
+        'Tên nguyên liệu': ['Ví dụ: Cà phê', 'Ví dụ: Sữa'],
+        'Đơn vị tính': ['kg', 'lít'],
+        'Đơn giá': [100000, 50000]
+    }
+    df = pd.DataFrame(sample_data)
+    
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='NguyenLieu')
+        worksheet = writer.sheets['NguyenLieu']
+        
+        header_format = writer.book.add_format({
+            'bold': True,
+            'text_wrap': True,
+            'valign': 'top',
+            'border': 1
+        })
+        
+        for col_num, value in enumerate(df.columns.values):
+            worksheet.write(0, col_num, value, header_format)
+            
+        worksheet.set_column('A:A', 30)  
+        worksheet.set_column('B:B', 15)  
+        worksheet.set_column('C:C', 15)  
+            
+    buffer.seek(0)
+    
+    return send_file(
+        buffer,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name='mau_nhap_nguyen_lieu.xlsx'
+    )

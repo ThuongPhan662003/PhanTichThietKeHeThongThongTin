@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Grilli</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth_user.css') }}">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap JS (for modal functionality) -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
+  <title>{% block title %}Home{% endblock %}</title>
+</head>
+
+<body>
+  {% block content %}
+  <!-- Login Form -->
+  <div class="container">
+    <h2 class="text-center my-4">Đăng nhập vào Grilli</h2>
+    <form action="{{ url_for('auth.login') }}" method="POST">
+      <!-- Username Field -->
+      <div class="mb-3">
+        <label for="username" class="form-label">Tên đăng nhập</label>
+        <input type="text" class="form-control" id="username" name="UserName" placeholder="Nhập tên đăng nhập" required>
+      </div>
+
+      <!-- Password Field -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Mật khẩu</label>
+        <input type="password" class="form-control" id="password" name="Password" placeholder="Nhập mật khẩu" required>
+        <ion-icon class="toggle-password" name="eye-off-outline" onclick="togglePasswordVisibility()"></ion-icon>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+    </form>
+
+    <!-- Forgot Password Link -->
+    <div class="mt-3 text-center">
+      <a href="{{ url_for('auth.forgot_password', username=request.form['UserName'] if request.form.get('UserName') else '') }}">Quên mật khẩu?</a>
+    </div>
+  </div>
+
+  {% endblock %}
+
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+  <script>
+    function togglePasswordVisibility() {
+      const passwordField = document.getElementById('password');
+      const toggleIcon = document.querySelector('.toggle-password');
+      if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.name = 'eye-outline';
+      } else {
+        passwordField.type = 'password';
+        toggleIcon.name = 'eye-off-outline';
+      }
+    }
+  </script>
+</body>
+
+</html>

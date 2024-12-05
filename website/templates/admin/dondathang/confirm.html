@@ -1,0 +1,276 @@
+{% extends "admin/base.html" %}
+{% block title %}Xác nhận{% endblock %}
+{% block content %}
+<div class="container-field">
+    {% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    <h2 class="mb-3">Danh sách đơn đặt hàng chưa xác nhận</h2>
+
+    {% if orders %}
+    <table class="table table-bordered table-striped caption-top" style="vertical-align: middle;">
+        <thead>
+            <tr class="text-center">
+                <th>Mã đơn</th>
+                <th>Ngày đặt</th>
+                <th>Giờ đến</th>
+                <th>Số người</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr class="text-center">
+                <td>{{ order.MaDDH }}</td>
+                <td>{{ order.NgayDat.strftime('%d/%m/%Y') }}</td>
+                <td>{{ order.GioDen.strftime('%H:%M') }}</td>
+                <td>{{ order.SoLuongNguoi }}</td>
+                <td>
+                    {% if order.TrangThai == 'Chưa bắt đầu' %}
+                    <span class="badge bg-warning">{{ order.TrangThai }}</span>
+                    {% elif order.TrangThai == 'Đang chế biến' %}
+                    <span class="badge bg-info">{{ order.TrangThai }}</span>
+                    {% elif order.TrangThai == 'Đã hoàn thành' %}
+                    <span class="badge bg-success">{{ order.TrangThai }}</span>
+                    {% else %}
+                    <span class="badge bg-danger">{{ order.TrangThai }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="fillBookingModal('{{ order.MaDDH }}', '{{ order.NgayDat}}', 
+                        '{{ order.GioDen}}', '{{ order.SoLuongNguoi }}', '{{ order.ThoiLuong }}')">
+                        Xác nhận
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="shadow p-5 mb-3 bg-body rounded text-center">
+        <div class="text-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-archive"
+                viewBox="0 0 16 16">
+                <path
+                    d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5zm13-3H1v2h14zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5" />
+            </svg>
+        </div>
+        <h5 class="text-muted mb-0">Không có đơn đặt hàng nào cần xác nhận</h5>
+    </div>
+    {% endif %}
+
+    <a class="btn btn-outline-secondary" href="{{url_for('dondathang.ds_dondathang')}}">Quay lại</a>
+</div>
+
+<!-- Modal đặt bàn -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xác nhận đặt bàn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form class="needs-validation" id="bookingForm" method="POST" novalidate>
+                <input type="hidden" id="orderIdInput" name="orderId">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="khachHangInput" class="form-label">Khách hàng <span
+                                    style="color:red">*</span></label>
+                            <input type="text" class="form-control" list="datalistOptions" id="khachHangInput"
+                                placeholder="Nhập để tìm kiếm..." autocomplete="off" required>
+                            <datalist id="datalistOptions">
+                                {% for kh in customers %}
+                                <option value="{{ kh.HoKH }} {{ kh.TenKH }} - {{kh.SDT}}" data-id="{{ kh.MaKH }}">
+                                    {% endfor %}
+                            </datalist>
+                            <input type="hidden" id="maKH" name="maKH">
+                            <div class="invalid-feedback" id="customerError">
+                                Vui lòng chọn khách hàng!
+                            </div>
+                        </div>
+
+                        <script>
+                            document.getElementById('khachHangInput').addEventListener('input', function (e) {
+                                const input = e.target;
+                                const datalist = document.getElementById('datalistOptions');
+                                const options = datalist.getElementsByTagName('option');
+                                const maKHInput = document.getElementById('maKH');
+
+                                for (let option of options) {
+                                    if (option.value === input.value) {
+                                        maKHInput.value = option.dataset.id;
+                                        break;
+                                    }
+                                }
+                            });
+                        </script>
+
+                        <!-- Button thêm khách hàng -->
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <a href="{{url_for('khachhang.customer')}}" type="button" class="btn btn-primary w-100">
+                                Thêm khách hàng
+                            </a>
+                        </div>
+                        <!-- Ngày đặt -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày đặt</label>
+                            <input type="date" class="form-control" id="bookingDate" name="ngayDat" disabled>
+                        </div>
+
+                        <!-- Giờ đến -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giờ đến</label>
+                            <input type="time" class="form-control" id="bookingTime" name="gioDen" disabled>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số lượng người</label>
+                            <input type="number" class="form-control" id="soLuongNguoi" name="soLuongNguoi">
+                        </div>
+
+                        <!-- Thời lượng -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Thời lượng (giờ)</label>
+                            <input type="number" class="form-control" id="bookingDurationDisplay"
+                                name="bookingDurationDisplay" disabled>
+                        </div>
+
+                        <!-- Chọn bàn -->
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Chọn bàn <span style="color:red">*</span></label>
+                            <div id="selectedTablesContainer" class="mb-2"></div>
+                            <select class="form-select" id="tableSelect">
+                                <option value="">Nhấp vào để chọn...</option>
+                            </select>
+                            <input type="hidden" id="maBan" name="maBan">
+                            <small class="text-muted">Đã hiển thị các bàn còn trống trong khoảng thời gian này</small>
+                        </div>
+
+
+                        <!-- Ghi chú -->
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="ghiChu" name="ghiChu" rows="3"
+                                placeholder="Nhập ghi chú nếu có..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Xác nhận đặt bàn</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedTables = [];
+    let currentOrderId = null;
+
+    async function fillBookingModal(maDDH, ngayDat, gioDen, soLuongNguoi, thoiLuong) {
+        currentOrderId = maDDH;
+
+        // Reset form và selectedTables
+        const form = document.getElementById('bookingForm');
+        form.action = `/dondathang/luu-chi-tiet-ban/${maDDH}`;
+
+        document.getElementById('orderIdInput').value = maDDH;
+        document.getElementById('bookingDate').value = ngayDat;
+        document.getElementById('bookingTime').value = gioDen;
+        document.getElementById('soLuongNguoi').value = soLuongNguoi;
+        document.getElementById('bookingDurationDisplay').value = thoiLuong;
+
+        selectedTables = [];
+        updateSelectedTablesDisplay();
+
+        // Reset table select
+        const tableSelect = document.getElementById('tableSelect');
+        tableSelect.innerHTML = '<option value="">Nhấp vào để chọn...</option>';
+
+        try {
+            const response = await fetch(`/dondathang/get-available-tables/${maDDH}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const availableTables = await response.json();
+
+            // Thêm các bàn trống vào select
+            availableTables.forEach(table => {
+                const option = document.createElement('option');
+                option.value = table.MaBan;  // Giá trị là MaBan
+                option.textContent = table.TenBan;  // Nội dung hiển thị là TenBan
+                option.dataset.name = table.TenBan;
+                tableSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Lỗi khi tải danh sách bàn trống:', error);
+            alert('Có lỗi xảy ra khi tải danh sách bàn trống. Vui lòng thử lại.');
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('bookingModal'));
+        modal.show();
+    }
+
+    document.getElementById('tableSelect').addEventListener('change', function () {
+        const selectedOption = this.options[this.selectedIndex];
+        if (!selectedOption.value) return;
+
+        const table = {
+            id: selectedOption.value,
+            name: selectedOption.dataset.name
+        };
+
+        if (!selectedTables.find(t => t.id === table.id)) {
+            selectedTables.push(table);
+            updateSelectedTablesDisplay();
+            updateHiddenInput();
+        }
+
+        this.value = '';
+    });
+
+    function updateSelectedTablesDisplay() {
+        const container = document.getElementById('selectedTablesContainer');
+        container.innerHTML = selectedTables.map(table => `
+        <span class="badge bg-primary me-2 mb-2">
+            ${table.name}
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" 
+                class="bi bi-x ms-1" viewBox="0 0 16 16" 
+                style="cursor: pointer" onclick="removeTable('${table.id}')">
+                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+            </svg>
+        </span>
+    `).join('');
+    }
+
+    function removeTable(tableId) {
+        selectedTables = selectedTables.filter(table => table.id !== tableId);
+        updateSelectedTablesDisplay();
+        updateHiddenInput();
+    }
+
+    function updateHiddenInput() {
+        const maBanInput = document.getElementById('maBan');
+        maBanInput.value = selectedTables.map(table => table.id).join(',');
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        if (selectedTables.length === 0) {
+            alert('Vui lòng chọn ít nhất một bàn!');
+            return;
+        }
+
+        this.submit();
+    });
+</script>
+{% endblock %}
