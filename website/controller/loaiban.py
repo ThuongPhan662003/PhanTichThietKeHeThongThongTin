@@ -60,9 +60,11 @@ def edit_loai_ban(id):
     # Kiểm tra nếu tên loại bàn mới đã tồn tại trong cơ sở dữ liệu (trừ chính loại bàn hiện tại)
     if form.validate_on_submit():
         # Kiểm tra nếu tên loại bàn mới đã tồn tại và không phải là tên của loại bàn hiện tại
-        if LoaiBan.query.filter_by(TenLoaiBan=form.TenLoaiBan.data).first() != None:
+         # Kiểm tra nếu tên loại bàn mới đã tồn tại và không phải của loại bàn hiện tại
+        existing_loai_ban = LoaiBan.query.filter(LoaiBan.TenLoaiBan == form.TenLoaiBan.data, LoaiBan.MaLB != id).first()
+        if existing_loai_ban:
             flash("Tên loại bàn đã tồn tại, vui lòng chọn tên khác.", "danger")
-            return redirect(url_for('loaiban.danh_sach_loai_ban'))  # Quay lại trang danh sách khi trùng tên
+            return redirect(url_for('loaiban.danh_sach_loai_ban')) # Quay lại trang chỉnh sửa khi trùng tên
 
  
         loai_ban.TenLoaiBan = form.TenLoaiBan.data
