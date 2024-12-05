@@ -96,9 +96,10 @@ def edit_ban(id):
     if request.method == "POST" and form.validate_on_submit():
         try:
             # Kiểm tra xem tên bàn mới có trùng với tên bàn nào khác không
-            # if   Ban.query.filter_by(TenBan=form.TenBan.data).first():  
-            #     flash("Tên bàn đã tồn tại, vui lòng chọn tên khác!", "danger")
-            #     return redirect(url_for("ban.danh_sach_ban"))
+            existing_ban = Ban.query.filter(Ban.TenBan == form.TenBan.data, Ban.MaBan != id).first()
+            if existing_ban:
+                flash("Tên bàn đã tồn tại, vui lòng chọn tên khác!", "danger")
+                return redirect(url_for("ban.danh_sach_ban"))
             
             # Cập nhật dữ liệu bàn
             ban.TenBan = form.TenBan.data
