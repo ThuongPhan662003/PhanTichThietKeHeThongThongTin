@@ -99,7 +99,7 @@ def add_delivery_notes():
             ingredients = json.loads(ingredient_list_json)
             existing_phieu_xuat = PHIEUXUAT.query.filter_by(
                 NgayXuat= datetime.strptime(ngay_xuat, '%d-%m-%Y %H:%M'),
-                idNV=current_user.MaND
+                idNV=current_user.nhan_vien.MaNV
             ).first()
 
             if existing_phieu_xuat:
@@ -107,7 +107,7 @@ def add_delivery_notes():
                 flash('Phiếu xuất đã tồn tại cho ngày này, sẽ được cập nhật thông tin.', 'info')
             else:
                 new_phieu_xuat = PHIEUXUAT(
-                    idNV=current_user.MaND,
+                    idNV=current_user.nhan_vien.MaNV,
                     NgayXuat=datetime.strptime(ngay_xuat, '%d-%m-%Y %H:%M'),
                 )
                 db.session.add(new_phieu_xuat)

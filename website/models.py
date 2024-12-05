@@ -64,6 +64,8 @@ class ChucNang(db.Model):
         self.TenManHinh = tenmanhinh
     def setTenManHinh(self,TenManHinh):
         self.TenManHinh = TenManHinh
+    def getTenManHinh(self):
+        return self.TenManHinh 
 
 
 class CT_MonAn(db.Model):
@@ -420,18 +422,7 @@ class NhanVien(db.Model):
     nguoi_dung = db.relationship("NguoiDung", back_populates="nhan_vien")
     GioiTinh = db.Column(db.Integer, nullable=False)
 
-    @db.validates("CCCD")
-    def validate_cccd(self, key, value):
-        if not value.isdigit() or len(value) != 12:
-            raise ValueError("CCCD phải là một chuỗi số 12 chữ số!")
-        return value
-
-    @db.validates("SDT")
-    def validate_sdt(self, key, value):
-        if not value.isdigit() or len(value) != 10:
-            raise ValueError("SDT phải là một chuỗi số 10 chữ số!")
-        return value
-
+    
     def getHoTenNV(self):
         return self.HoNV + " " + self.TenNV
 
@@ -1361,12 +1352,7 @@ class CT_VOUCHER(db.Model):
 class THAMSO(db.Model):
     __tablename__ = "THAMSO"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    TuoiToiDa = db.Column(db.Integer, nullable=False)
     TuoiToiThieu = db.Column(db.Integer, nullable=False)
-    DiemChiaTichLuy = db.Column(db.Integer, nullable=False)
-    SoVoucherApDung_Ngay = db.Column(db.Integer, nullable=False)
-    SoNguyenLieuNhap = db.Column(db.Integer, nullable=False)
-    PhanTramGiamVoucherToiDa = db.Column(db.Integer, nullable=False)
     Vang = db.Column(db.Integer, nullable=False)
     Bac = db.Column(db.Integer, nullable=False)
     Dong = db.Column(db.Integer, nullable=False)
