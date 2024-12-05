@@ -2,51 +2,65 @@
 
 {% block title %}Danh Sách Voucher{% endblock %}
 
+{% block header %}
+<h1 class="text-center">Danh sách Voucher</h1>
+{% endblock %}
+
 {% block content %}
-<section class="section">
-  <div class="container">
-    <h2 class="title-2">Danh Sách Voucher</h2>
-    <div class="vouchers">
+<div class="container">
+  {% if vouchers|length > 0 %}
+  <table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+      <tr>
+        <th>Tên Voucher</th>
+        <th>Mô Tả</th>
+        <th>Giảm (%)</th>
+        <th>Giảm Tối Đa</th>
+        <th>Ngày Hiệu Lực</th>
+        <th>Số Lượng Còn Lại</th>
+      </tr>
+    </thead>
+    <tbody>
       {% for voucher in vouchers %}
-      <div class="card voucher-card">
-        <div class="card-body">
-          <h3 class="card-title">{{ voucher.TenLoaiVoucher }}</h3>
-          <p><strong>Mô Tả:</strong> {{ voucher.MoTa }}</p>
-          <p><strong>Giảm:</strong> {{ voucher.PhanTram }}% (Tối đa: {{ voucher.GiamToiDa if voucher.GiamToiDa else 'Không giới hạn' }})</p>
-          <p><strong>Ngày hiệu lực:</strong> {{ voucher.NgayBatDau.strftime('%d-%m-%Y') }} đến {{ voucher.NgayKetThuc.strftime('%d-%m-%Y') }}</p>
-          <p><strong>Số lượng còn lại:</strong> {{ voucher.SoLuongConLai }}</p>
-        </div>
-      </div>
+      <tr>
+        <td>{{ voucher.TenLoaiVoucher }}</td>
+        <td>{{ voucher.MoTa }}</td>
+        <td>{{ voucher.PhanTram }}%</td>
+        <td>{{ voucher.GiamToiDa if voucher.GiamToiDa else 'Không giới hạn' }}</td>
+        <td>{{ voucher.NgayBatDau.strftime('%d-%m-%Y') }} đến {{ voucher.NgayKetThuc.strftime('%d-%m-%Y') }}</td>
+        <td>{{ voucher.SoLuongConLai }}</td>
+      </tr>
       {% endfor %}
-    </div>
-    {% if vouchers|length == 0 %}
-    <p>Không có voucher nào khả dụng.</p>
-    {% endif %}
-  </div>
-</section>
+    </tbody>
+  </table>
+  {% else %}
+    <p class="text-center">Không có voucher nào khả dụng.</p>
+  {% endif %}
+</div>
+
 <style>
-    .vouchers {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
 
-.voucher-card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  transition: transform 0.2s ease;
-}
+  .table th, .table td {
+    text-align: center;
+    padding: 10px;
+  }
 
-.voucher-card:hover {
-  transform: scale(1.05);
-}
+  .table-bordered {
+    border: 1px solid #ddd;
+  }
 
-.voucher-card .card-title {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
-    
+  .thead-dark {
+    background-color: #343a40;
+    color: white;
+  }
+
+  .table-striped tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+  }
 </style>
 {% endblock %}

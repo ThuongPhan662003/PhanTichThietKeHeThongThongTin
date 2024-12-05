@@ -1,11 +1,13 @@
 from flask import render_template, Blueprint
 from flask_login import login_required, current_user
 from website.models import *
+from website.role import role_required
 
 user_bill = Blueprint("user_bill", __name__)
 
 
 @user_bill.route("/")
+@role_required(["Khách hàng"])
 def xem_hoa_don():
     # Lấy danh sách hóa đơn theo idKH của khách hàng hiện tại
     cus = KhachHang.query.filter(KhachHang.idNguoiDung == current_user.get_id()).first()
