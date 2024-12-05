@@ -23,6 +23,7 @@ from sqlalchemy import (
     CheckConstraint,
     Boolean,
 )
+from datetime import datetime, date, time
 
 
 __all__ = [
@@ -61,6 +62,8 @@ class ChucNang(db.Model):
 
     def __init__(self, tenmanhinh):
         self.TenManHinh = tenmanhinh
+    def setTenManHinh(self,TenManHinh):
+        self.TenManHinh = TenManHinh
 
 
 class CT_MonAn(db.Model):
@@ -74,6 +77,7 @@ class CT_MonAn(db.Model):
 
     don_dat_hang = db.relationship("DonDatHang", backref="ct_mon_an")
     mon_an = db.relationship("MonAn", backref="ct_mon_an")
+
     # Getters
     def get_idDDH(self):
         return self.idDDH
@@ -145,7 +149,7 @@ class KhachHang(db.Model):
     NgayMoThe = db.Column(db.Date, nullable=False)
     DiemTieuDung = db.Column(db.Integer, nullable=False)
     DiemTichLuy = db.Column(db.Integer, nullable=False)
-    GioiTinh = db.Column(db.Integer, nullable=False)
+    GioiTinh = db.Column(db.Integer, nullable=True)
     idNguoiDung = db.Column(
         db.Integer,
         db.ForeignKey("NguoiDung.MaND"),
@@ -178,6 +182,7 @@ class KhachHang(db.Model):
         self.DiemTichLuy = DiemTichLuy
         self.idNguoiDung = idNguoiDung
         self.LoaiKH = LoaiKH
+
     # Getters
     def get_MaKH(self):
         return self.MaKH
@@ -247,6 +252,7 @@ class KhachHang(db.Model):
         return self.HoKH + " " + self.TenKH
 
 
+
 class HoaDon(db.Model):
     __tablename__ = "HoaDon"
 
@@ -262,9 +268,10 @@ class HoaDon(db.Model):
     TongTienGiam = db.Column(db.Integer, nullable=False)
     TongTien = db.Column(db.Integer, nullable=False)
     TrangThai = db.Column(db.Boolean, default=None)
-    TienThue = db.Column(db.Text, nullable=False)
+    TienThue = db.Column(db.Integer, nullable=False)
     DiemCong = db.Column(db.Integer, nullable=False)
     DiemTru = db.Column(db.Integer, nullable=False)
+    PhuongThucThanhToan = db.Column(db.Integer, nullable=True)
     don_dat_hang = db.relationship("DonDatHang", backref="hoa_don", uselist=False)
 
     @db.validates("DiemCong")
@@ -293,11 +300,13 @@ class HoaDon(db.Model):
             "TienThue": self.TienThue,
             "DiemCong": self.DiemCong,
             "DiemTru": self.DiemTru,
+            "PhuongThucThanhToan": self.PhuongThucThanhToan
         }
 
     def to_json(self):
         """Chuyển đổi đối tượng thành JSON."""
         return json.dumps(self.to_dict(), ensure_ascii=False, indent=4)
+
     # Getters
     def get_MaHD(self):
         return self.MaHD
@@ -374,6 +383,7 @@ class CT_DonDatHang(db.Model):
     )
     idBan = db.Column(db.Integer, db.ForeignKey("Ban.MaBan"), primary_key=True)
     ThanhTien = db.Column(db.Integer, nullable=False, default=0)
+
     # Getters
     def get_idDDH(self):
         return self.idDDH
@@ -432,6 +442,7 @@ class NhanVien(db.Model):
 
     def get_idNguoiDung(self):
         return self.idNguoiDung
+
 
     def get_MaNV(self):
         return self.MaNV
@@ -495,6 +506,7 @@ class NhanVien(db.Model):
 from datetime import datetime, date, time
 
 
+
 class DonDatHang(db.Model):
     __tablename__ = "DonDatHang"
 
@@ -513,25 +525,25 @@ class DonDatHang(db.Model):
     )
     # hoa_don = db.relationship("HoaDon", back_populates="don_dat_hang")
 
-    def __init__(
-        self,
-        NgayDat,
-        SoLuongNguoi,
-        TrangThai,
-        Loai,
-        GioDen,
-        ThoiLuong=None,
-        idNV=None,
-        ThanhTien=None,
-    ):
-        # Xác thực và làm sạch dữ liệu
-        self.NgayDat = self.validate_ngay_dat(NgayDat)
-        self.TrangThai = self.validate_trang_thai(TrangThai)
-        self.Loai = self.validate_loai(Loai)
-        self.GioDen = self.validate_gio_den(GioDen)
-        self.ThoiLuong = self.validate_thoi_luong(ThoiLuong)
-        self.idNV = idNV
-        self.ThanhTien = self.validate_thanh_tien(ThanhTien)
+    # def __init__(
+    #     self,
+    #     NgayDat,
+    #     SoLuongNguoi,
+    #     TrangThai,
+    #     Loai,
+    #     GioDen,
+    #     ThoiLuong=None,
+    #     idNV=None,
+    #     ThanhTien=None,
+    # ):
+    #     # Xác thực và làm sạch dữ liệu
+    #     self.NgayDat = self.validate_ngay_dat(NgayDat)
+    #     self.TrangThai = self.validate_trang_thai(TrangThai)
+    #     self.Loai = self.validate_loai(Loai)
+    #     self.GioDen = self.validate_gio_den(GioDen)
+    #     self.ThoiLuong = self.validate_thoi_luong(ThoiLuong)
+    #     self.idNV = idNV
+    #     self.ThanhTien = self.validate_thanh_tien(ThanhTien)
 
     def validate_ngay_dat(self, value):
         if not value or not isinstance(value, date):
@@ -608,7 +620,8 @@ class DonDatHang(db.Model):
     def validate_thanh_tien(self, value):
         if value is not None and (value < 0 or not isinstance(value, (int, float))):
             raise ValueError("Thành tiền phải là một số không âm!")
-        return 
+        return
+
     # Getters
     def get_MaDDH(self):
         return self.MaDDH
@@ -694,8 +707,9 @@ class MonAn(db.Model):
             "DonGia": self.DonGia,
             "Loai": self.Loai,
             "TrangThai": self.TrangThai,
-            "HinhAnh": url_for("static", filename=self.HinhAnh)
+            "HinhAnh": url_for("static", filename=self.HinhAnh),
         }
+
     # Getters
     def get_MaMA(self):
         return self.MaMA
@@ -753,6 +767,7 @@ class NguyenLieu(db.Model):
         if value < 0:
             raise ValueError("Số lượng tồn không được âm!")
         return value
+
     # Getters
     def get_MaNL(self):
         return self.MaNL
@@ -788,6 +803,7 @@ class LoaiBan(db.Model):
     MaLB = db.Column(db.Integer, primary_key=True, autoincrement=True)
     TenLoaiBan = db.Column(db.String(100))
     ban = db.relationship("Ban", backref="loai_ban", lazy=True)
+
     # Getters
     def get_MaLB(self):
         return self.MaLB
@@ -879,7 +895,7 @@ class NguoiDung(db.Model, UserMixin):
     MaND = db.Column(db.Integer, primary_key=True, autoincrement=True)
     UserName = db.Column(db.String(200), nullable=False)
     TrangThai = db.Column(db.Integer)
-    MatKhau = db.Column(db.String(150))
+    MatKhau = db.Column(db.String(200))
     VerifyCode = db.Column(db.String(150))
     idNND = db.Column(db.Integer, db.ForeignKey("NhomNguoiDung.MaNND"), nullable=False)
 
@@ -892,6 +908,14 @@ class NguoiDung(db.Model, UserMixin):
     # nhan_vien = db.relationship(
     #     "NhanVien", back_populates="nguoi_dung", uselist=False
     # )
+    def __init__(self, MaND, UserName, TrangThai, MatKhau, VerifyCode, idNND):
+        self.MaND = MaND
+        self.UserName = UserName
+        self.TrangThai = TrangThai
+        self.MatKhau = MatKhau
+        self.VerifyCode = VerifyCode
+        self.idNND = idNND
+
     @property
     def is_authenticated(self):
         return True
@@ -906,6 +930,15 @@ class NguoiDung(db.Model, UserMixin):
             .getTenNhomNguoiDung()
         )
         return ten_nhom_nguoi_dung == role
+    def getUserName(self):
+        return self.UserName
+    def setVerifyCode(self,VerifyCode):
+        self.VerifyCode = VerifyCode
+    def get_MatKhau(self):
+        return self.MatKhau
+
+    def set_MatKhau(self,MatKhau):
+        self.MatKhau = MatKhau
 
     # def validate(self):
     #     """Method to validate the user input."""
@@ -959,6 +992,7 @@ class PHANQUYEN(db.Model):
     idCN = db.Column(
         db.Integer, db.ForeignKey("ChucNang.MaCN", ondelete="CASCADE"), primary_key=True
     )
+
     # Getters
     def get_idNND(self):
         return self.idNND
@@ -988,6 +1022,7 @@ class PHIEUXUAT(db.Model):
     chi_tiet_phieu = db.relationship(
         "CT_PHIEUXUAT", backref="phieu_xuat", lazy=True, cascade="all, delete-orphan"
     )
+
     # Getters
     def get_SoPhieuXuat(self):
         return self.SoPhieuXuat
@@ -1029,6 +1064,7 @@ class CT_PHIEUXUAT(db.Model):
         if value <= 0:
             raise ValueError("Số lượng xuất phải lớn hơn 0")
         return value
+
     # Getters
     def get_idXuat(self):
         return self.idXuat
@@ -1065,6 +1101,7 @@ class PHIEUNHAP(db.Model):
     chi_tiet_phieu = db.relationship(
         "CT_PHIEUNHAP", backref="phieu_nhap", lazy=True, cascade="all, delete-orphan"
     )
+
     # Getters
     def get_SoPhieuNhap(self):
         return self.SoPhieuNhap
@@ -1113,6 +1150,7 @@ class CT_PHIEUNHAP(db.Model):
         if value <= 0:
             raise ValueError("Số lượng nhập phải lớn hơn 0")
         return value
+
     # Getters
     def get_idNhap(self):
         return self.idNhap
@@ -1197,6 +1235,7 @@ class LOAIVOUCHER(db.Model):
         if value < 0:
             raise ValueError(f"{key} phải lớn hơn hoặc bằng 0")
         return value
+
     # Getters
     def get_MaLoaiVoucher(self):
         return self.MaLoaiVoucher
@@ -1272,6 +1311,7 @@ class VOUCHER(db.Model):
         nullable=False,
     )
     TrangThai = db.Column(db.Boolean, default=True)
+
     # Getters
     def get_CodeVoucher(self):
         return self.CodeVoucher
@@ -1304,6 +1344,7 @@ class CT_VOUCHER(db.Model):
     idHD = db.Column(
         db.Integer, db.ForeignKey("HoaDon.MaHD", ondelete="CASCADE"), primary_key=True
     )
+
     # Getters
     def get_CodeVoucher(self):
         return self.CodeVoucher
@@ -1332,6 +1373,7 @@ class THAMSO(db.Model):
     Bac = db.Column(db.Integer, nullable=False)
     Dong = db.Column(db.Integer, nullable=False)
     PhanTramThue = db.Column(db.Integer, nullable=False)
+
     # Getters
     def get_id(self):
         return self.id

@@ -43,15 +43,117 @@
                     </a>
 
                     <!-- Nút Order -->
-                    <a type="button" class="btn btn-outline-success order-btn"
-                        href="{{ url_for('order.index', action='takeaway') }}">
+                    <button type="button" class="btn btn-outline-success order-btn" data-bs-toggle="modal"
+                        data-bs-target="#exampleModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd"
-                                d="M6 8a.5.5 0 0 0 .5.5h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L12.293 7.5H6.5A.5.5 0 0 0 6 8m-2.5 7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5" />
+                            class="bi bi-box-seam mb-1" viewBox="0 0 16 16">
+                            <path
+                                d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z" />
                         </svg>
-                        Order Now
-                    </a>
+                        Mua mang về
+                    </button>
+                    <!-- Modal đặt bàn -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Xác nhận đặt bàn</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <form class="needs-validation" action="{{ url_for('order.index', action='takeaway')}}"
+                                    method="POST" novalidate>
+                                    <input type="hidden" id="orderIdInput" name="orderId">
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-8 mb-3">
+                                                <label for="khachHangInput" class="form-label">Khách hàng <span
+                                                        style="color:red">*</span></label>
+                                                <input type="text" class="form-control" list="datalistOptions"
+                                                    id="khachHangInput" placeholder="Nhập để tìm kiếm..."
+                                                    autocomplete="off" required>
+                                                <datalist id="datalistOptions">
+                                                    {% for kh in customers %}
+                                                    <option value="{{ kh.HoKH }} {{ kh.TenKH }} - {{kh.SDT}}"
+                                                        data-id="{{ kh.MaKH }}">
+                                                        {% endfor %}
+                                                </datalist>
+                                                <input type="hidden" id="maKH" name="maKH">
+                                                <div class="invalid-feedback" id="customerError">
+                                                    Vui lòng chọn khách hàng!
+                                                </div>
+                                            </div>
+
+                                            <script>
+                                                document.getElementById('khachHangInput').addEventListener('input', function (e) {
+                                                    const input = e.target;
+                                                    const datalist = document.getElementById('datalistOptions');
+                                                    const options = datalist.getElementsByTagName('option');
+                                                    const maKHInput = document.getElementById('maKH');
+                                                    // Check if input matches an option
+                                                    let isValid = false;
+                                                    for (let option of options) {
+                                                        if (option.value === input.value) {
+                                                            isValid = true;
+                                                            maKHInput.value = option.dataset.id; // Set the hidden field
+                                                            break;
+                                                        }
+                                                    }
+
+                                                    if (!isValid) {
+                                                        maKHInput.value = ""; // Clear hidden field
+                                                        input.setCustomValidity("Vui lòng chọn khách hàng hợp lệ từ danh sách!");
+                                                    } else {
+                                                        input.setCustomValidity(""); // Clear error
+                                                    }
+                                                });
+                                                // Validate again on form submission
+                                                document.querySelector('form').addEventListener('submit', function (e) {
+                                                    const input = document.getElementById('khachHangInput');
+                                                    const maKHInput = document.getElementById('maKH');
+
+                                                    if (!maKHInput.value) {
+                                                        input.setCustomValidity("Vui lòng chọn khách hàng hợp lệ từ danh sách!");
+                                                        input.reportValidity();
+                                                        e.preventDefault(); // Prevent form submission
+                                                    }
+                                                });
+                                            </script>
+
+                                            <!-- Button thêm khách hàng -->
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">&nbsp;</label>
+                                                <a href="{{url_for('khachhang.customer')}}" type="button"
+                                                    class="btn btn-primary w-100">
+                                                    Thêm khách hàng
+                                                </a>
+                                            </div>
+
+                                            <!-- Ghi chú -->
+                                            <div class="col-12 mb-3">
+                                                <label class="form-label">Ghi chú</label>
+                                                <textarea class="form-control" id="ghiChu" name="ghiChu" rows="3"
+                                                    placeholder="Nhập ghi chú nếu có..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Đóng</button>
+                                        <button type="submit" class="btn btn-outline-success">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                fill="currentColor" class="bi bi-bell mb-1" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6" />
+                                            </svg>
+                                            Bắt đầu đặt món
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -85,7 +187,7 @@
                     <td class="text-center">{{ order.MaDDH }}</td>
                     <td>{{ order.NgayDat.strftime('%d/%m/%Y') }}</td>
                     <td class="text-end">{{ order.GioDen.strftime('%H:%M') }}</td>
-                    <td class="text-end">{{ order.ThoiLuong if order.ThoiLuong else "2" }} giờ</td>
+                    <td class="text-end">{{ "{:,.0f}".format(order.ThoiLuong) if order.ThoiLuong else "0" }} giờ</td>
                     <td>
                         {% for ct in order.ct_don_dat_hang %}
                         {{ ct.ban.TenBan }}{% if not loop.last %}, {% endif %}

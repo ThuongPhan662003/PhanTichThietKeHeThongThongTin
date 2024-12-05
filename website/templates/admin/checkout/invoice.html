@@ -74,6 +74,10 @@
                 <div class="col-6 fw-bold">TỔNG THANH TOÁN</div>
                 <div class="col-6 text-end fw-bold">{{ invoice.info.hoadon.TongTien | int }} VND</div>
             </div>
+            <div class="row mb-3">
+                <div class="col-6 fw-bold">Phương thức thanh toán</div>
+                <div class="col-6 text-end fw-bold">{{ invoice.info.hoadon.PhuongThucThanhToan }}</div>
+            </div>
             <hr>
             <div class="d-flex justify-content-center mt-4">
                 <button class="btn btn-outline-danger me-3" id="export-pdf">

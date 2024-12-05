@@ -48,6 +48,8 @@ Thông tin nhân viên
                     </svg>
                     Ẩn nhân viên</button>
 
+                
+
                 <!-- Modal ẩn nhân viên -->
                 <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel"
                     aria-hidden="true">
@@ -72,12 +74,28 @@ Thông tin nhân viên
                     </div>
                 </div>
             </div>
+            <div class="me-2">
+                <a href="{{ url_for('nhanvien.employee') }}">
+                    <button type="button" class="btn btn-outline-primary ms-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-arrow-return-left" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
+                        </svg>
+                        Quay lại DSNV
+                    </button>
+                </a>
+            </div>
         </div>
 
 
         <div class="container-body d-flex flex-row">
             <div class="left-box">
-                <img src="https://avatar.iran.liara.run/public" alt="Image" class="left-image" />
+                {% if nv.GioiTinh == 0 %}
+                <img src="https://avatar.iran.liara.run/public/boy" alt="Image" class="left-image" />
+                {% elif nv.GioiTinh == 1 %}
+                <img src="https://avatar.iran.liara.run/public/girl" alt="Image" class="left-image" />
+                {% endif %}
             </div>
             <div class="right-box" id="formThongTin" data-error="{{ 'true' if form_error else 'false' }}">
                 <form class="row g-3 needs-validation" action="{{ url_for('nhanvien.nhanvien_info', manv=nv.MaNV) }}"
@@ -158,21 +176,42 @@ Thông tin nhân viên
                                 aria-describedby="inputGroup-sizing-default" value="{{ nv.nguoi_dung.UserName }}"
                                 readonly>
                         </div>
-                        <div class="mb-3">
-                            <label for="cccd">{{ form.TinhTrang.label }}</label>
-                            <div class="d-flex d-column gap-5 mt-2">
-                                <input type="text" class="form-control"
-                                    value="{{ 'Đã nghỉ' if nv.TinhTrang == 1 else 'Đang làm' }}" readonly>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label for="cccd">{{ form.TinhTrang.label }}</label>
+                                <div class="d-flex d-column gap-5 mt-2">
+                                    <input type="text" class="form-control"
+                                        value="{{ 'Đã nghỉ' if nv.TinhTrang == 1 else 'Đang làm' }}" readonly>
+                                </div>
+                                {% if form.TinhTrang.errors %}
+                                <span class="form-error">{{ form.TinhTrang.errors[0] }}</span>
+                                {% endif %}
                             </div>
-                            {% if form.TinhTrang.errors %}
-                            <span class="form-error">{{ form.TinhTrang.errors[0] }}</span>
-                            {% endif %}
+                            <div class="col-6 mb-3">
+                                <label for="cccd">{{ form.GioiTinh.label }}</label>
+                                <div id="viewMode" class="d-flex d-column gap-5 mt-2">
+                                    <input type="text" class="form-control"
+                                        value="{{ 'Nam' if nv.GioiTinh == 0 else 'Nữ' }}" readonly>
+                                </div>
+
+                                <!-- Chế độ chỉnh sửa (ẩn mặc định) -->
+                                <div id="editMode" class="d-flex d-column gap-5 mt-2 d-none">
+                                    {{ form.GioiTinh(class="d-flex d-column gap-5 mt-2") }}
+                                </div>
+
+                                {% if form.GioiTinh.errors %}
+                                <span class="form-error">{{ form.GioiTinh.errors[0] }}</span>
+                                {% endif %}
+                            </div>
+
                         </div>
 
                     </div>
 
-                    <div class="col-12" style="text-align: right;">
-                        {{ form.submit(class="btn btn-success", style="display: none;") }}
+                    <div class="col-12" id="changeBtn" style="text-align: right;">
+                        {{ form.submit(class="btn btn-success", style="display:none;") }}
+                        <a type="button" id="cancelBtn" class="btn btn-secondary"
+                            href="{{url_for('nhanvien.nhanvien_info', manv=nv.MaNV)}}" style="display: none;">Cancel</a>
                     </div>
 
                 </form>
@@ -185,9 +224,7 @@ Thông tin nhân viên
 
 <script>
     window.addEventListener('load', function () {
-        // Kiểm tra nếu có lỗi và mở collapse tương ứng
         var collapse1 = document.getElementById('formThongTin');
-        // Kiểm tra dữ liệu lỗi trong thuộc tính data-error
         if (collapse1.getAttribute('data-error') === 'true') {
             // alert("Sai rồi")
             document.getElementById('editBtn').click();

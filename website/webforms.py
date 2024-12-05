@@ -257,6 +257,12 @@ class NhanVienForm(FlaskForm):
         default="0",
         coerce=int,
     )
+    GioiTinh = RadioField(
+        "Giới tính",
+        choices=[("0", "Nam"), ("1", "Nữ")],
+        default="0",
+        coerce=int,
+    )
     submit = SubmitField("Lưu Thông Tin", id="saveBtn")
 
     def validate_NgaySinh(self, field):
@@ -272,7 +278,7 @@ class SearchNhanVienForm(FlaskForm):
         "Mã NV",
         id="manv",
         validators=[Optional(), NumberRange(min=1, message="Mã phải lớn hơn 0")],
-        filters=[lambda x: int(x) if x and x.isdigit() else None],
+        # filters=[lambda x: int(x) if x and x.isdigit() else None],
     )
     HoNV = StringField("Họ", id="honv", validators=[Optional(), Length(max=30)])
     TenNV = StringField("Tên", id="tennv", validators=[Optional(), Length(max=10)])
@@ -338,15 +344,22 @@ class KhachHangForm(FlaskForm):
         default="Thường",
         validators=[DataRequired()],
     )
+    GioiTinh = RadioField(
+        "Giới tính",
+        choices=[("0", "Nam"), ("1", "Nữ")],
+        default="0",
+        coerce=int,
+    )
+
     submit = SubmitField("Lưu Thông Tin", id="saveBtn")
 
 
 class SearchKhachHangForm(FlaskForm):
-    MaKH = StringField(
+    MaKH = IntegerField(
         "Mã KH",
         id="makh",
         validators=[Optional(), NumberRange(min=1, message="Mã phải lớn hơn 0")],
-        filters=[lambda x: int(x) if x and x.isdigit() else None],
+        # filters=[lambda x: int(x) if x and x.isdigit() else None],
     )
     HoKH = StringField("Họ", id="hokh", validators=[Optional(), Length(max=30)])
     TenKH = StringField("Tên", id="tenkh", validators=[Optional(), Length(max=10)])

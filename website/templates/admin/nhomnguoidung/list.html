@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% block title %}Danh sách nhóm người dùng{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Danh sách nhóm người dùng</h1>
+
+    <!-- Flash Messages -->
+    {% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+
+    <a href="{{ url_for('nhomnguoidung.add_nhom_nguoi_dung') }}" class="btn btn-outline-success mb-3">
+        <i class="bi bi-plus-circle"></i> Thêm nhóm người dùng
+    </a>
+
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Mã nhóm</th>
+                <th scope="col">Tên nhóm người dùng</th>
+                <th scope="col" class="text-center">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for nhom in nhom_nguoi_dung %}
+            <tr>
+                <td>{{ nhom.MaNND }}</td>
+                <td>{{ nhom.TenNhomNguoiDung }}</td>
+                <td class="text-center">
+                    
+                    <a href="{{ url_for('nhomnguoidung.delete_nhom_nguoi_dung', id=nhom.MaNND) }}"
+                       class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa nhóm này?');">
+                        <i class="bi bi-trash3"></i> Xóa
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

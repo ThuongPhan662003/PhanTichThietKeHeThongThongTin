@@ -81,27 +81,11 @@
                     <!-- Chọn phương thức thanh toán -->
                     <div class="mb-3">
                         <label for="payment-method" class="form-label">Phương thức thanh toán</label>
-                        <select id="payment-method" class="form-select">
-                            <option>Credit Card</option>
-                            <option>Cash</option>
-                            <option>QR Code</option>
+                        <select id="payment-method" class="form-select" value="credit">
+                            <option value="Thẻ ngân hàng">Thẻ</option>
+                            <option value="Tiền mặt">Tiền mặt</option>
+                            <option value="Chuyển khoản">Chuyển khoản</option>
                         </select>
-                    </div>
-
-                    <!-- Tiền nhận và tiền trả lại -->
-                    <div id="cash-payment" class="cashpayment d-none">
-                        <div class="mb-3">
-                            <label for="received-money" class="form-label">Số tiền nhận</label>
-                            <input type="text" id="received-money" class="form-control received-money"
-                                placeholder="Nhập số tiền nhận" min="0" step="1000" pattern="\d{1,3}(,\d{3})*">
-                            <div class="invalid-feedback" style="color: #FFD700;">
-                                Số tiền nhận không hợp lệ!
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="change-money" class="form-label">Số tiền trả lại</label>
-                            <span type="number" id="change-money" class="form-control" min="0" readonly>0 VND</span>
-                        </div>
                     </div>
 
                     <div class="container">
@@ -394,6 +378,7 @@
         const totalInvoice = parseInt(document.getElementById('total-invoice')?.textContent.replace(/[^0-9]/g, '') || '0', 10);
         const minusPoint = parseInt(document.getElementById('points')?.textContent.replace(/[^0-9]/g, '') || '0', 10);
         const idLoaiVoucher = document.getElementById('voucher-select').value;
+        const payment = document.getElementById('payment-method').value;
 
         let requestData = {
             idDDH: idDDH,
@@ -402,7 +387,8 @@
             TienThue: taxAmount,
             DiemCong: pointAmount,
             DiemTru: minusPoint,
-            idLoaiVoucher: idLoaiVoucher
+            idLoaiVoucher: idLoaiVoucher,
+            PhuongThucThanhToan: payment
         };
 
         // In ra dữ liệu trước khi gửi
