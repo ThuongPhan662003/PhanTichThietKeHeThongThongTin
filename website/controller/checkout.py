@@ -82,6 +82,18 @@ def index():
     return render_template("admin/checkout/checkout.html", 
                             list_loai_voucher=list_loai_voucher, result=result, thue=thue) 
 
+# Xem danh sách hóa đơn
+@checkout.route("/xemdshoadon", methods=["GET", "POST"])
+@login_required
+def xem_hoa_don():
+    # Phân trang danh sách khách hàng
+    page = request.args.get('page', 1, type=int) 
+    per_page = 5
+    pagination = HoaDon.query.order_by(HoaDon.MaHD.desc()).paginate(page=page, per_page=per_page)
+    hoadon_list = pagination.items
+    return render_template('admin/checkout/xem_hoa_don.html', listHD=hoadon_list, pagination=pagination)
+
+
 # Lưu dữ liệu vào database
 @checkout.route("/save", methods=["GET", "POST"])
 @login_required

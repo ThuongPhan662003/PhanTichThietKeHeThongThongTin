@@ -168,7 +168,6 @@ class KhachHang(db.Model):
         NgayMoThe,
         DiemTieuDung,
         DiemTichLuy,
-        GioiTinh,
         idNguoiDung,
         LoaiKH="Thường",
     ):
