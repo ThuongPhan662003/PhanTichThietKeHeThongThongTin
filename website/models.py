@@ -109,7 +109,7 @@ class CT_MonAn(db.Model):
 
     def set_GhiChu(self, ghi_chu):
         self.GhiChu = ghi_chu
-
+    
     @db.validates("SoLuong")
     def validate_so_luong(self, key, value):
         if value <= 0:
@@ -249,7 +249,6 @@ class KhachHang(db.Model):
 
     def getHoTen(self):
         return self.HoKH + " " + self.TenKH
-
 
 
 class HoaDon(db.Model):
@@ -505,7 +504,6 @@ class NhanVien(db.Model):
 from datetime import datetime, date, time
 
 
-
 class DonDatHang(db.Model):
     __tablename__ = "DonDatHang"
 
@@ -523,7 +521,8 @@ class DonDatHang(db.Model):
         "CT_DonDatHang", backref="don_dat_hang", lazy=True
     )
     # hoa_don = db.relationship("HoaDon", back_populates="don_dat_hang")
-
+    def __init__(self):
+        pass
     # def __init__(
     #     self,
     #     NgayDat,
@@ -690,7 +689,8 @@ class MonAn(db.Model):
     Loai = db.Column(db.String(100), nullable=False)
     TrangThai = db.Column(db.String(20), nullable=False)
     HinhAnh = db.Column(db.String(200), nullable=True)
-
+    
+    #ct_monan = db.relationship("CT_MonAn", backref="monan", lazy=True, overlaps="ct_mon_an,mon_an")  # Thêm overlaps
     @db.validates("TrangThai")
     def validate_trang_thai(self, key, value):
         valid_trang_thai = ["Còn phục vụ", "Ngừng phục vụ", "Tạm hết"]
@@ -1189,13 +1189,29 @@ class LOAIVOUCHER(db.Model):
     NgayKetThuc = db.Column(db.DateTime, nullable=False)
     GiamToiDa = db.Column(db.Integer)
     An = db.Column(db.Boolean, default=False, nullable=False)
+    
+    __table_args__ = (
+        UniqueConstraint('TenLoaiVoucher', 'PhanTram', name='UQ_TENLOAIVOUCHER_PHANTRAM'),
+    )
+
+
 
     @db.validates("PhanTram")
     def validate_phantram(self, key, value):
-        if not (0 < value < 100):
-            raise ValueError("Phần trăm giảm phải lớn hơn 0 và nhỏ hơn 100")
+        if value <= 0 or value >= 100:
+            raise ValueError("Phần trăm phải nằm trong khoảng từ 0 đến 100")
         return value
 
+    @db.validates('SoLuong')
+    def validate_soluong(self, key, value):
+        if value < 0:
+            raise ValueError("Số lượng phải lớn hơn hoặc bằng 0")
+        return value
+
+    # @db.validates('SoLuongConLai')
+    # def validate_soluong_con_lai(self, key, value):
+    #     if value < 0:
+    #         raise ValueError("Số lượng còn lại phải lớn hơn hoặc bằng 0")
     @db.validates("NgayBatDau", "NgayKetThuc")
     def validate_ngay(self, key, value):
         if key == "NgayBatDau" and value >= self.NgayKetThuc:
@@ -1204,12 +1220,14 @@ class LOAIVOUCHER(db.Model):
             raise ValueError("Ngày kết thúc phải lớn hơn ngày bắt đầu")
         return value
 
+    
     @db.validates("GiamToiDa")
     def validate_giamtoida(self, key, value):
         if value is not None and value < 0:
             raise ValueError("Giảm tối đa phải lớn hơn hoặc bằng 0")
         return value
 
+    
     @db.validates("SoLuong", "SoLuongConLai")
     def validate_soluong(self, key, value):
         if value < 0:
@@ -1309,6 +1327,10 @@ class VOUCHER(db.Model):
     def set_TrangThai(self, trang_thai):
         self.TrangThai = trang_thai
 
+
+    loai_voucher = db.relationship('LOAIVOUCHER', backref='vouchers', lazy=True)
+        # Thiết lập mối quan hệ với CT_VOUCHER
+    ct_vouchers = db.relationship('CT_VOUCHER', backref='voucher', lazy=True)
 
 class CT_VOUCHER(db.Model):
     __tablename__ = "CT_VOUCHER"

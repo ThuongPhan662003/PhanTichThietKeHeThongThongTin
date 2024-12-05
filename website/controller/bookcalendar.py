@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from website import db
 from sqlalchemy import func, cast, Date, text
 from datetime import datetime
+from website.auth import role_required
 from website.models import *
 from website.models import NguoiDung, NhomNguoiDung
 from sqlalchemy.exc import SQLAlchemyError
@@ -12,6 +13,7 @@ bookcalendar = Blueprint("bookcalendar", __name__)
 
 
 @bookcalendar.route("/")
+@role_required(["Khách hàng"])
 def index():
     khachhang = KhachHang.query.filter_by(idNguoiDung=current_user.MaND).first()
     print(current_user.MaND)
@@ -20,6 +22,7 @@ def index():
 
 
 @bookcalendar.route("/save_event", methods=["POST"])
+@role_required(["Khách hàng"])
 def save_event():
     try:
         # Lấy dữ liệu từ request
@@ -37,7 +40,7 @@ def save_event():
         print("duration", duration)
         number_persons = data.get("number_persons")
         print("number_persons", type(number_persons))
-        
+
         # Kiểm tra thông tin đầu vào
         if not all([name, phone, email, time, duration, number_persons]):
             return (
@@ -45,22 +48,17 @@ def save_event():
                 400,
             )
 
-        
-        new_event = DonDatHang(
-            NgayDat=date.date(),
-            HoTenNguoiDat=name,
-            Email=email,
-            SDT=phone,
-            TrangThai="Chưa bắt đầu",
-            Loai=1,
-            GioDen=time,
-            SoLuongNguoi=int(number_persons),
-            ThoiLuong=duration,
-            idNV=None,
-            ThanhTien=None,
-            GhiChu= None
-        )
+        ghichu = name + "\n" + email + "\n" + phone
+        new_event = DonDatHang()
+        new_event.set_TrangThai("Chưa bắt đầu")
+        new_event.set_Loai(1)
+        new_event.set_SoLuongNguoi(int(number_persons))
+        new_event.set_ThoiLuong(duration)
+        new_event.set_GioDen(time)
+        new_event.set_NgayDat(date.date())
+        new_event.set_GhiChu(ghichu)
         db.session.add(new_event)
+
         # Commit giao dịch
         db.session.commit()
         return jsonify({"status": "success", "message": "Sự kiện đã được lưu!"}), 200
@@ -94,6 +92,7 @@ def save_event():
 
 # API to get all events from the database (for refreshing the calendar)
 @bookcalendar.route("/get_events", methods=["GET"])
+@role_required(["Khách hàng"])
 def get_events():
     try:
         events = DonDatHang.query.all()
@@ -111,6 +110,7 @@ def get_events():
 
 
 @bookcalendar.route("/get_unavailable_times", methods=["GET"])
+@role_required(["Khách hàng"])
 def get_unavailable_times():
     try:
         # Gọi Stored Procedure trong MySQL bằng SQLAlchemy, sử dụng text()

@@ -17,7 +17,8 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
-
+## Vì dùng thư viện WeasyPrint nên cần
+https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
 ## Change the app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:passwword@localhost/database_name'
 
 ## Mọi người thêm một file config.json và thư mục json rồi bổ sung những thông tin như username, password, database
