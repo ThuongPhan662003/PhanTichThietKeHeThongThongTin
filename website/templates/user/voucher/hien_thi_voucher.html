@@ -1,0 +1,52 @@
+{% extends "user/nguoidung/base_user.html" %}
+
+{% block title %}Danh Sách Voucher{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <h2 class="title-2">Danh Sách Voucher</h2>
+    <div class="vouchers">
+      {% for voucher in vouchers %}
+      <div class="card voucher-card">
+        <div class="card-body">
+          <h3 class="card-title">{{ voucher.TenLoaiVoucher }}</h3>
+          <p><strong>Mô Tả:</strong> {{ voucher.MoTa }}</p>
+          <p><strong>Giảm:</strong> {{ voucher.PhanTram }}% (Tối đa: {{ voucher.GiamToiDa if voucher.GiamToiDa else 'Không giới hạn' }})</p>
+          <p><strong>Ngày hiệu lực:</strong> {{ voucher.NgayBatDau.strftime('%d-%m-%Y') }} đến {{ voucher.NgayKetThuc.strftime('%d-%m-%Y') }}</p>
+          <p><strong>Số lượng còn lại:</strong> {{ voucher.SoLuongConLai }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if vouchers|length == 0 %}
+    <p>Không có voucher nào khả dụng.</p>
+    {% endif %}
+  </div>
+</section>
+<style>
+    .vouchers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.voucher-card {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  transition: transform 0.2s ease;
+}
+
+.voucher-card:hover {
+  transform: scale(1.05);
+}
+
+.voucher-card .card-title {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+    
+</style>
+{% endblock %}

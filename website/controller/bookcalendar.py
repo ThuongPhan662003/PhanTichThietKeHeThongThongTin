@@ -114,7 +114,9 @@ def get_events():
 def get_unavailable_times():
     try:
         # Gọi Stored Procedure trong MySQL bằng SQLAlchemy, sử dụng text()
-        result = db.session.execute(text("CALL GetFullyBookedTime()"))
+        result = db.session.execute(
+            text("CALL GetFullyBookedNonOverlappingTimeRanges()")
+        )
 
         # Lấy kết quả trả về từ stored procedure
         rows = result.fetchall()

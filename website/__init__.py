@@ -16,6 +16,7 @@ db = SQLAlchemy()
 scheduler = APScheduler()
 mail_app = Mail()
 
+
 def create_app():
 
     # Khởi tạo Flask app
@@ -56,8 +57,6 @@ def create_app():
     app.config["MAIL_PASSWORD"] = mail_password
     # app.config["MAIL_DEFAULT_SENDER"] = mail_default_sender
 
-
-
     # mail = Mail(app)
     db.init_app(app)
 
@@ -68,36 +67,41 @@ def create_app():
     def run_scheduled_job():
         with app.app_context():
             from website.controller.dondathang import xoa_don_dat_hang_cu
+
             xoa_don_dat_hang_cu()
 
     # Cấu hình scheduler
-    app.config['JOBS'] = [
+    app.config["JOBS"] = [
         {
-            'id': 'xoa_don_dat_hang',
-            'func': run_scheduled_job,
-            'trigger': 'cron',
+            "id": "xoa_don_dat_hang",
+            "func": run_scheduled_job,
+            "trigger": "cron",
             # 'hour': '0',
-            'minute': '*/2' # cho job chạy sau mỗi 2p
+            "minute": "*/2",  # cho job chạy sau mỗi 2p
         }
     ]
     scheduler.init_app(app)
     scheduler.start()
 
     # Cấu hình logging
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    file_handler = RotatingFileHandler('logs/scheduler.log', maxBytes=10240, backupCount=10)
-    file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-    ))
+    if not os.path.exists("logs"):
+        os.mkdir("logs")
+    file_handler = RotatingFileHandler(
+        "logs/scheduler.log", maxBytes=10240, backupCount=10
+    )
+    file_handler.setFormatter(
+        logging.Formatter(
+            "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
+        )
+    )
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
-    app.logger.info('Scheduler startup')
+    app.logger.info("Scheduler startup")
 
     # Import models và blueprints
     from .models import NguoiDung, NhomNguoiDung
-    
+
     from .controller.nguyenlieu import nguyenlieu
     from .controller.phieunhap import phieunhap
     from .controller.phieuxuat import phieuxuat
@@ -126,11 +130,14 @@ def create_app():
     from .controller.voucher import voucher
     from .controller.report_ty_le_nh_x import nhp_xuat
     from .controller.report_KH_tiem_nang import kh_tiemng
+    from .controller.user_bill import user_bill
+    from .controller.user_voucher import user_voucher
 
     # Đăng ký blueprints
     from .views import views
     from .auth import auth
     from .admin import admin
+
     app.register_blueprint(views, url_prefix="/")
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(nguyenlieu, url_prefix="/nguyenlieu")
@@ -155,7 +162,8 @@ def create_app():
     app.register_blueprint(voucher, url_prefix="/voucher")
     app.register_blueprint(nhp_xuat, url_prefix="/report_ty_le_nhap_xuat")
     app.register_blueprint(kh_tiemng, url_prefix="/report_KH")
-
+    app.register_blueprint(user_bill, url_prefix="/user_bill")
+    app.register_blueprint(user_voucher, url_prefix="/user_voucher")
     with app.app_context():
         db.create_all()
 
@@ -166,11 +174,14 @@ def create_app():
 
     # Khởi tạo OAuth
     from .auth import init_oauth
+
     global mail_app
     init_oauth(app)
     mail_app = Mail(app)
     from .controller.mail import mail_sender
+
     app.register_blueprint(mail_sender, url_prefix="/mail")
+
     @login_manager.user_loader
     def load_user(id):
         return NguoiDung.query.get(int(id))
