@@ -1,0 +1,88 @@
+{% extends "user/nguoidung/base_user.html" %}
+
+{% block title %}Danh Sách Hóa Đơn{% endblock %}
+
+{% block content %}
+<section class="section my-5">
+  <div class="container">
+    <h2 class="text-center text-uppercase fw-bold mb-4">Danh Sách Hóa Đơn</h2>
+
+    <div class="card shadow-sm p-4">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead class="table-light">
+            <tr>
+              <th class="text-center">Mã Hóa Đơn</th>
+              <th class="text-center">Ngày Xuất</th>
+              <th class="text-center">Tổng Tiền (VNĐ)</th>
+              <th class="text-center">Trạng Thái</th>
+              <th class="text-center">Hành Động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if hoa_dons %}
+              {% for hoa_don in hoa_dons %}
+              <tr>
+                <td class="text-center">{{ hoa_don.MaHD }}</td>
+                <td class="text-center">{{ hoa_don.NgayXuat.strftime('%d-%m-%Y') }}</td>
+                <td class="text-center">{{ hoa_don.TongTien | floatformat:2 }}</td>
+                <td class="text-center">
+                  <span class="badge {{ 'bg-success' if hoa_don.TrangThai else 'bg-warning' }}">
+                    {{ 'Hoàn tất' if hoa_don.TrangThai else 'Đang xử lý' }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <a href="{{ url_for('user_bill.chi_tiet_hoa_don', mahd=hoa_don.MaHD) }}" class="btn btn-primary btn-sm">
+                    Xem Chi Tiết
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted">Không có hóa đơn nào để hiển thị.</td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .card {
+    border-radius: 10px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+  }
+
+  .badge {
+    font-size: 1rem;
+    padding: 0.5em 1em;
+    border-radius: 10px;
+  }
+
+  .table th, .table td {
+    vertical-align: middle;
+  }
+
+  .btn-primary {
+    padding: 0.4em 1em;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  @media (max-width: 768px) {
+    .table th, .table td {
+      font-size: 0.85rem;
+    }
+
+    .btn {
+      font-size: 0.85rem;
+    }
+  }
+</style>
+{% endblock %}
