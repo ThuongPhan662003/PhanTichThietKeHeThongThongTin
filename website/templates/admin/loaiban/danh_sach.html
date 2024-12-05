@@ -11,7 +11,8 @@ Quản lý loại bàn
             <!-- Tìm kiếm -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1 class="text-center">Quản lý loại bàn</h1>
-                <button class="button-89" data-bs-toggle="modal" data-bs-target="#addLoaiBanModal">+ Thêm Loại Bàn</button>
+                <button class="button-89" data-bs-toggle="modal" data-bs-target="#addLoaiBanModal">+ Thêm Loại
+                    Bàn</button>
             </div>
 
             <!-- Bảng danh sách loại bàn -->
@@ -35,9 +36,10 @@ Quản lý loại bàn
                             <!-- Nút Xóa -->
                             <form method="POST" action="{{ url_for('loaiban.delete_loai_ban', id=loai_ban.MaLB) }}"
                                 style="display: inline;">
-                                {{ form.hidden_tag() }} <!-- Thêm CSRF token -->
+                                {{ form.hidden_tag() }}
+                                <!-- Thêm CSRF token -->
                                 <button type="submit" class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Bạn có chắc chắn muốn xóa?');">Xóa</button>
+                                    onclick="confirm('Bạn có chắc chắn muốn xóa?');">Xóa</button>
                             </form>
                         </td>
                     </tr>
@@ -63,7 +65,7 @@ Quản lý loại bàn
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                {{ form.TenLoaiBan.label(class="form-label") }}
+                                <label class="form-label">Tên loại bàn</label>
                                 {{ form.TenLoaiBan(class="form-control", placeholder="Nhập tên loại bàn") }}
                             </div>
                         </div>
@@ -162,72 +164,74 @@ Quản lý loại bàn
 
 
 
-.button-89 {
-  --b: 3px;   /* border thickness */
-  --s: .45em; /* size of the corner */
-  --color: #373B44;
-  
-  padding: calc(.5em + var(--s)) calc(.9em + var(--s));
-  color: var(--color);
-  --_p: var(--s);
-  background:
-    conic-gradient(from 90deg at var(--b) var(--b),#0000 90deg,var(--color) 0)
-    var(--_p) var(--_p)/calc(100% - var(--b) - 2*var(--_p)) calc(100% - var(--b) - 2*var(--_p));
-  transition: .3s linear, color 0s, background-color 0s;
-  outline: var(--b) solid #0000;
-  outline-offset: .6em;
-  font-size: 16px;
+    .button-89 {
+        --b: 3px;
+        /* border thickness */
+        --s: .45em;
+        /* size of the corner */
+        --color: #373B44;
 
-  border: 0;
+        padding: calc(.5em + var(--s)) calc(.9em + var(--s));
+        color: var(--color);
+        --_p: var(--s);
+        background:
+            conic-gradient(from 90deg at var(--b) var(--b), #0000 90deg, var(--color) 0) var(--_p) var(--_p)/calc(100% - var(--b) - 2*var(--_p)) calc(100% - var(--b) - 2*var(--_p));
+        transition: .3s linear, color 0s, background-color 0s;
+        outline: var(--b) solid #0000;
+        outline-offset: .6em;
+        font-size: 16px;
 
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
+        border: 0;
 
-.button-89:hover,
-.button-89:focus-visible{
-  --_p: 0px;
-  outline-color: var(--color);
-  outline-offset: .05em;
-}
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+    }
 
-.button-89:active {
-  background: var(--color);
-  color: #fff;
-}
+    .button-89:hover,
+    .button-89:focus-visible {
+        --_p: 0px;
+        outline-color: var(--color);
+        outline-offset: .05em;
+    }
 
-/* CSS */
-.button-32 {
-  background-color: #eae9db;
-  color: #000;
-  cursor: pointer;
-  font-weight: bold;
-  padding: 10px 15px;
-  text-align: center;
-  transition: 200ms;
-  width: 100%;
-  box-sizing: border-box;
-  border: 0;
-  font-size: 16px;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
+    .button-89:active {
+        background: var(--color);
+        color: #fff;
+    }
 
-.button-32:not(:disabled):hover,
-.button-32:not(:disabled):focus {
-  outline: 0;
-  background: #f4e603;
-  box-shadow: 0 0 0 2px rgba(0,0,0,.2), 0 3px 8px 0 rgba(0,0,0,.15);
-}
+    /* CSS */
+    .button-32 {
+        background-color: #eae9db;
+        color: #000;
+        cursor: pointer;
+        font-weight: bold;
+        padding: 10px 15px;
+        text-align: center;
+        transition: 200ms;
+        width: 100%;
+        box-sizing: border-box;
+        border: 0;
+        font-size: 16px;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+    }
 
-.button-32:disabled {
-  filter: saturate(0.2) opacity(0.5);
-  -webkit-filter: saturate(0.2) opacity(0.5);
-  cursor: not-allowed;
-}
-#customers {
+    .button-32:not(:disabled):hover,
+    .button-32:not(:disabled):focus {
+        outline: 0;
+        background: #f4e603;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, .2), 0 3px 8px 0 rgba(0, 0, 0, .15);
+    }
+
+    .button-32:disabled {
+        filter: saturate(0.2) opacity(0.5);
+        -webkit-filter: saturate(0.2) opacity(0.5);
+        cursor: not-allowed;
+    }
+
+    #customers {
         font-family: Arial, Helvetica, sans-serif;
         border-collapse: collapse;
         width: 100%;

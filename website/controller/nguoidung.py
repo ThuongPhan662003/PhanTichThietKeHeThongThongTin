@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from website import db
 from sqlalchemy import func, cast, Date
 from datetime import datetime
-from website.auth import role_required
+from website.role import role_required
 from website.models import NguoiDung, KhachHang, NhanVien, NhomNguoiDung
 
 # from website.webforms import
@@ -55,11 +55,11 @@ def account():
         )
     else:
         employee = NhanVien.query.filter_by(idNguoiDung=MaND).first()
-        GioiTinh = employee.GioiTinh
+        GioiTinh = employee.get_GioiTinh()
         if GioiTinh == 1:
-            random_number = random.randint(0, 50)
-        else:
             random_number = random.randint(51, 100)
+        else:
+            random_number = random.randint(0, 50)
         avatar_url = "https://avatar.iran.liara.run/public/" + str(random_number)
         return render_template(
             "/admin/nguoidung/nguoidung.html",

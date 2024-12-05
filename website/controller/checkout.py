@@ -9,7 +9,7 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 
-from website.auth import role_required
+from website.role import role_required
 
 # pdfmetrics.registerFont(TTFont("Arial", '/website/static/fonts/arial-unicode-ms-regular.ttf'))
 

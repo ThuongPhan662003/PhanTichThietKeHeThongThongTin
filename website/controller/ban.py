@@ -6,7 +6,7 @@ from unidecode import unidecode
 from flask import render_template, jsonify
 from website.models import CT_DonDatHang, db, Ban, LoaiBan
 from flask_paginate import Pagination, get_page_parameter
-from website.auth import role_required
+from website.role import role_required
 from website.webforms import BanForm
 
 ban = Blueprint("ban", __name__)
@@ -96,9 +96,9 @@ def edit_ban(id):
     if request.method == "POST" and form.validate_on_submit():
         try:
             # Kiểm tra xem tên bàn mới có trùng với tên bàn nào khác không
-            if Ban.query.filter_by(TenBan=form.TenBan.data).first() != None:  
-                flash("Tên bàn đã tồn tại, vui lòng chọn tên khác!", "danger")
-                return redirect(url_for("ban.danh_sach_ban"))
+            # if   Ban.query.filter_by(TenBan=form.TenBan.data).first():  
+            #     flash("Tên bàn đã tồn tại, vui lòng chọn tên khác!", "danger")
+            #     return redirect(url_for("ban.danh_sach_ban"))
             
             # Cập nhật dữ liệu bàn
             ban.TenBan = form.TenBan.data

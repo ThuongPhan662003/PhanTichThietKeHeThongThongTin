@@ -3,6 +3,8 @@ from functools import wraps
 import re
 import secrets
 import string
+
+from website.role import role_required
 from .models import KhachHang, NguoiDung, NhanVien, NhomNguoiDung
 from flask import (
     Blueprint,
@@ -23,52 +25,36 @@ from sqlalchemy.exc import SQLAlchemyError
 admin = Blueprint("admin", __name__)
 
 
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated:
-            return redirect(url_for("admin.login"))
-        return f(*args, **kwargs)
 
-    return decorated_function
+# @admin.route("/login", methods=["GET", "POST"])
+# @role_required(["Quản lý","Nhân viên kho","Nhân viên"])
+# def login():
+#     if request.method == "POST":
 
+#         UserName = request.form.get("UserName")
+#         MatKhau = request.form.get("MatKhau")
+#         print(UserName)
+#         user = NguoiDung.query.filter_by(UserName=UserName).first()
+#         if user and user.MatKhau == MatKhau:
+#             login_user(user, remember=True)
+#             flash("Login successful!", category="success")
+#             return redirect(url_for("admin.admin_home"))
+#         else:
+#             flash("Invalid username or password.", category="error")
 
-@admin.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-
-        UserName = request.form.get("UserName")
-        MatKhau = request.form.get("MatKhau")
-        print(UserName)
-        user = NguoiDung.query.filter_by(UserName=UserName).first()
-        if user and user.MatKhau == MatKhau:
-            login_user(user, remember=True)
-            flash("Login successful!", category="success")
-            return redirect(url_for("admin.admin_home"))
-        else:
-            flash("Invalid username or password.", category="error")
-
-    return render_template("admin/auth/login.html", user=current_user)
+#     return render_template("admin/auth/login.html", user=current_user)
 
 
-@admin.route("/")
-# @admin_required
-def admin_home():
-    print()
-    return render_template("admin/admin-home.html")
+# @admin.route("/")
+# # @admin_required
+# def admin_home():
+#     print()
+#     return render_template("admin/admin-home.html")
 
-
-# @admin.route("/logout")
-# @login_required
-# def logout():
-#     session.pop("email", None)  # Xóa email khỏi session
-#     session.pop("name", None)  # Xóa tên khỏi session
-#     logout_user()
-#     return redirect(url_for("admin.login"))
 
 
 @admin.route("/sign-up", methods=["GET", "POST"])
-# @admin_required
+@role_required(["Quản lý"])
 def sign_up():
 
     employees = NhanVien.query.all()

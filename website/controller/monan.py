@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 
 from flask import render_template, request
 from flask_paginate import Pagination, get_page_parameter
-from website.auth import role_required
+from website.role import role_required
 
 from website.models import MonAn,CT_MonAn
 from website.webforms import MonAnForm
@@ -81,17 +81,15 @@ def them_mon_an():
         db.session.add(mon_an)
         db.session.commit()
 
-        # Xử lý upload hình ảnh (nếu có)
         if hinh_anh and allowed_file(hinh_anh.filename):
-            # Đảm bảo thư mục tồn tại
-            image_folder = os.path.join(current_app.root_path, 'static/images/monan')
+            image_folder = os.path.join(current_app.root_path, 'static/images/')
             os.makedirs(image_folder, exist_ok=True)
 
-            # Đặt tên tệp là MaMA và lưu
-            filename = secure_filename(f"{mon_an.MaMA}_{int(time.time())}.jpg")
+            filename = f"{mon_an.MaMA}.jpg"
             hinh_anh.save(os.path.join(image_folder, filename))
-            mon_an.HinhAnh = filename
-            db.session.commit()  # Cập nhật tên tệp vào cơ sở dữ liệu
+            
+            mon_an.HinhAnh = f"images/{filename}"
+            db.session.commit()
 
         flash('Thêm món ăn thành công!', 'success')
         return redirect(url_for('monan.danh_sach_mon_an'))

@@ -4,7 +4,7 @@ from decimal import Decimal
 from website import db
 from sqlalchemy import or_, and_
 from datetime import datetime
-from website.auth import role_required
+from website.role import role_required
 from website.models import *
 from website.models import PHIEUNHAP, CT_PHIEUNHAP
 from website.webforms import NguyenLieuForm 

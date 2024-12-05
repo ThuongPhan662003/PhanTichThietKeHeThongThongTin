@@ -11,11 +11,12 @@ Quản lý bàn
         <!-- Form tìm kiếm và nút thêm bàn cùng một hàng -->
         <div class="col-md-6">
             <form method="get" action="" class="d-flex">
-                <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Tìm kiếm theo tên bàn hoặc loại bàn">
+                <input type="text" name="search" value="{{ search }}" class="form-control"
+                    placeholder="Tìm kiếm theo tên bàn hoặc loại bàn">
                 <button type="submit" class="btn btn-primary ms-2">Tìm kiếm</button>
             </form>
         </div>
-    
+
         <!-- Nút mở Modal Thêm Bàn -->
         <div class="col-md-6 text-end">
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBanModal">
@@ -61,38 +62,38 @@ Quản lý bàn
         </div>
     </div>
     <!-- Modal Sửa Bàn -->
-<div class="modal fade" id="editBanModal" tabindex="-1" aria-labelledby="editBanModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editBanModalLabel">Chỉnh Sửa Bàn</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" id="editLoaiBanForm">
-                    {{ form.hidden_tag() }}
-                    <div class="mb-3">
-                        {{ form.TenBan.label }} <span class="text-danger">*</span>
-                        {{ form.TenBan(class="form-control", id="editTenBan") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.ViTri.label }} <span class="text-danger">*</span>
-                        {{ form.ViTri(class="form-control", id="editViTri") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.TrangThai.label }} <span class="text-danger">*</span>
-                        {{ form.TrangThai(class="form-control", id="editTrangThai") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.idLoaiBan.label }} <span class="text-danger">*</span>
-                        {{ form.idLoaiBan(class="form-control", id="editLoaiBan") }}
-                    </div>
-                    <button type="submit" class="btn btn-success">Lưu Thay Đổi</button>
-                </form>
+    <div class="modal fade" id="editBanModal" tabindex="-1" aria-labelledby="editBanModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editBanModalLabel">Chỉnh Sửa Bàn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" id="editLoaiBanForm">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.TenBan.label }} <span class="text-danger">*</span>
+                            {{ form.TenBan(class="form-control", id="editTenBan") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.ViTri.label }} <span class="text-danger">*</span>
+                            {{ form.ViTri(class="form-control", id="editViTri") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.TrangThai.label }} <span class="text-danger">*</span>
+                            {{ form.TrangThai(class="form-control", id="editTrangThai") }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.idLoaiBan.label }} <span class="text-danger">*</span>
+                            {{ form.idLoaiBan(class="form-control", id="editLoaiBan") }}
+                        </div>
+                        <button type="submit" class="btn btn-success">Lưu Thay Đổi</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 </div>
 
@@ -117,18 +118,17 @@ Quản lý bàn
             <td>{{ ban.TrangThai }}</td>
             <td>{{ ban.TenLoaiBan }}</td>
             <td class="text-center">
-                <button 
-                class="btn btn-warning btn-sm" 
-                data-bs-toggle="modal" 
-                data-bs-target="#editBanModal"
-                onclick="loadBan('{{ ban.MaBan }}', '{{ ban.TenBan }}', '{{ ban.ViTri }}', '{{ ban.TrangThai }}', '{{ ban.idLoaiBan }}')">
-                Sửa
-            </button>
-               <!-- Nút Xóa -->
-    <form method="POST" action="{{ url_for('ban.delete_ban', id=ban.MaBan) }}" style="display: inline;">
-        {{ form.hidden_tag() }} <!-- Thêm CSRF token -->
-        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa không?');">Xóa</button>
-    </form>
+                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editBanModal"
+                    onclick="loadBan('{{ ban.MaBan }}', '{{ ban.TenBan }}', '{{ ban.ViTri }}', '{{ ban.TrangThai }}', '{{ ban.idLoaiBan }}')">
+                    Sửa
+                </button>
+                <!-- Nút Xóa -->
+                <form method="POST" action="{{ url_for('ban.delete_ban', id=ban.MaBan) }}" style="display: inline;">
+                    {{ form.hidden_tag() }}
+                    <!-- Thêm CSRF token -->
+                    <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="confirm('Bạn có chắc muốn xóa không?');">Xóa</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
@@ -140,27 +140,27 @@ Quản lý bàn
     {{ pagination.links }}
 </div>
 {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="alert alert-{{ messages[0][0] }}" id="flashMessage">
-        {{ messages[0][1] }}
-    </div>
-    <script>
-        // Hiển thị thông báo
-        var flashMessage = document.getElementById('flashMessage');
-        flashMessage.style.display = 'block';
+{% if messages %}
+<div class="alert alert-{{ messages[0][0] }}" id="flashMessage">
+    {{ messages[0][1] }}
+</div>
+<script>
+    // Hiển thị thông báo
+    var flashMessage = document.getElementById('flashMessage');
+    flashMessage.style.display = 'block';
 
-        // Ẩn thông báo sau 2 giây
+    // Ẩn thông báo sau 2 giây
+    setTimeout(function () {
+        flashMessage.style.opacity = '1';  // Đảm bảo nó hiển thị đầy đủ trước khi bắt đầu ẩn
+        flashMessage.style.transition = 'opacity 0.5s';
+        flashMessage.style.opacity = '0';  // Làm mờ dần
+
         setTimeout(function () {
-            flashMessage.style.opacity = '1';  // Đảm bảo nó hiển thị đầy đủ trước khi bắt đầu ẩn
-            flashMessage.style.transition = 'opacity 0.5s';
-            flashMessage.style.opacity = '0';  // Làm mờ dần
-
-            setTimeout(function () {
-                flashMessage.style.display = 'none';  // Ẩn hoàn toàn
-            }, 500); // Đợi thêm 0.5 giây sau khi làm mờ
-        }, 2000); // 2 giây
-    </script>
-    {% endif %}
+            flashMessage.style.display = 'none';  // Ẩn hoàn toàn
+        }, 500); // Đợi thêm 0.5 giây sau khi làm mờ
+    }, 2000); // 2 giây
+</script>
+{% endif %}
 {% endwith %}
 
 </div>

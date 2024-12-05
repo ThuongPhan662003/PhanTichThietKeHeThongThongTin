@@ -136,6 +136,13 @@ class LoaiVoucherForm(FlaskForm):
                 raise ValidationError('Ngày kết thúc không thể nhỏ hơn ngày bắt đầu.')
 
 class LoaiBanForm(ModelForm, FlaskForm):
+    TenLoaiBan = StringField(
+        "Tên bàn",
+        validators=[
+            DataRequired(message="Tên bàn không được để trống."),
+            Length(max=30, message="Tên bàn không được vượt quá 30 ký tự.")
+        ]
+    )
     class Meta:
         model = LoaiBan
         include_primary_keys = False  # Không hiển thị trường khóa chính (nếu cần)
