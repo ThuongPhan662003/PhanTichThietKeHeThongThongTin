@@ -55,18 +55,18 @@ Thông tin khách hàng
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Xác nhận xóa khách hàng</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                Xác nhận xóa khách hàng ?
+                                Bạn có chắn chắn muốn xóa khách hàng này không ?
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary"
-                                    data-bs-dismiss="modal">No</button>
+                                    data-bs-dismiss="modal">Cancel</button>
                                 <form action="{{ url_for('khachhang.xoa_kh', makh=kh.MaKH) }}" method="POST">
-                                    <button type="submit" class="btn btn-outline-primary">Yes</button>
+                                    <button type="submit" class="btn btn-outline-danger">Xác nhận</button>
                                 </form>
                             </div>
                         </div>
@@ -172,18 +172,16 @@ Thông tin khách hàng
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label for="diemtieudung">{{ form.DiemTieuDung.label }}</label>
-                                {{ form.DiemTieuDung(class="form-control editable-field mt-2",
-                                placeholder="Nhập điểm tiêu dùng", readonly=True,
-                                required=True) }}
+                                {{ form.DiemTieuDung(class="form-control mt-2",
+                                placeholder="Nhập điểm tiêu dùng", readonly=True) }}
                                 {% if form.DiemTieuDung.errors %}
                                 <span class="form-error">{{ form.DiemTieuDung.errors[0] }}</span>
                                 {% endif %}
                             </div>
                             <div class="col-6 mb-3">
                                 <label for="diemtichluy">{{ form.DiemTichLuy.label }}</label>
-                                {{ form.DiemTichLuy(class="form-control editable-field mt-2",
-                                placeholder="Nhập điểm tích lũy", readonly=True,
-                                required=True) }}
+                                {{ form.DiemTichLuy(class="form-control mt-2",
+                                placeholder="Nhập điểm tích lũy", readonly=True) }}
                                 {% if form.DiemTichLuy.errors %}
                                 <span class="form-error">{{ form.DiemTichLuy.errors[0] }}</span>
                                 {% endif %}
@@ -199,7 +197,7 @@ Thông tin khách hàng
 
                             <!-- Chế độ chỉnh sửa (ẩn mặc định) -->
                             <div id="editMode" class="d-flex d-column gap-5 mt-2 d-none">
-                                {{ form.GioiTinh(class="d-flex d-column gap-5 mt-2") }} 
+                                {{ form.GioiTinh(class="d-flex d-column gap-5 mt-2") }}
                             </div>
 
                             {% if form.GioiTinh.errors %}
@@ -211,7 +209,9 @@ Thông tin khách hàng
 
                     <div class="col-12" style="text-align: right;">
                         {{ form.submit(class="btn btn-success", style="display: none;") }}
-                        <a type="button" id="cancelBtn" class="btn btn-secondary" href="{{url_for('khachhang.khachhang_info', makh=kh.MaKH)}}" style="display: none;">Cancel</a> 
+                        <a type="button" id="cancelBtn" class="btn btn-secondary"
+                            href="{{url_for('khachhang.khachhang_info', makh=kh.MaKH)}}"
+                            style="display: none;">Cancel</a>
                     </div>
 
                 </form>
@@ -222,34 +222,34 @@ Thông tin khách hàng
     </div>
 
 
-<script>
-    window.addEventListener('load', function () {
-        var collapse1 = document.getElementById('formThongTin');
-        if (collapse1.getAttribute('data-error') === 'true') {
-            document.getElementById('editBtn').click();
-        }
-    });
+    <script>
+        window.addEventListener('load', function () {
+            var collapse1 = document.getElementById('formThongTin');
+            if (collapse1.getAttribute('data-error') === 'true') {
+                document.getElementById('editBtn').click();
+            }
+        });
 
-</script>
+    </script>
 
-<script>
+    <script>
     // Khởi tạo Flatpickr trên input ngày sinh với định dạng dd/mm/yyyy
     // flatpickr("#ngaymothe", {
     //     dateFormat: "d/m/Y",
     //     maxDate: "today",
     //     clickOpens: false
     // });
-</script>
+    </script>
 
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/nhanvien_info.css') }}">
-<script src="{{ url_for('static', filename='js/btnEdit.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nhanvien_info.css') }}">
+    <script src="{{ url_for('static', filename='js/btnEdit.js') }}"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 
 
-{% endblock %}
+
+
+    {% endblock %}

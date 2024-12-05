@@ -209,7 +209,7 @@ Nguyên liệu
                 {% if ingredients.has_prev %}
                 <li class="page-item">
                     <a class="page-link"
-                        href="{{ url_for(endpoint, page=ingredients.prev_num, query=query, units=selected_units, price_min=price_min, price_max=price_max, stock=selected_stock) }}">&laquo;</a>
+                        href="{{ url_for(endpoint, page=ingredients.prev_num, query=query, units=selected_units, price_min=price_min, price_max=price_max, stock=selected_stock) }}">Trước</a>
                 </li>
                 {% endif %}
                 {% for page_num in ingredients.iter_pages(left_edge=1, right_edge=1, left_current=2,
@@ -227,7 +227,7 @@ Nguyên liệu
                 {% if ingredients.has_next %}
                 <li class="page-item">
                     <a class="page-link"
-                        href="{{ url_for(endpoint, page=ingredients.next_num, query=query, units=selected_units, price_min=price_min, price_max=price_max, stock=selected_stock) }}">&raquo;</a>
+                        href="{{ url_for(endpoint, page=ingredients.next_num, query=query, units=selected_units, price_min=price_min, price_max=price_max, stock=selected_stock) }}">Sau</a>
                 </li>
                 {% endif %}
             </ul>

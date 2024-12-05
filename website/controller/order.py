@@ -16,34 +16,39 @@ def index():
     action = request.args.get('action') 
     id_order = request.args.get('maddh')
     ct_don_dat_hang_list = CT_DonDatHang.query.filter_by(idDDH=id_order).all()
-
     if action == "takeaway":
         try:
+            id_khach_hang = request.form.get("maKH")
+            ghi_chu = request.form.get("ghiChu")
+              # Validate id_khach_hang
+            if not id_khach_hang or not KhachHang.query.get(id_khach_hang):
+                flash("Vui lòng chọn khách hàng hợp lệ từ danh sách!", "danger")
+                return redirect(url_for('dondathang.ds_dondathang'))
+
             # Lấy bàn chờ còn trống
             ban_cho = Ban.query.filter(
                 Ban.TenBan.ilike('%Bàn chờ%'),
                 Ban.TrangThai == "Còn trống"
             ).first()
-
+        
             if not ban_cho:
-                print("Không có bàn chờ nào còn trống!")
-                return
-
+                flash("Không có bàn chờ nào còn trống!", "danger")
+                return redirect(url_for('dondathang.ds_dondathang'))
             don_dat_hang = DonDatHang(
                 NgayDat = date.today(),
                 TrangThai = "Chưa bắt đầu",
                 Loai = False,
                 GioDen = datetime.now().time(),
-                ThoiLuong = 0.00,
+                ThoiLuong = 0,
                 SoLuongNguoi = 1,
                 idNV = current_user.nhan_vien.MaNV,
                 ThanhTien = 0.00,
-                GhiChu = None)
+                GhiChu = ghi_chu)
             
             db.session.add(don_dat_hang)
             db.session.flush() 
 
-            hoa_don = HoaDon(idKH = 11,
+            hoa_don = HoaDon(idKH = id_khach_hang,
                             idDDH = don_dat_hang.MaDDH,
                             idNV = current_user.MaND,
                             TongTienGiam = 0,
@@ -69,6 +74,8 @@ def index():
             db.session.commit()
 
             ct_don_dat_hang_list = [ct_don_dat_hang]
+            print("ma ddh: ", don_dat_hang.MaDDH )
+            return redirect(url_for('order.takeaway', maddh=don_dat_hang.MaDDH, action=action))
 
         except Exception as e:
             db.session.rollback()
@@ -76,6 +83,24 @@ def index():
             return
         
     return render_template('admin/orderdoan/order.html', action=action, ctddh=ct_don_dat_hang_list)
+
+
+
+@order.route("/takeaway", methods=["GET"])
+@login_required
+def takeaway():
+    maddh = request.args.get('maddh')
+    action = request.args.get('action')
+
+    ct_don_dat_hang_list = CT_DonDatHang.query.filter_by(idDDH=maddh).all()
+    print(ct_don_dat_hang_list)
+    return render_template(
+        'admin/orderdoan/order.html',
+        maddh=maddh,
+        action=action,
+        ctddh=ct_don_dat_hang_list
+    )
+
 
 @order.route("/products/grouped", methods=["GET"])
 def get_grouped_products():
