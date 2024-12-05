@@ -78,7 +78,6 @@ def luu_chi_tiet_ban(ma_ddh):
             flash('Vui lòng chọn ít nhất một bàn', 'danger')
             return redirect(url_for('dondathang.confirm'))
 
-        # 2. Lấy các đơn đặt hàng khác trong cùng ngày
         other_bookings = db.session.query(DonDatHang, CT_DonDatHang).join(
             CT_DonDatHang,
             DonDatHang.MaDDH == CT_DonDatHang.idDDH
@@ -174,7 +173,7 @@ def ds_dondathang():
     now = datetime.now()
     page = request.args.get("page", 1, type=int)
     per_page = 10
-
+    customers = KhachHang.query.order_by(KhachHang.NgayMoThe).all()
     query = DonDatHang.query.join(
         CT_DonDatHang,
         DonDatHang.MaDDH == CT_DonDatHang.idDDH
@@ -278,6 +277,7 @@ def ds_dondathang():
         price_max=price_max,
         make_query_string=make_query_string,
         show_all=show_all,
+        customers=customers
     )
 
 
@@ -286,7 +286,11 @@ def ds_dondathang():
 def manage_booking():
     orders = DonDatHang.query.order_by(DonDatHang.MaDDH.desc()).all()
     customers = KhachHang.query.all()
-    tables = Ban.query.order_by(Ban.MaBan.asc()).all()
+    # tables = Ban.query.order_by(Ban.MaBan.asc()).all()
+    tables = Ban.query.filter(
+                ~Ban.TenBan.ilike('%Bàn chờ%')
+            ).all()
+    print(tables)
     events = []
 
     for order in orders:

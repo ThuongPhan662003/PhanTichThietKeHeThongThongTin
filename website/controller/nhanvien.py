@@ -163,13 +163,40 @@ def search():
             if tinhtrang:
                 query = query.filter(NhanVien.TinhTrang == tinhtrang)
         else: formSearch_error = True
-    
+    else:
+        # Lấy thông tin từ URL nếu không phải POST
+        manv = request.args.get('MaNV')
+        honv = request.args.get('HoTen')
+        tennv = request.args.get('TenNV')
+        ngayvaolam = request.args.get('NgayVaoLam')
+        tinhtrang = request.args.get('TinhTrang')
+
+        if manv:
+            query = query.filter(NhanVien.MaNV == manv)
+        if honv:
+            query = query.filter(NhanVien.HoNV == honv)
+        if tennv:
+            query = query.filter(NhanVien.TenNV == tennv)
+        if ngayvaolam:
+            query = query.filter(NhanVien.NgayVaoLam == ngayvaolam)
+        if tinhtrang:
+            query = query.filter(NhanVien.TinhTrang == tinhtrang)
+
     # Phân trang danh sách khách hàng
     page = request.args.get('page', 1, type=int) 
     per_page = 3
     pagination = query.paginate(page=page, per_page=per_page)
     nhanvien_list = pagination.items 
 
+    # Truyền các thông tin tìm kiếm qua URL
+    search_params = {
+        'MaNV': manv,
+        'HoNV': honv,
+        'TenNV': tennv,
+        'NgayVaoLam': form.NgayVaoLam.data if request.method == "POST" else ngayvaolam,
+        'TinhTrang': tinhtrang
+    }
+
     return render_template('admin/nhanvien/nhanvien.html', listNV=nhanvien_list,
                         formAdd=form_NV, formSearch=form, pagination=pagination,
-                        formAdd_error=formAdd_error, formSearch_error=formSearch_error)
+                        formAdd_error=formAdd_error, formSearch_error=formSearch_error, search_params=search_params)
