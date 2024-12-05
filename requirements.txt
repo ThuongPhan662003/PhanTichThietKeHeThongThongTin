@@ -13,4 +13,9 @@ beautifulsoup4
 Flask-Mail
 redis
 unidecode
+WTForms-Alchemy
+wtforms-sqlalchemy
+weasyprint
 email-validator
+flask_paginate
+xhtml2pdf
