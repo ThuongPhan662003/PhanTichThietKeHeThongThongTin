@@ -219,7 +219,6 @@ def add_ingredients():
     return render_template('admin/nguyenlieu/formNLDaCo.html', ingredients=ingredients)
 
 
-
 @nguyenlieu.route('/import-ingredients', methods=['POST'])
 @login_required
 def import_ingredients():
