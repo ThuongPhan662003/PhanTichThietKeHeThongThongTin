@@ -190,13 +190,19 @@
               </a>
             </li>
             <li class="navbar-item">
-            <a href="{{url_for("nguoidung.account")}}" class="navbar-link hover-underline">
-              <div class="separator"></div>
+  {% if current_user.is_authenticated %}  <!-- Kiểm tra xem người dùng đã đăng nhập chưa -->
+    <a href="{{ url_for('nguoidung.account') }}" class="navbar-link hover-underline">
+      <div class="separator"></div>
+      <span class="span">Information</span>
+    </a>
+  {% else %}
+    <a href="{{ url_for('auth.login') }}" class="navbar-link hover-underline">
+      <div class="separator"></div>
+      <span class="span">Login</span>
+    </a>
+  {% endif %}
+</li>
 
-              <span class="span">Information</span>
-            </a>
-            
-          </li>
             
           </ul>
 

@@ -4,6 +4,7 @@ import re
 import secrets
 import string
 
+from website.controller.mail import send_email
 from website.webforms import SignUpForm
 from .models import KhachHang, NguoiDung, NhomNguoiDung
 from flask import (
@@ -54,6 +55,7 @@ def role_required(required_roles):
         def decorated_function(*args, **kwargs):
             print("chưa")
             if not current_user.is_authenticated:
+                
                 return redirect(url_for("auth.login"))  # Trang đăng nhập
 
             if isinstance(required_roles, list):
@@ -81,13 +83,14 @@ def login():
         MatKhau = request.form.get("MatKhau")
         print(UserName)
         user = NguoiDung.query.filter_by(UserName=UserName).first()
-
+        print(user)
         if user and user.MatKhau == MatKhau:
             tenNND = (
                 NhomNguoiDung.query.filter_by(MaNND=user.idNND)
                 .first()
                 .getTenNhomNguoiDung()
             )
+            print("current_user", current_user.get_id())
             if tenNND != "Khách hàng":
                 login_user(user, remember=True)
                 flash("Login successful!", category="success")
@@ -126,7 +129,9 @@ def authorize():
         "https://www.googleapis.com/oauth2/v3/userinfo"
     )  # Gọi endpoint userinfo để lấy thông tin người dùng
     user_info = resp.json()
-    user_id = int(NguoiDung.query.filter_by(UserName=user_info.get("email")).first().get_id())
+    user_id = int(
+        NguoiDung.query.filter_by(UserName=user_info.get("email")).first().get_id()
+    )
     if user_id is None:
         TenNhomNguoiDung = "Khách hàng"
         idNND = int(
@@ -150,7 +155,6 @@ def authorize():
         NgayMoThe = datetime.datetime.now()
 
         new_customer = KhachHang(
-            MaKH=None,
             HoKH=user_info.get("family_name"),
             TenKH=user_info.get("given_name"),
             SDT="",
@@ -195,6 +199,7 @@ def sign_up():
         MatKhau1 = request.form.get("MatKhau1")
         MatKhau2 = request.form.get("MatKhau2")
         Email = request.form.get("Email")
+        GioiTinh = request.form.get("gender")
         ten_parts = str(HoTen).split()
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         print(SDT)
@@ -233,7 +238,6 @@ def sign_up():
             # db.session.commit()
             user_id = int(NguoiDung.query.filter_by(UserName=UserName).first().get_id())
             customer = KhachHang(
-                MaKH=None,
                 HoKH=ho,
                 TenKH=ten,
                 SDT=SDT,
@@ -244,9 +248,67 @@ def sign_up():
                 idNguoiDung=user_id,
                 LoaiKH="Thường",
             )
+            customer.set_GioiTinh(GioiTinh)
             print(customer)
             db.session.add(customer)
             db.session.commit()
             login_user(new_user, remember=True)
             flash("Account created!", category="success")
             return redirect(url_for("views.homepage"))
+    return render_template("auth/sign_up.html")
+
+
+@auth.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        username = request.form.get("UserName")
+
+        # Kiểm tra xem người dùng có tồn tại trong cơ sở dữ liệu không
+        user = NguoiDung.query.filter(NguoiDung.UserName == username).first()
+
+        if user:
+            # Lấy email của người dùng
+            email = (
+                KhachHang.query.filter(KhachHang.idNguoiDung == user.get_id())
+                .first()
+                .get_Email()
+            )
+
+            # Tạo mật khẩu mới ngẫu nhiên
+            new_password = "".join(
+                secrets.choice(string.ascii_letters + string.digits) for _ in range(8)
+            )
+
+            # Băm mật khẩu mới và lưu vào cơ sở dữ liệu
+            user.set_MatKhau(new_password)
+            db.session.commit()
+
+            # Tạo nội dung email
+            msg_title = "Quên mật khẩu"
+            msg_body = f"""
+            Chào bạn, bạn đã yêu cầu thay đổi mật khẩu. Dưới đây là mật khẩu mới của bạn:
+
+            Mật khẩu mới: {new_password}
+
+            Hãy sử dụng mật khẩu này để đăng nhập vào tài khoản của bạn.
+            """
+
+            msg_link = url_for("auth.login", _external=True)  # Link tới trang đăng nhập
+            msg_namelink = "Click here to login"
+
+            # Gửi email cho người dùng
+            flag = send_email(email, msg_title, msg_body, msg_link, msg_namelink)
+
+            if flag == "successfully":
+                flash("Mật khẩu mới đã được gửi qua email của bạn.", category="success")
+                return redirect(url_for("auth.login"))
+            else:
+                flash(
+                    "Có vấn đề với việc gửi email. Vui lòng thử lại sau.",
+                    category="error",
+                )
+                return redirect(url_for("auth.forgot_password"))
+        else:
+            flash("Tài khoản không tồn tại.", category="error")
+
+    return render_template("auth/forgot_pass.html")

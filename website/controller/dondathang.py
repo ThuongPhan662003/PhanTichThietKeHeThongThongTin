@@ -1,5 +1,3 @@
-from asyncio.windows_events import NULL
-from re import I
 from flask import Blueprint, render_template, jsonify, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from website import db
@@ -7,25 +5,167 @@ from datetime import datetime, timedelta
 from website.models import *
 from sqlalchemy import func, extract
 
+
 dondathang = Blueprint("dondathang", __name__)
 
 @dondathang.route("/confirm", methods=["GET"])
 @login_required
 def confirm():
-
+    current = datetime.now()
+    print(current)
     unconfirmed_orders = db.session.query(DonDatHang).outerjoin(
         CT_DonDatHang,
         DonDatHang.MaDDH == CT_DonDatHang.idDDH
     ).filter(
-            CT_DonDatHang.idDDH.is_(None),
-            DonDatHang.Loai == 1
+        CT_DonDatHang.idDDH.is_(None),  
+        DonDatHang.Loai == 1,  
+        DonDatHang.TrangThai != 'Đã hoàn thành'
     ).all()
 
     return render_template(
         "admin/dondathang/confirm.html",
-        orders=unconfirmed_orders
+        orders=unconfirmed_orders,
+        customers=KhachHang.query.all(),
+        tables=[]  
     )
+@dondathang.route("/get-available-tables/<int:order_id>")
+@login_required
+def get_available_tables(order_id):
+    current_order = DonDatHang.query.get_or_404(order_id)
+    current_time_start = current_order.GioDen
+    current_duration = float(current_order.ThoiLuong)
+    
+    current_start_minutes = current_time_start.hour * 60 + current_time_start.minute
+    current_end_minutes = current_start_minutes + (current_duration * 60)
 
+    other_orders = db.session.query(DonDatHang, CT_DonDatHang).join(
+        CT_DonDatHang,
+        DonDatHang.MaDDH == CT_DonDatHang.idDDH
+    ).filter(
+        DonDatHang.NgayDat == current_order.NgayDat,
+        DonDatHang.MaDDH != order_id,
+        DonDatHang.TrangThai != 'Đã hoàn thành'
+    ).all()
+
+    busy_table_ids = set()
+    
+    for order, ct_order in other_orders:
+        other_start = order.GioDen
+        other_start_minutes = other_start.hour * 60 + other_start.minute
+        other_end_minutes = other_start_minutes + (float(order.ThoiLuong) * 60)
+        
+        if not (current_end_minutes <= other_start_minutes or other_end_minutes <= current_start_minutes):
+            busy_table_ids.add(ct_order.idBan)
+    
+    available_tables = Ban.query.filter(
+        ~Ban.MaBan.in_(busy_table_ids) if busy_table_ids else True
+    ).all()
+
+    return jsonify([{
+        'MaBan': table.MaBan,
+        'TenBan': table.TenBan
+    } for table in available_tables])
+from datetime import datetime, time
+
+@dondathang.route("/luu-chi-tiet-ban/<int:ma_ddh>", methods=["POST"])
+@login_required
+def luu_chi_tiet_ban(ma_ddh):
+    try:
+        don_dat_hang = DonDatHang.query.get_or_404(ma_ddh)
+
+        ma_ban_list = request.form.get('maBan', '').split(',')
+        if not ma_ban_list or ma_ban_list[0] == '':
+            flash('Vui lòng chọn ít nhất một bàn', 'danger')
+            return redirect(url_for('dondathang.confirm'))
+
+        other_bookings = db.session.query(DonDatHang, CT_DonDatHang).join(
+            CT_DonDatHang,
+            DonDatHang.MaDDH == CT_DonDatHang.idDDH
+        ).filter(
+            DonDatHang.NgayDat == don_dat_hang.NgayDat,
+            DonDatHang.MaDDH != ma_ddh,
+            DonDatHang.TrangThai != 'Đã hoàn thành',
+            CT_DonDatHang.idBan.in_([int(ma_ban) for ma_ban in ma_ban_list if ma_ban])
+        ).all()
+
+        current_start = don_dat_hang.GioDen.hour * 60 + don_dat_hang.GioDen.minute
+        current_end = current_start + int(float(don_dat_hang.ThoiLuong) * 60)
+
+        for booking, ct_booking in other_bookings:
+            booking_start = booking.GioDen.hour * 60 + booking.GioDen.minute
+            booking_end = booking_start + int(float(booking.ThoiLuong) * 60)
+
+            if (current_start < booking_end and current_end > booking_start):
+                flash(f'Bàn {ct_booking.idBan} đã được đặt trong khoảng thời gian từ {booking.GioDen} đến {booking_end//60}:{booking_end%60}', 'danger')
+                return redirect(url_for('dondathang.confirm'))
+        if request.form.get('ngayDat'):
+            don_dat_hang.NgayDat = datetime.strptime(request.form.get('ngayDat'), '%Y-%m-%d').date()
+            
+        if request.form.get('gioDen'):
+            gio_den_str = request.form.get('gioDen')
+            try:
+                don_dat_hang.GioDen=gio_den_str
+              
+            except ValueError as ve:
+                parts = gio_den_str.split(':')
+                if len(parts) != 3:  
+                    raise ValueError("Giờ đến không đúng định dạng HH:mm:ss!")
+                hour, minute, second = map(int, parts)
+                don_dat_hang.GioDen = time(hour, minute, second)
+
+        if request.form.get('soLuongNguoi'):
+            don_dat_hang.SoLuongNguoi = int(request.form.get('soLuongNguoi'))
+            
+        if request.form.get('thoiluong'):
+            don_dat_hang.ThoiLuong = float(request.form.get('thoiluong'))
+            
+        if request.form.get('ghiChu'):
+            don_dat_hang.GhiChu = request.form.get('ghiChu')
+
+        for ma_ban in ma_ban_list:
+            if ma_ban: 
+                existing_detail = CT_DonDatHang.query.filter_by(
+                    idDDH=ma_ddh,
+                    idBan=int(ma_ban)
+                ).first()
+                
+                if not existing_detail:
+                    chi_tiet = CT_DonDatHang(
+                        idDDH=ma_ddh,
+                        idBan=int(ma_ban),
+                        ThanhTien=0  
+                    )
+                    db.session.add(chi_tiet)
+
+        ma_kh = request.form.get('maKH')
+
+        if not ma_kh:
+            flash('Vui lòng chọn khách hàng', 'danger')
+            return redirect(url_for('dondathang.confirm'))
+
+        hoa_don = HoaDon(
+            idKH=int(ma_kh),
+            idDDH=ma_ddh,
+            idNV=current_user.MaND,
+            NgayXuat=datetime.now(),
+            TongTienGiam=0,  
+            TongTien=0,
+            TrangThai=0,
+            TienThue='0',   
+            DiemCong=0,     
+            DiemTru=0     
+        )
+        db.session.add(hoa_don)
+        
+        db.session.commit()
+        
+        flash('Đã xác nhận đơn đặt hàng và tạo hóa đơn thành công!', 'success')
+        return redirect(url_for('dondathang.confirm'))
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Đã có lỗi xảy ra: {str(e)}', 'danger')
+        return redirect(url_for('dondathang.confirm'))
 
 @dondathang.route("/ds-dondathang", methods=["GET"])
 @login_required
@@ -33,18 +173,23 @@ def ds_dondathang():
     now = datetime.now()
     page = request.args.get("page", 1, type=int)
     per_page = 10
+    customers = KhachHang.query.order_by(KhachHang.NgayMoThe).all()
+    query = DonDatHang.query.join(
+        CT_DonDatHang,
+        DonDatHang.MaDDH == CT_DonDatHang.idDDH
+    ).distinct()
 
-    query = DonDatHang.query
     show_all = request.args.get("show_all") == "1"
-
     selected_status = request.args.getlist("status")
     selected_types = request.args.getlist("type")
     selected_year = request.args.get("year", "")
     selected_month = request.args.get("month", "")
+    selected_day = request.args.get("day", "")
     price_min = request.args.get("price_min", "")
     price_max = request.args.get("price_max", "")
 
-    if not show_all:
+    # Chỉ áp dụng filter ngày hiện tại nếu không có lọc thời gian và không show_all
+    if not show_all and not (selected_year or selected_month or selected_day):
         query = query.filter(DonDatHang.NgayDat == now.date())
 
     if selected_status:
@@ -53,21 +198,30 @@ def ds_dondathang():
     if selected_types:
         query = query.filter(DonDatHang.Loai.in_([t == "1" for t in selected_types]))
 
-    if show_all:
-        if selected_year and selected_month:
-            query = query.filter(
-                extract("year", DonDatHang.NgayDat) == int(selected_year),
-                extract("month", DonDatHang.NgayDat) == int(selected_month),
-            )
-        elif selected_year:
-            query = query.filter(
-                extract("year", DonDatHang.NgayDat) == int(selected_year)
-            )
-        elif selected_month:
-            query = query.filter(
-                extract("month", DonDatHang.NgayDat) == int(selected_month)
-            )
-
+    # Lọc theo thời gian (luôn hiển thị tất cả)
+    if selected_year and selected_month and selected_day:
+        query = query.filter(
+            extract("year", DonDatHang.NgayDat) == int(selected_year),
+            extract("month", DonDatHang.NgayDat) == int(selected_month),
+            extract("day", DonDatHang.NgayDat) == int(selected_day)
+        )
+    elif selected_year and selected_month:
+        query = query.filter(
+            extract("year", DonDatHang.NgayDat) == int(selected_year),
+            extract("month", DonDatHang.NgayDat) == int(selected_month)
+        )
+    elif selected_year:
+        query = query.filter(
+            extract("year", DonDatHang.NgayDat) == int(selected_year)
+        )
+    elif selected_month:
+        query = query.filter(
+            extract("month", DonDatHang.NgayDat) == int(selected_month)
+        )
+    elif selected_day:
+        query = query.filter(
+            extract("day", DonDatHang.NgayDat) == int(selected_day)
+        )
     try:
         if price_min:
             price_min_value = float(price_min.replace(".", "").replace(",", ""))
@@ -110,22 +264,20 @@ def ds_dondathang():
         return args
 
     return render_template(
-        "admin/dondathang/dsDonDatHang.html",
+         "admin/dondathang/dsDonDatHang.html",
         orders=orders,
         pagination=pagination,
         now=now,
         selected_status=selected_status,
         selected_types=selected_types,
-        selected_year=(
-            int(selected_year) if selected_year and selected_year.isdigit() else None
-        ),
-        selected_month=(
-            int(selected_month) if selected_month and selected_month.isdigit() else None
-        ),
+        selected_year=(int(selected_year) if selected_year and selected_year.isdigit() else None),
+        selected_month=(int(selected_month) if selected_month and selected_month.isdigit() else None),
+        selected_day=(int(selected_day) if selected_day and selected_day.isdigit() else None),
         price_min=price_min,
         price_max=price_max,
         make_query_string=make_query_string,
         show_all=show_all,
+        customers=customers
     )
 
 
@@ -134,7 +286,11 @@ def ds_dondathang():
 def manage_booking():
     orders = DonDatHang.query.order_by(DonDatHang.MaDDH.desc()).all()
     customers = KhachHang.query.all()
-    tables = Ban.query.order_by(Ban.MaBan.asc()).all()
+    # tables = Ban.query.order_by(Ban.MaBan.asc()).all()
+    tables = Ban.query.filter(
+                ~Ban.TenBan.ilike('%Bàn chờ%')
+            ).all()
+    print(tables)
     events = []
 
     for order in orders:
@@ -481,7 +637,7 @@ def xoa_don_dat_hang_cu():
         don_dat_hangs = DonDatHang.query.filter(
             DonDatHang.NgayDat < datetime.now().date(),
             DonDatHang.ThanhTien == 0,
-            DonDatHang.TrangThai.in_(["Đã hủy", "Chưa bắt đầu"]),
+            DonDatHang.TrangThai.in_(["Đã hủy", "Chưa bắt đầu", "Đang chế biến"]),
         ).all()
 
         count = 0
