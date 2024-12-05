@@ -161,7 +161,7 @@ def protected_area():
 
 
 @auth.route("/logout")
-@role_required(["Nhân viên","Nhân viên kho" "Quản lý", "Khách hàng"])
+# @role_required(["Nhân viên","Nhân viên kho" "Quản lý", "Khách hàng"])
 def logout():
     logout_user()
     return redirect(url_for("auth.login"))

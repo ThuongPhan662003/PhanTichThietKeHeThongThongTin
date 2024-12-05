@@ -56,18 +56,18 @@ Thông tin nhân viên
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Xác nhận nhân viên nghỉ làm</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                Xác nhận nhân viên đã nghỉ làm ?
+                                Bạn có chắc chắn muốn xác nhận nhân viên nghỉ làm?
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary"
-                                    data-bs-dismiss="modal">No</button>
+                                    data-bs-dismiss="modal">Cancel</button>
                                 <form action="{{ url_for('nhanvien.an_nhanvien', manv=nv.MaNV) }}" method="POST">
-                                    <button type="submit" class="btn btn-outline-primary">Yes</button>
+                                    <button type="submit" class="btn btn-outline-danger">Xác nhận</button>
                                 </form>
                             </div>
                         </div>

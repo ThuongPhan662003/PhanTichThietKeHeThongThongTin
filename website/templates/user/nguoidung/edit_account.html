@@ -7,6 +7,12 @@ Chỉnh sửa tài khoản
 {% endblock %}
 {% block content %}
 <div class="container mt-5" style="max-width: 600px;">
+    {% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" ">
+        <strong >{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
     <form method="POST">
         <div class="mb-3">
             <label for="UserName" class="form-label">Tên tài khoản</label>

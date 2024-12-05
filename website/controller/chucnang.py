@@ -58,7 +58,7 @@ def add():
     if request.method == "POST":
         ten_mh = request.form["TenManHinh"]
         if ChucNang.query.filter(ChucNang.TenManHinh == ten_mh).first():
-            flash("Tên chức năng là duy nhất!", "error")
+            flash("Tên chức năng là duy nhất!", "danger")
             return render_template(
                 "admin/chucnang/add.html", nhom_nguoi_dung=nhom_nguoi_dung
             )
@@ -76,19 +76,22 @@ def add():
 def edit(id):
     chucnang = ChucNang.query.get_or_404(id)
     nhom_nguoi_dung = NhomNguoiDung.query.all()
+    TenManHinh = request.form.get("TenManHinh")
     if request.method == "POST":
-
-        chucnang.setTenManHinh(request.form["TenManHinh"])
-        if  ChucNang.query.filter(ChucNang.TenManHinh == chucnang.getTenManHinh).first():
-            flash("Tên chức năng là duy nhất!", "error")
+        func = ChucNang.query.filter(ChucNang.TenManHinh == TenManHinh).first()
+        if func and func.MaCN != chucnang.MaCN:
+            flash("Tên chức năng này đã tồn tại!", "danger")
             return render_template(
                 "admin/chucnang/edit.html",
                 chucnang=chucnang,
                 nhom_nguoi_dung=nhom_nguoi_dung,
             )
+        
+        chucnang.setTenManHinh(request.form["TenManHinh"])
         # chucnang.Quyen = request.form["Quyen"]
         db.session.commit()
         flash("Cập nhật chức năng thành công!", "success")
+        print("jajajs")
         return redirect(url_for("chucnang.list_chucnang"))
 
     return render_template(
@@ -101,7 +104,7 @@ def edit(id):
 def delete(id):
     chucnang = ChucNang.query.get_or_404(id)
     if PHANQUYEN.query.filter(PHANQUYEN.idCN == id):
-        flash("Chức năng này đã được phân quyền!", "error")
+        flash("Chức năng này đã được phân quyền!", "danger")
         return redirect(url_for("chucnang.list_chucnang"))
     db.session.delete(chucnang)
     db.session.commit()
