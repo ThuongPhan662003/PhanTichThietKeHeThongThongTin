@@ -133,6 +133,7 @@ def assign_role(id):
 
 
 @chucnang.route("/chucnang/remove_role/<int:idCN>/<int:idNND>", methods=["GET"])
+@role_required(["Quản lý"])
 def remove_role(idCN, idNND):
     try:
         # Tìm và xóa phân quyền

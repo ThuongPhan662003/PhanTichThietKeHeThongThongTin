@@ -14,7 +14,7 @@ nguoidung = Blueprint("nguoidung", __name__)
 
 
 @nguoidung.route("/")
-@role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân", "Khách hàng"])
+@role_required(["Nhân viên","Quản lý","Khách hàng"])
 def account():
     # Lấy thông tin username từ cookie
     username = current_user.UserName
@@ -83,7 +83,7 @@ def khachhang_detail(khachhang_id):
 
 
 @nguoidung.route("/edit_employee/<int:employee_id>", methods=["GET", "POST"])
-@role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân"])
+@role_required(["Nhân viên","Quản lý","Khách hàng"])
 def edit_employee(employee_id):
     # Truy xuất thông tin nhân viên
     employee = NhanVien.query.get_or_404(employee_id)
@@ -110,7 +110,7 @@ def edit_employee(employee_id):
 
 
 @nguoidung.route("/edit_account_employee/<int:user_id>", methods=["GET", "POST"])
-@role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân"])
+@role_required(["Nhân viên","Quản lý","Khách hàng"])
 def edit_account_employee(user_id):
     # Truy xuất thông tin người dùng
     user = NguoiDung.query.get_or_404(user_id)

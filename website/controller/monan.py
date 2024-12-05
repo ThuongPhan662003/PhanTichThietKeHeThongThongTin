@@ -5,6 +5,7 @@ from flask_login import login_required, current_user
 
 from flask import render_template, request
 from flask_paginate import Pagination, get_page_parameter
+from website.auth import role_required
 
 from website.models import MonAn,CT_MonAn
 from website.webforms import MonAnForm
@@ -19,7 +20,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @monan.route('/mon-an', methods=['GET'])
-@login_required
+@role_required(["Quản lý"])
 def danh_sach_mon_an():
     # Lấy từ khóa tìm kiếm (nếu có)
     ten_mon_an = request.args.get('ten_mon_an', '')
@@ -55,7 +56,7 @@ def danh_sach_mon_an():
                            ten_mon_an=ten_mon_an, form=form)
 
 @monan.route('/them-mon-an', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý"])
 def them_mon_an():
     form = MonAnForm()
     if form.validate_on_submit():
@@ -99,7 +100,7 @@ def them_mon_an():
     return render_template('admin/MonAn/danh_sach.html', form=form)
 
 @monan.route('/sua-mon-an/<int:ma_ma>', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý"])
 def sua_mon_an(ma_ma):
     mon_an = MonAn.query.get_or_404(ma_ma)
     form = MonAnForm(obj=mon_an)  # Đổ dữ liệu từ món ăn vào form
@@ -135,7 +136,7 @@ def sua_mon_an(ma_ma):
     flash('Cập nhật món ăn không thành công!', 'success')
     return render_template('admin/MonAn/danh_sach.html')
 @monan.route('/xoa-mon-an/<int:ma_ma>', methods=['POST'])
-@login_required
+@role_required(["Quản lý"])
 def xoa_mon_an(ma_ma):
     mon_an = MonAn.query.get_or_404(ma_ma)  # Lấy món ăn cần xóa
 

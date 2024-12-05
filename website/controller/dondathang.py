@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, jsonify, request, flash, redirect,
 from flask_login import login_required, current_user
 from website import db
 from datetime import datetime, timedelta
+from website.auth import role_required
 from website.models import *
 from sqlalchemy import func, extract
 
@@ -9,7 +10,7 @@ from sqlalchemy import func, extract
 dondathang = Blueprint("dondathang", __name__)
 
 @dondathang.route("/confirm", methods=["GET"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def confirm():
     current = datetime.now()
     print(current)
@@ -29,7 +30,7 @@ def confirm():
         tables=[]  
     )
 @dondathang.route("/get-available-tables/<int:order_id>")
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def get_available_tables(order_id):
     current_order = DonDatHang.query.get_or_404(order_id)
     current_time_start = current_order.GioDen
@@ -68,7 +69,7 @@ def get_available_tables(order_id):
 from datetime import datetime, time
 
 @dondathang.route("/luu-chi-tiet-ban/<int:ma_ddh>", methods=["POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def luu_chi_tiet_ban(ma_ddh):
     try:
         don_dat_hang = DonDatHang.query.get_or_404(ma_ddh)
@@ -168,7 +169,7 @@ def luu_chi_tiet_ban(ma_ddh):
         return redirect(url_for('dondathang.confirm'))
 
 @dondathang.route("/ds-dondathang", methods=["GET"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def ds_dondathang():
     now = datetime.now()
     page = request.args.get("page", 1, type=int)
@@ -282,7 +283,7 @@ def ds_dondathang():
 
 
 @dondathang.route("/quan-ly-dat-ban")
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def manage_booking():
     orders = DonDatHang.query.order_by(DonDatHang.MaDDH.desc()).all()
     customers = KhachHang.query.all()
@@ -381,7 +382,7 @@ def manage_booking():
 
 
 @dondathang.route("/them-don-dat-hang", methods=["POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def them_don_dat_hang():
     try:
         maKH = request.form.get("maKH")
@@ -477,7 +478,7 @@ def them_don_dat_hang():
 
 
 @dondathang.route("/sua-don-dat-hang", methods=["POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def sua_don_dat_hang():
     try:
         ma_ddh = request.form.get("maDDH")
@@ -546,7 +547,7 @@ def sua_don_dat_hang():
 
 
 @dondathang.route("/cap-nhat-ban", methods=["POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên"])
 def cap_nhat_ban():
     try:
         ma_ddh = request.form.get("maDDH")

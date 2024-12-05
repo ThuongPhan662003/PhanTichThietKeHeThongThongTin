@@ -3,6 +3,7 @@ from datetime import datetime
 import random
 import string
 from flask import Blueprint
+from website.auth import role_required
 
 from website.models import LOAIVOUCHER, VOUCHER
 from sqlalchemy.exc import SQLAlchemyError
@@ -14,19 +15,14 @@ from flask import render_template, jsonify
 from website.models import CT_DonDatHang, db, Ban, LoaiBan
 from flask_paginate import Pagination, get_page_parameter
 
+from flask import render_template, request
 from website.webforms import LoaiVoucherForm
 
 loaivoucher = Blueprint("loaivoucher", __name__)
 
-from flask import render_template, request
-
-from flask import render_template, request
-
-from flask import render_template, request
-from flask_paginate import Pagination, get_page_parameter
 
 @loaivoucher.route('/list', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý"])
 def danh_sach_loaivoucher():
     # Lấy từ request để kiểm tra nếu có từ khóa tìm kiếm
     ten_loai_voucher = request.args.get('ten_loai_voucher', '')
@@ -61,7 +57,7 @@ def danh_sach_loaivoucher():
                            loai_kh=loai_kh, form=form)
 
 @loaivoucher.route('/add', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý"])
 def them_loai_voucher():
     form = LoaiVoucherForm()
     if form.SoLuongConLai.data is None:
@@ -118,7 +114,7 @@ def them_loai_voucher():
 
 # Route sửa loại voucher
 @loaivoucher.route('/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý"])
 def sua_loai_voucher(id):
     loai_voucher = LOAIVOUCHER.query.get_or_404(id)
     form = LoaiVoucherForm(obj=loai_voucher)
@@ -148,7 +144,7 @@ def sua_loai_voucher(id):
     return render_template('admin/voucher/danh_sach_loaivoucher.html', form=form)
 
 @loaivoucher.route('/delete/<int:id>', methods=['POST'])
-@login_required
+@role_required(["Quản lý"])
 def xoa_loai_voucher(id):
     try:
         # Lấy loại voucher cần xóa từ cơ sở dữ liệu
@@ -168,7 +164,7 @@ def xoa_loai_voucher(id):
         return redirect(url_for('loaivoucher.danh_sach_loaivoucher'))  # Quay lại danh sách
     
 @loaivoucher.route('/loaivoucher/<int:id>/init_voucher', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý"])
 def init_voucher(id):
     # Lấy thông tin loại voucher từ ID
     loai_voucher = LOAIVOUCHER.query.get_or_404(id)

@@ -4,6 +4,7 @@ from decimal import Decimal
 from website import db
 from sqlalchemy import or_, and_
 from datetime import datetime
+from website.auth import role_required
 from website.models import *
 from website.models import PHIEUNHAP, CT_PHIEUNHAP
 from website.webforms import NguyenLieuForm 
@@ -15,7 +16,7 @@ nguyenlieu = Blueprint("nguyenlieu", __name__)
 
 @nguyenlieu.route("/ingredients", methods=["GET", "POST"])
 @nguyenlieu.route("/ingredients/edit/<int:id>", methods=["GET", "POST"])
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def ingredients(id=None):
     page = request.args.get('page', 1, type=int)
     
@@ -74,7 +75,7 @@ def ingredients(id=None):
     )
 
 @nguyenlieu.route('/filter_ingredients', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def filter_ingredients():
     form = NguyenLieuForm()
     page = request.args.get('page', 1, type=int)
@@ -112,7 +113,7 @@ def filter_ingredients():
     return render_template('admin/nguyenlieu/nguyenlieu.html', form=form, ingredients=filtered_ingredients, selected_units=units, selected_stock=stock, price_min=price_min, price_max=price_max,  endpoint='nguyenlieu.filter_ingredients')
 
 @nguyenlieu.route('/search_ingredients', methods=['GET'])
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def search_ingredients():
     form = NguyenLieuForm()
     query = request.args.get('query', '')
@@ -125,7 +126,7 @@ def search_ingredients():
 
 
 @nguyenlieu.route('/delete_ingredient/<int:id>')
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def delete_ingredient(id):
     try:
         ingredient = NguyenLieu.query.get_or_404(id)
@@ -151,7 +152,7 @@ def delete_ingredient(id):
     return redirect(url_for('nguyenlieu.ingredients'))
     
 @nguyenlieu.route('/add_ingredients', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def add_ingredients():
     if request.method == 'POST':
         ngay_nhap = request.form.get("ngayNhap")
@@ -220,7 +221,7 @@ def add_ingredients():
 
 
 @nguyenlieu.route('/import-ingredients', methods=['POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def import_ingredients():
     if 'excel_file' not in request.files:
         flash('No file part', 'danger')
@@ -277,7 +278,7 @@ def import_ingredients():
     return redirect(url_for('nguyenlieu.ingredients'))
 
 @nguyenlieu.route('/download-template')
-@login_required
+@role_required(["Quản lý","Nhân viên","Nhân viên kho"])
 def download_template():
     sample_data = {
         'Tên nguyên liệu': ['Ví dụ: Cà phê', 'Ví dụ: Sữa'],

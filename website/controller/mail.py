@@ -2,11 +2,13 @@ import datetime
 from flask import Blueprint, jsonify, render_template, request
 from flask_mail import Message
 from website.__init__ import mail_app
+from website.auth import role_required
 
 mail_sender = Blueprint("mail_sender", __name__)
 
 
 @mail_sender.route("/send_email/<email>", methods=["GET"])
+@role_required(["Quản lý","Nhân viên","Khách hàng"])
 def send_email(email, msg_title, msg_body, msg_link, msg_namelink):
     global mail_app
     # msg_title = "This is a test email"

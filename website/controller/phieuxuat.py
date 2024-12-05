@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import func, cast, Date, or_
 from website import db
 from datetime import datetime
+from website.auth import role_required
 from website.models import PHIEUXUAT, CT_PHIEUXUAT
 from website.models import *
 import json
@@ -40,7 +41,7 @@ def get_delivery_notes(page, start_date=None, end_date=None, query_search=None):
     return query.order_by(PHIEUXUAT.NgayXuat.desc()).paginate(page=page, per_page=9)
 
 @phieuxuat.route('/delivery_notes', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def delivery_notes():
     page = request.args.get('page', 1, type=int)
     
@@ -49,7 +50,7 @@ def delivery_notes():
     return render_template('admin/phieuxuat/phieuxuat.html', results=results)
 
 @phieuxuat.route('/filter_delivery_notes', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def filter_delivery_notes():
     page = request.args.get('page', 1, type=int)
 
@@ -67,7 +68,7 @@ def filter_delivery_notes():
     )
 
 @phieuxuat.route('/delivery_note/<int:note_id>', methods=['GET'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def delivery_note_detail(note_id):
     delivery_note = PHIEUXUAT.query.get_or_404(note_id)
     details = [{
@@ -88,7 +89,7 @@ def delivery_note_detail(note_id):
 
 
 @phieuxuat.route('/add_delivery_notes', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def add_delivery_notes():
     if request.method == 'POST':
         ngay_xuat = request.form.get("ngayXuat")
@@ -155,7 +156,7 @@ def add_delivery_notes():
     return render_template('admin/phieuxuat/formNhapPX.html', ingredients=ingredients)
 
 @phieuxuat.route('/export-to-excel/<int:note_id>')
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def export_to_excel(note_id):
     delivery_note = PHIEUXUAT.query.get_or_404(note_id)
     
@@ -263,7 +264,7 @@ def export_to_excel(note_id):
         download_name=filename
     )
 @phieuxuat.route('/edit_phieuxuat/<int:note_id>', methods=['GET', 'POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def edit_phieuxuat(note_id):
     phieu_xuat = PHIEUXUAT.query.get_or_404(note_id)
     
@@ -324,7 +325,7 @@ import os
 from website.utils import BackupUtilsPhieuXuat
 
 @phieuxuat.route('/delete_phieuxuat/<int:note_id>', methods=['POST'])
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def delete_phieuxuat(note_id):
     try:
         with db.session.begin_nested():
@@ -350,7 +351,7 @@ def delete_phieuxuat(note_id):
         return redirect(url_for('phieuxuat.delivery_notes'))
 
 @phieuxuat.route('/view_backups')
-@login_required
+@role_required(["Quản lý","Nhân viên kho"])
 def view_backups():
     try:
         backups = BackupUtilsPhieuXuat.get_all_backups()
@@ -361,7 +362,7 @@ def view_backups():
         return redirect(url_for('phieuxuat.delivery_notes'))
 
 @phieuxuat.route('/restore_phieuxuat/<string:filename>', methods=['POST'])
-@login_required 
+@role_required(["Quản lý","Nhân viên kho"]) 
 def restore_phieuxuat(filename):
     try:
         if not BackupUtilsPhieuXuat.can_restore(filename):
