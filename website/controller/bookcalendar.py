@@ -58,7 +58,7 @@ def save_event():
         new_event.set_TrangThai("Chưa bắt đầu")
         new_event.set_Loai(1)
         new_event.set_SoLuongNguoi(int(number_persons))
-        new_event.set_ThoiLuong(duration)
+        new_event.set_ThoiLuong(float(duration/60))
         new_event.set_GioDen(time)
         new_event.set_NgayDat(date.date())
         new_event.set_GhiChu(ghichu)

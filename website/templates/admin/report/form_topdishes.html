@@ -1,5 +1,11 @@
 {% extends "admin/base.html" %} {% block title %} Đơn đặt hàng {% endblock %} {%
 block content %}
+{% for category, message in get_flashed_messages(with_categories=True) %}
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" ">
+    <strong >{{ message }}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
 <div style="margin: auto ;">
     <h1>Generate Top-Selling Dishes Report</h1>
 <form action="/report/dishes" method="POST">

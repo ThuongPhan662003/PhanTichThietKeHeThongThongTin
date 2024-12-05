@@ -1,11 +1,12 @@
 {% extends "user/nguoidung/base_user.html" %}
 
 {% block title %}Danh Sách Hóa Đơn{% endblock %}
-
+{% block header %}
+<h1 class="text-center">Danh sách hóa đơn</h1>
+{% endblock %}
 {% block content %}
-<section class="section my-5">
-  <div class="container">
-    <h2 class="text-center text-uppercase fw-bold mb-4">Danh Sách Hóa Đơn</h2>
+<!-- <section class="section my-5"> -->
+  <!-- <div class="container"> -->
 
     <div class="card shadow-sm p-4">
       <div class="table-responsive">
@@ -16,7 +17,7 @@
               <th class="text-center">Ngày Xuất</th>
               <th class="text-center">Tổng Tiền (VNĐ)</th>
               <th class="text-center">Trạng Thái</th>
-              <th class="text-center">Hành Động</th>
+
             </tr>
           </thead>
           <tbody>
@@ -25,17 +26,13 @@
               <tr>
                 <td class="text-center">{{ hoa_don.MaHD }}</td>
                 <td class="text-center">{{ hoa_don.NgayXuat.strftime('%d-%m-%Y') }}</td>
-                <td class="text-center">{{ hoa_don.TongTien | floatformat:2 }}</td>
+                <td class="text-center">{{ hoa_don.TongTien }}</td>
                 <td class="text-center">
                   <span class="badge {{ 'bg-success' if hoa_don.TrangThai else 'bg-warning' }}">
                     {{ 'Hoàn tất' if hoa_don.TrangThai else 'Đang xử lý' }}
                   </span>
                 </td>
-                <td class="text-center">
-                  <a href="{{ url_for('user_bill.chi_tiet_hoa_don', mahd=hoa_don.MaHD) }}" class="btn btn-primary btn-sm">
-                    Xem Chi Tiết
-                  </a>
-                </td>
+                
               </tr>
               {% endfor %}
             {% else %}
@@ -47,8 +44,8 @@
         </table>
       </div>
     </div>
-  </div>
-</section>
+  <!-- </div> -->
+<!-- </section> -->
 
 <style>
   .card {

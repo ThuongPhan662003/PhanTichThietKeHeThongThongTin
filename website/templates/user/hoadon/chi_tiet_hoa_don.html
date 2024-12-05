@@ -1,74 +1,94 @@
 {% extends "user/nguoidung/base_user.html" %}
 
-{% block title %}
-Chi Tiết Hóa Đơn
+{% block title %}Chi Tiết Hóa Đơn{% endblock %}
+{% block header %}
+<h1 class="text-center">Danh sách hóa đơn</h1>
 {% endblock %}
-
 {% block content %}
-<section class="section my-5">
-  <div class="container">
-    <h2 class="text-center text-uppercase fw-bold mb-4">Chi Tiết Hóa Đơn</h2>
-    
-    <!-- Thông tin hóa đơn -->
-    <div class="card shadow-sm p-4 mb-5">
-      <h4 class="fw-bold mb-3">Thông tin hóa đơn</h4>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item"><strong>Mã Hóa Đơn:</strong> {{ hoa_don.MaHD }}</li>
-        <li class="list-group-item"><strong>Ngày Xuất:</strong> {{ hoa_don.NgayXuat.strftime('%d-%m-%Y') }}</li>
-        <li class="list-group-item"><strong>Tổng Tiền:</strong> {{ hoa_don.TongTien | floatformat:2 }} VNĐ</li>
-        <li class="list-group-item"><strong>Tiền Thuế:</strong> {{ hoa_don.TienThue | floatformat:2 }} VNĐ</li>
-        <li class="list-group-item"><strong>Trạng Thái:</strong> 
-          <span class="badge {{ 'bg-success' if hoa_don.TrangThai else 'bg-warning' }}">
-            {{ 'Hoàn tất' if hoa_don.TrangThai else 'Đang xử lý' }}
-          </span>
-        </li>
-      </ul>
-    </div>
+<div class="py-5">
+  <!-- Nút quay lại -->
+  <div class=" d-flex justify-content-start" style="margin-left: 50px;margin-bottom: 20px;">
+    <a href="{{ url_for('user_bill.xem_hoa_don') }}" class="btn btn-secondary btn-lg">
+      <i class="fas fa-arrow-left"></i> Quay Lại Danh Sách Hóa Đơn
+    </a>
+  </div>
+  <div class="container"  style="width: 100%;">
+    <div class="row">
+      <!-- Cột thông tin hóa đơn -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-light">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Thông Tin Hóa Đơn</h4>
+          </div>
+          <div class="card-body">
+            <table class="table table-striped">
+              <tbody>
+                <tr>
+                  <td><strong>Mã Hóa Đơn:</strong></td>
+                  <td>{{ hoa_don.MaHD }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Ngày Xuất:</strong></td>
+                  <td>{{ hoa_don.NgayXuat.strftime('%d-%m-%Y') }}</td>
+                </tr>
+                <tr>
+                  <td><strong>Tổng Tiền:</strong></td>
+                  <td>{{ hoa_don.TongTien }} VND</td>
+                </tr>
+                <tr>
+                  <td><strong>Tiền Thuế:</strong></td>
+                  <td>{{ hoa_don.TienThue }} VND</td>
+                </tr>
+                <tr>
+                  <td><strong>Trạng Thái:</strong></td>
+                  <td>
+                    {% if hoa_don.TrangThai %}
+                      <span>Hoàn tất</span>
+                    {% else %}
+                      <span>Đang xử lý</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
-    <!-- Chi tiết đơn đặt hàng -->
-    <div class="card shadow-sm p-4">
-      <h4 class="fw-bold mb-3">Chi Tiết Đơn Đặt Hàng</h4>
-      <div class="table-responsive">
-        <table class="table table-bordered table-hover">
-          <thead class="table-light">
-            <tr>
-              <th class="text-center">Bàn</th>
-              <th class="text-center">Thành Tiền (VNĐ)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for ct in ct_ddh %}
-            <tr>
-              <td class="text-center">{{ ct.idBan }}</td>
-              <td class="text-center">{{ ct.ThanhTien | floatformat:2 }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <!-- Cột chi tiết đơn hàng -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm border-light">
+          <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Chi Tiết Đơn Hàng</h4>
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Tên Sản Phẩm</th>
+                  <th>Số Lượng</th>
+                  <th>Đơn Giá (VND)</th>
+                  <th>Thành Tiền (VND)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in hoa_don.chi_tiet %}
+                <tr>
+                  <td>{{ item.ten_san_pham }}</td>
+                  <td>{{ item.so_luong }}</td>
+                  <td>{{ item.don_gia }}</td>
+                  <td>{{ item.thanh_tien }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
+
+    
   </div>
-</section>
-
-<style>
-  .card {
-    border-radius: 10px;
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-  }
-
-  .badge {
-    font-size: 1rem;
-    padding: 0.5em 1em;
-    border-radius: 10px;
-  }
-
-  .table {
-    margin-bottom: 0;
-  }
-
-  .table th, .table td {
-    vertical-align: middle;
-  }
-</style>
+  
+<!-- </section> -->
 {% endblock %}
