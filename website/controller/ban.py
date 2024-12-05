@@ -6,14 +6,14 @@ from unidecode import unidecode
 from flask import render_template, jsonify
 from website.models import CT_DonDatHang, db, Ban, LoaiBan
 from flask_paginate import Pagination, get_page_parameter
-from website.role import role_required
+
 from website.webforms import BanForm
 
 ban = Blueprint("ban", __name__)
 
 
 @ban.route("/ban", methods=["GET"])
-@role_required(["Quản lý","Nhân viên"])
+@login_required
 def danh_sach_ban():
     # try:
         # Lấy tham số tìm kiếm và trang hiện tại từ URL
@@ -67,11 +67,15 @@ def danh_sach_ban():
     #     return jsonify({"error": str(e)}), 500
     
 @ban.route("/add", methods=["GET", "POST"])
-@role_required(["Quản lý","Nhân viên"])
+@login_required
 def add_ban():
     form = BanForm()
     if form.validate_on_submit():
         try:
+            existing_ban = Ban.query.filter(Ban.TenBan == form.TenBan.data).first()
+            if existing_ban:
+                flash("Tên bàn đã tồn tại, vui lòng chọn tên khác!", "danger")
+                return redirect(url_for("ban.danh_sach_ban"))
             new_ban = Ban(
                 TenBan=form.TenBan.data,
                 ViTri=form.ViTri.data,
@@ -88,7 +92,7 @@ def add_ban():
     return render_template("admin/loaiban/danh_sach_ban.html", form=form)
 
 @ban.route("/ban/edit/<int:id>", methods=["GET", "POST"])
-@role_required(["Quản lý","Nhân viên"])
+@login_required
 def edit_ban(id):
     ban = Ban.query.get_or_404(id)  # Tìm bàn theo ID, nếu không có thì trả về 404
     form = BanForm(obj=ban)  # Khởi tạo form với dữ liệu hiện tại của bàn
@@ -96,9 +100,10 @@ def edit_ban(id):
     if request.method == "POST" and form.validate_on_submit():
         try:
             # Kiểm tra xem tên bàn mới có trùng với tên bàn nào khác không
-            # if   Ban.query.filter_by(TenBan=form.TenBan.data).first():  
-            #     flash("Tên bàn đã tồn tại, vui lòng chọn tên khác!", "danger")
-            #     return redirect(url_for("ban.danh_sach_ban"))
+            existing_ban = Ban.query.filter(Ban.TenBan == form.TenBan.data, Ban.MaBan != id).first()
+            if existing_ban:
+                flash("Tên bàn đã tồn tại, vui lòng chọn tên khác!", "danger")
+                return redirect(url_for("ban.danh_sach_ban"))
             
             # Cập nhật dữ liệu bàn
             ban.TenBan = form.TenBan.data
@@ -117,7 +122,7 @@ def edit_ban(id):
 
 
 @ban.route('/ban/delete/<int:id>', methods=['POST'])
-@role_required(["Quản lý","Nhân viên"])
+@login_required
 def delete_ban(id):
     ban = Ban.query.get_or_404(id)  # Lấy thông tin bàn cần xóa
 

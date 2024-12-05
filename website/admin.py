@@ -109,17 +109,16 @@ def sign_up():
                     print("user_id", user_id)
                     db.session.commit()  # Cập nhật nhân viên vào DB
 
-                # Đăng nhập người dùng mới và chuyển hướng
-                login_user(new_user, remember=True)
-                if (
-                    NhomNguoiDung.query.filter_by(MaNND=role_name)
-                    .first()
-                    .getTenNhomNguoiDung()
-                    == "Khách hàng"
-                ):
-                    return redirect(url_for("views.homepage"))
-                else:
-                    return redirect(url_for("views.admin_home"))
+                
+                # if (
+                #     NhomNguoiDung.query.filter_by(MaNND=role_name)
+                #     .first()
+                #     .getTenNhomNguoiDung()
+                #     == "Khách hàng"
+                # ):
+                #     return redirect(url_for("views.homepage"))
+                # else:
+                #     return redirect(url_for("views.admin_home"))
 
             except SQLAlchemyError as e:
                 # Nếu có lỗi xảy ra trong quá trình thêm người dùng hoặc cập nhật nhân viên, rollback

@@ -4,6 +4,12 @@ Chi tiết nhóm quyền
 {% endblock %}
 
 {% block content %}
+{% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" ">
+        <strong >{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
 <div class="row">
     <div class="col-md-12">
         <h1 class="mb-4">Chi tiết nhóm quyền</h1>
