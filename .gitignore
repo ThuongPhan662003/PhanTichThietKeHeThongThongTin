@@ -4,4 +4,5 @@ json/config.json
 website/controller/__pycache__
 */**/__pycache__
 logs
-
+backups
+node_modules

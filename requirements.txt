@@ -12,7 +12,6 @@ reportlab
 beautifulsoup4
 Flask-Mail
 redis
-fullcalendar-scheduler
 unidecode
 WTForms-Alchemy
 wtforms-sqlalchemy

@@ -14,6 +14,7 @@ nguoidung = Blueprint("nguoidung", __name__)
 
 
 @nguoidung.route("/")
+@role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân", "Khách hàng"])
 def account():
     # Lấy thông tin username từ cookie
     username = current_user.UserName
@@ -38,7 +39,7 @@ def account():
     # Kiểm tra vai trò của người dùng (Nhân viên hoặc khách hàng)
     if TenNhomND in "Khách hàng":
         khachhang = KhachHang.query.filter_by(idNguoiDung=MaND).first()
-        GioiTinh = int.from_bytes(khachhang.GioiTinh, byteorder="big")
+        GioiTinh = khachhang.GioiTinh
         print(khachhang.getHoTen())
         if GioiTinh == 1:
             random_number = random.randint(0, 50)
@@ -54,7 +55,7 @@ def account():
         )
     else:
         employee = NhanVien.query.filter_by(idNguoiDung=MaND).first()
-        GioiTinh = int.from_bytes(employee.GioiTinh, byteorder="big")
+        GioiTinh = employee.GioiTinh
         if GioiTinh == 1:
             random_number = random.randint(0, 50)
         else:
@@ -70,6 +71,7 @@ def account():
 
 
 @nguoidung.route("/khachhang/<int:khachhang_id>")
+@role_required(["Khách hàng"])
 def khachhang_detail(khachhang_id):
     # Lấy thông tin khách hàng theo ID
     khachhang = KhachHang.query.get_or_404(khachhang_id)

@@ -19,26 +19,16 @@ Nguyên liệu
             </div>
             <div class="col-lg-8">
                 <div class="float-end">
-                    <a class="btn btn-outline-danger" type="submit" href="{{url_for('nguyenlieu.add_ingredients')}}">
-
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-plus-circle mb-1" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                            <path
-                                d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-                        </svg>
-                        Thêm nguyên liệu có sẵn
-                    </a>
-                    <a type="button" class="btn btn-outline-success mb-1" data-bs-toggle="modal"
+                    <a type="button" class="btn btn-outline-success" data-bs-toggle="modal"
                         data-bs-target="#importExcelModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                            class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                            class="bi bi-file-earmark-excel mb-1" viewBox="0 0 16 16">
                             <path
                                 d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z" />
                             <path
                                 d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z" />
                         </svg>
-                        Nhập từ file excel
+                        Thêm từ file excel
                     </a>
 
                     <div class="modal fade" id="importExcelModal" tabindex="-1" aria-labelledby="exampleModalLabel"

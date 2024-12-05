@@ -3,6 +3,8 @@ from functools import wraps
 import re
 import secrets
 import string
+
+from website.webforms import SignUpForm
 from .models import KhachHang, NguoiDung, NhomNguoiDung
 from flask import (
     Blueprint,
@@ -50,11 +52,12 @@ def role_required(required_roles):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-
-            if current_user.MaND is None:
+            print("chưa")
+            if not current_user.is_authenticated:
                 return redirect(url_for("auth.login"))  # Trang đăng nhập
 
             if isinstance(required_roles, list):
+                print("đăng nhâp")
                 # Kiểm tra nếu người dùng có ít nhất một vai trò yêu cầu
                 if not any(current_user.has_role(role) for role in required_roles):
                     abort(403)  # Truy cập bị cấm
@@ -64,7 +67,9 @@ def role_required(required_roles):
                     abort(403)
 
             return f(*args, **kwargs)
+
         return decorated_function
+
     return decorator
 
 
@@ -83,7 +88,7 @@ def login():
                 .first()
                 .getTenNhomNguoiDung()
             )
-            if tenNND != 'Khách hàng':
+            if tenNND != "Khách hàng":
                 login_user(user, remember=True)
                 flash("Login successful!", category="success")
                 return redirect(url_for("admin.admin_home"))
@@ -95,6 +100,7 @@ def login():
             flash("Invalid username or password.", category="error")
 
     return render_template("auth/login.html", user=current_user)
+
 
 @auth.route("/google_login")
 def google_login():
@@ -119,8 +125,47 @@ def authorize():
     resp = google.get(
         "https://www.googleapis.com/oauth2/v3/userinfo"
     )  # Gọi endpoint userinfo để lấy thông tin người dùng
-    user_info = resp.json() 
+    user_info = resp.json()
+    user_id = int(NguoiDung.query.filter_by(UserName=user_info.get("email")).first().get_id())
+    if user_id is None:
+        TenNhomNguoiDung = "Khách hàng"
+        idNND = int(
+            NhomNguoiDung.query.filter_by(TenNhomNguoiDung=TenNhomNguoiDung)
+            .first()
+            .getMaNND()
+        )
+        new_user = NguoiDung(
+            MaND=None,
+            UserName=user_info.get("email"),
+            TrangThai=1,
+            MatKhau="".join(
+                secrets.choice(string.ascii_letters + string.digits) for _ in range(6)
+            ),
+            VerifyCode="".join(
+                secrets.choice(string.ascii_letters + string.digits) for _ in range(6)
+            ),
+            idNND=int(idNND),
+        )
+        db.session.add(new_user)
+        NgayMoThe = datetime.datetime.now()
 
+        new_customer = KhachHang(
+            HoKH=user_info.get("family_name"),
+            TenKH=user_info.get("given_name"),
+            SDT="",
+            Email=user_info.get("email"),
+            NgayMoThe=NgayMoThe,
+            DiemTieuDung=0,
+            DiemTichLuy=0,
+            idNguoiDung=user_id,
+            LoaiKH="Thường",
+        )
+        db.session.add(new_customer)
+        db.session.commit()
+        login_user(new_user, remember=True)
+        flash("Account created!", category="success")
+    else:
+        login_user(new_user, remember=True)
     return redirect(url_for("auth.protected_area"))
 
 
@@ -128,12 +173,12 @@ def authorize():
 def protected_area():
     # next_page = session.pop("next", url_for("views.homepage"))
     # print("nexxt", next_page, url_for("views.homepage"))
-    
+
     return redirect(url_for("views.homepage"))
 
 
 @auth.route("/logout")
-@role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân","Khách hàng"])
+@role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân", "Khách hàng"])
 def logout():
     logout_user()
     return redirect(url_for("auth.login"))
@@ -149,6 +194,7 @@ def sign_up():
         MatKhau1 = request.form.get("MatKhau1")
         MatKhau2 = request.form.get("MatKhau2")
         Email = request.form.get("Email")
+        GioiTinh = request.form.get("gender")
         ten_parts = str(HoTen).split()
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         print(SDT)
@@ -184,10 +230,9 @@ def sign_up():
             )
             print(new_user)
             db.session.add(new_user)
-            db.session.commit()
+            # db.session.commit()
             user_id = int(NguoiDung.query.filter_by(UserName=UserName).first().get_id())
             customer = KhachHang(
-                MaKH=None,
                 HoKH=ho,
                 TenKH=ten,
                 SDT=SDT,
@@ -198,11 +243,11 @@ def sign_up():
                 idNguoiDung=user_id,
                 LoaiKH="Thường",
             )
+            customer.set_GioiTinh(GioiTinh)
             print(customer)
             db.session.add(customer)
             db.session.commit()
             login_user(new_user, remember=True)
             flash("Account created!", category="success")
             return redirect(url_for("views.homepage"))
-
-    return render_template("auth/sign_up.html", user=current_user)
+    return render_template("auth/sign_up.html")

@@ -25,10 +25,6 @@ def ingredients(id=None):
         try:
             # thêm
             if ingredient is None:
-                if not form.NgayNhap.data:
-                    flash('Ngày nhập không được để trống!', 'danger')
-                    return redirect(url_for('nguyenlieu.ingredients'))
-
                 ingredient_name = form.TenNguyenLieu.data
                 existing_ingredient = NguyenLieu.query.filter_by(TenNguyenLieu=ingredient_name).first()
                 if existing_ingredient:
@@ -39,39 +35,10 @@ def ingredients(id=None):
                     TenNguyenLieu=form.TenNguyenLieu.data,
                     DonGia=form.DonGia.data,
                     DonViTinh=form.DonViTinh.data,
-                    SoLuongTon=form.SoLuongTon.data
+                    SoLuongTon=0
                 )
                 db.session.add(new_ingredient)
-                db.session.flush() 
-
-                nhan_vien = NhanVien.query.filter_by(idNguoiDung=current_user.MaND).first()
-                if nhan_vien is None:
-                    flash('Không tìm thấy nhân viên!', 'danger')
-                    db.session.rollback()
-                    return redirect(url_for('nguyenlieu.ingredients'))
-                
-                existing_phieunhap = PHIEUNHAP.query.filter_by(NgayNhap=form.NgayNhap.data, idNV=nhan_vien.MaNV).first()
-                if existing_phieunhap:
-                    new_phieunhap = existing_phieunhap
-                    flash('Phiếu nhập đã tồn tại cho ngày này, sẽ được cập nhật thông tin.', 'info')
-                else:
-                    new_phieunhap = PHIEUNHAP(
-                        NgayNhap=form.NgayNhap.data,
-                        idNV=nhan_vien.MaNV
-                    )
-                    db.session.add(new_phieunhap)
-                    db.session.flush()  
-
-                thanh_tien = form.SoLuongTon.data * form.DonGia.data
-                new_chitietphieunhap = CT_PHIEUNHAP(
-                    SoLuong=form.SoLuongTon.data,
-                    ThanhTien=thanh_tien,
-                    idNL=new_ingredient.MaNL,
-                    idNhap=new_phieunhap.SoPhieuNhap
-                )
-                db.session.add(new_chitietphieunhap)
-                new_phieunhap.TongTien = Decimal((new_phieunhap.TongTien or 0)) + thanh_tien
-                message = 'Nguyên liệu mới và thông tin phiếu nhập đã được thêm thành công!'
+                message = 'Nguyên liệu mới đã được thêm thành công!'
             
             else:
                 ingredient_name = form.TenNguyenLieu.data
@@ -126,7 +93,6 @@ def filter_ingredients():
     if price_max:
         query = query.filter(NguyenLieu.DonGia <= float(price_max))
     
-    # Tạo một danh sách các điều kiện lọc
     filters = []
 
     if 'out_of_stock' in stock:
@@ -138,7 +104,6 @@ def filter_ingredients():
     if 'over_20' in stock:
         filters.append(NguyenLieu.SoLuongTon > 20)
 
-    # Áp dụng tất cả các bộ lọc với or_
     if filters:
         query = query.filter(or_(*filters))
     

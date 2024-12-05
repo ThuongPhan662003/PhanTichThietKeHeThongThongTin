@@ -32,9 +32,7 @@ def create_app():
     mail_port = config_data["MAIL_PORT"]
     mail_server = config_data["MAIL_SERVER"]
     mail_use_tls = config_data["MAIL_USE_TLS"]
-    mail_use_ssl = config_data["MAIL_USE_SSL"]
     mail_password = config_data["MAIL_PASSWORD"]
-    mail_default_sender = config_data["MAIL_DEFAULT_SENDER"]
     sqlalchemy_track_modifications = config_data["SQLALCHEMY_TRACK_MODIFICATIONS"]
     app.config["SECRET_KEY"] = secret
     app.config["SQLALCHEMY_DATABASE_URI"] = (
@@ -47,10 +45,8 @@ def create_app():
     app.config["MAIL_SERVER"] = mail_server
     app.config["MAIL_PORT"] = mail_port
     app.config["MAIL_USE_TLS"] = mail_use_tls
-    app.config["MAIL_USE_SSL"] = mail_use_ssl
     app.config["MAIL_USERNAME"] = mail_username
     app.config["MAIL_PASSWORD"] = mail_password
-    app.config["MAIL_DEFAULT_SENDER"] = mail_default_sender
 
     mail = Mail(app)
     db.init_app(app)
@@ -98,6 +94,7 @@ def create_app():
     from .controller.phieunhap import phieunhap
     from .controller.phieuxuat import phieuxuat
     from .controller.nguoidung import nguoidung
+    from .controller.dondathang import dondathang
 
     from .controller.nhanvien import nhanvien
     from .controller.khachhang import khachhang
@@ -129,15 +126,14 @@ def create_app():
     app.register_blueprint(phieunhap, url_prefix="/phieunhap")
     app.register_blueprint(phieuxuat, url_prefix="/phieuxuat")
     app.register_blueprint(nguoidung, url_prefix="/nguoidung")
-
     app.register_blueprint(nhanvien, url_prefix="/nhanvien")
+    app.register_blueprint(khachhang, url_prefix="/khachhang")
 
     app.register_blueprint(dondathang, url_prefix="/dondathang")
     app.register_blueprint(order, url_prefix="/order")
     app.register_blueprint(checkout, url_prefix="/checkout")
     app.register_blueprint(admin, url_prefix="/admin")
     app.register_blueprint(bookcalendar, url_prefix="/bookcalendar")
-    app.register_blueprint(khachhang, url_prefix="/khachhang")
     app.register_blueprint(report, url_prefix="/report")
     app.register_blueprint(chucnang, url_prefix="/chucnang")
     app.register_blueprint(monan, url_prefix="/monan")
