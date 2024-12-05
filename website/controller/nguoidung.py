@@ -151,7 +151,7 @@ def edit_customer(khachhang_id):
 
         # Lưu thay đổi vào cơ sở dữ liệu
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
-        if not re.match(email_regex, KhachHang.get_Email()):
+        if not re.match(email_regex, khachhang.get_Email()):
             flash("Email không hợp lệ.", category="danger")
             return render_template("/user/nguoidung/edit_customer.html", khachhang=khachhang)
         elif len(khachhang.get_SDT()) != 10:

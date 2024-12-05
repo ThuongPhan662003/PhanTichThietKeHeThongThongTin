@@ -144,8 +144,8 @@ class KhachHang(db.Model):
     __tablename__ = "KhachHang"
 
     MaKH = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    HoKH = db.Column(db.String(30), nullable=False)
-    TenKH = db.Column(db.String(10), nullable=False)
+    HoKH = db.Column(db.String(50), nullable=False)
+    TenKH = db.Column(db.String(50), nullable=False)
     SDT = db.Column(db.String(10), nullable=False, unique=True)
     Email = db.Column(db.String(100), nullable=False, unique=True)
     NgayMoThe = db.Column(db.Date, nullable=False)

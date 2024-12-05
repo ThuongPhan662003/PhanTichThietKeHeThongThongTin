@@ -260,7 +260,11 @@
           showMessage("Vui lòng điền đầy đủ thông tin!", "error");
           return;
         }
-
+        console.log("phone",phone)
+        if(phone == "None"){
+          showMessage("Bạn cần cập nhật số điện thoại ở trang cá nhân!", "error");
+          return;
+        }
         if (!/^\d{10}$/.test(phone)) {
           showMessage("Số điện thoại không hợp lệ!", "error");
           return;

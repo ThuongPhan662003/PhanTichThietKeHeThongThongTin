@@ -3,16 +3,17 @@
 Chỉnh sửa thông tin khách hàng
 {% endblock %}
 {% block header %}
-<h1 class="text-center">Chỉnh sửa thông tin khách hàng</h1>
-{% endblock %}
-{% block content %}
-<div class="container mt-5" style="max-width: 800px;">
-    {% for category, message in get_flashed_messages(with_categories=True) %}
+{% for category, message in get_flashed_messages(with_categories=True) %}
     <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" ">
         <strong >{{ message }}</strong>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endfor %}
+<h1 class="text-center">Chỉnh sửa thông tin khách hàng</h1>
+{% endblock %}
+{% block content %}
+<div class="container mt-5" >
+    
     <form method="POST">
         <div class="row">
             <div class="col-md-6">

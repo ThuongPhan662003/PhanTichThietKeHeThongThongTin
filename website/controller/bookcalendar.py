@@ -33,6 +33,11 @@ def save_event():
         print("phone", phone)
         email = data.get("email")
         print("email", email)
+        if phone is None:
+            return (
+                jsonify({"status": "error", "message": "Bạn cần bổ sung số điện thoại ở trang cá nhân"}),
+                400,
+            )
         date = datetime.strptime(data.get("date"), "%Y-%m-%d")
         time = datetime.strptime(data.get("time"), "%H:%M").time().strftime("%H:%M:%S")
         print("time", type(time))

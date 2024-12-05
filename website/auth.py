@@ -102,54 +102,75 @@ def google_login():
 
 @auth.route("/authorize")
 def authorize():
-    token = google.authorize_access_token()  # Lấy access token từ Google
-    resp = google.get(
-        "https://www.googleapis.com/oauth2/v3/userinfo"
-    )  # Gọi endpoint userinfo để lấy thông tin người dùng
-    user_info = resp.json()
-    user_id = int(
-        NguoiDung.query.filter_by(UserName=user_info.get("email")).first().get_id()
-    )
-    if user_id is None:
-        TenNhomNguoiDung = "Khách hàng"
-        idNND = int(
-            NhomNguoiDung.query.filter_by(TenNhomNguoiDung=TenNhomNguoiDung)
-            .first()
-            .getMaNND()
-        )
-        new_user = NguoiDung(
-            MaND=None,
-            UserName=user_info.get("email"),
-            TrangThai=1,
-            MatKhau="".join(
-                secrets.choice(string.ascii_letters + string.digits) for _ in range(6)
-            ),
-            VerifyCode="".join(
-                secrets.choice(string.ascii_letters + string.digits) for _ in range(6)
-            ),
-            idNND=int(idNND),
-        )
-        db.session.add(new_user)
-        NgayMoThe = datetime.datetime.now()
+    try:
+        # Lấy access token từ Google
+        token = google.authorize_access_token()
+        if not token:
+            flash("Không thể xác thực từ Google.", category="error")
+            return redirect(url_for("auth.login"))
+        
+        # Lấy thông tin người dùng từ Google
+        resp = google.get("https://www.googleapis.com/oauth2/v3/userinfo")
+        if not resp.ok:
+            flash("Không thể lấy thông tin từ Google.", category="error")
+            return redirect(url_for("auth.login"))
 
-        new_customer = KhachHang(
-            HoKH=user_info.get("family_name"),
-            TenKH=user_info.get("given_name"),
-            SDT="",
-            Email=user_info.get("email"),
-            NgayMoThe=NgayMoThe,
-            DiemTieuDung=0,
-            DiemTichLuy=0,
-            idNguoiDung=user_id,
-            LoaiKH="Thường",
-        )
-        db.session.add(new_customer)
-        db.session.commit()
-        login_user(new_user, remember=True)
-        flash("Account created!", category="success")
-    else:
-        login_user(new_user, remember=True)
-    return redirect(url_for("auth.protected_area"))
+        user_info = resp.json()
+        email = user_info.get("email")
+        if not email:
+            flash("Không thể lấy email từ Google.", category="error")
+            return redirect(url_for("auth.login"))
+
+        # Kiểm tra xem người dùng đã tồn tại trong hệ thống chưa
+        user_gg = NguoiDung.query.filter_by(UserName=email).first()
+        if user_gg:
+            # Người dùng đã tồn tại => Đăng nhập
+            login_user(user_gg, remember=True)
+            return redirect(url_for("auth.protected_area"))
+        else:
+            # Người dùng chưa tồn tại => Tạo tài khoản mới
+            nhom_khach_hang = NhomNguoiDung.query.filter_by(TenNhomNguoiDung="Khách hàng").first()
+            if not nhom_khach_hang:
+                flash("Lỗi hệ thống: Không tìm thấy nhóm khách hàng.", category="error")
+                return redirect(url_for("auth.login"))
+
+            # Tạo tài khoản mới
+            new_user = NguoiDung(
+                MaND=None,
+                UserName=email,
+                TrangThai=1,  # Kích hoạt tài khoản
+                MatKhau="".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(6)),
+                VerifyCode="".join(secrets.choice(string.ascii_letters + string.digits) for _ in range(6)),
+                idNND=nhom_khach_hang.getMaNND(),
+            )
+            db.session.add(new_user)
+            db.session.flush()  # Lưu tạm để lấy ID người dùng mới
+
+            # Tạo hồ sơ khách hàng
+            new_customer = KhachHang(
+                HoKH=user_info.get("family_name", ""),
+                TenKH=user_info.get("given_name", ""),
+                SDT= None,  # Số điện thoại không có từ Google
+                Email=email,
+                NgayMoThe=datetime.datetime.now(),
+                DiemTieuDung=0,
+                DiemTichLuy=0,
+                idNguoiDung=new_user.get_id(),
+                LoaiKH="Thường",  # Mặc định là khách hàng thường
+            )
+            print("sdt",new_customer.get_SDT())
+            db.session.add(new_customer)
+            db.session.commit()
+
+            # Đăng nhập tài khoản mới tạo
+            login_user(new_user, remember=True)
+            flash("Tài khoản của bạn đã được tạo thành công!", category="success")
+            return redirect(url_for("auth.protected_area"))
+    except Exception as e:
+        # Xử lý các lỗi phát sinh
+        db.session.rollback()
+        flash(f"Lỗi xảy ra: {str(e)}", category="error")
+        return redirect(url_for("auth.login"))
 
 
 @auth.route("/protected_area")
