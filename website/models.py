@@ -252,7 +252,6 @@ class KhachHang(db.Model):
         return self.HoKH + " " + self.TenKH
 
 
-
 class HoaDon(db.Model):
     __tablename__ = "HoaDon"
 
@@ -506,7 +505,6 @@ class NhanVien(db.Model):
 from datetime import datetime, date, time
 
 
-
 class DonDatHang(db.Model):
     __tablename__ = "DonDatHang"
 
@@ -524,26 +522,27 @@ class DonDatHang(db.Model):
         "CT_DonDatHang", backref="don_dat_hang", lazy=True
     )
     # hoa_don = db.relationship("HoaDon", back_populates="don_dat_hang")
-
-    def __init__(
-        self,
-        NgayDat,
-        SoLuongNguoi,
-        TrangThai,
-        Loai,
-        GioDen,
-        ThoiLuong=None,
-        idNV=None,
-        ThanhTien=None,
-    ):
-        # Xác thực và làm sạch dữ liệu
-        self.NgayDat = self.validate_ngay_dat(NgayDat)
-        self.TrangThai = self.validate_trang_thai(TrangThai)
-        self.Loai = self.validate_loai(Loai)
-        self.GioDen = self.validate_gio_den(GioDen)
-        self.ThoiLuong = self.validate_thoi_luong(ThoiLuong)
-        self.idNV = idNV
-        self.ThanhTien = self.validate_thanh_tien(ThanhTien)
+    def __init__(self):
+        pass
+    # def __init__(
+    #     self,
+    #     NgayDat,
+    #     SoLuongNguoi,
+    #     TrangThai,
+    #     Loai,
+    #     GioDen,
+    #     ThoiLuong=None,
+    #     idNV=None,
+    #     ThanhTien=None,
+    # ):
+    #     # Xác thực và làm sạch dữ liệu
+    #     self.NgayDat = self.validate_ngay_dat(NgayDat)
+    #     self.TrangThai = self.validate_trang_thai(TrangThai)
+    #     self.Loai = self.validate_loai(Loai)
+    #     self.GioDen = self.validate_gio_den(GioDen)
+    #     self.ThoiLuong = self.validate_thoi_luong(ThoiLuong)
+    #     self.idNV = idNV
+    #     self.ThanhTien = self.validate_thanh_tien(ThanhTien)
 
     def validate_ngay_dat(self, value):
         if not value or not isinstance(value, date):
