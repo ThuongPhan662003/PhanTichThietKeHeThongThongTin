@@ -159,29 +159,29 @@ class KhachHang(db.Model):
     nguoi_dung = db.relationship("NguoiDung", back_populates="khach_hang")
     hoa_don = db.relationship("HoaDon", backref="khach_hang", uselist=False)
 
-#     def __init__(
-#         self,
-#         HoKH,
-#         TenKH,
-#         SDT,
-#         Email,
-#         NgayMoThe,
-#         DiemTieuDung,
-#         DiemTichLuy,
-#         GioiTinh,
-#         idNguoiDung,
-#         LoaiKH="Thường",
-#     ):
+    def __init__(
+        self,
+        HoKH,
+        TenKH,
+        SDT,
+        Email,
+        NgayMoThe,
+        DiemTieuDung,
+        DiemTichLuy,
+        GioiTinh,
+        idNguoiDung,
+        LoaiKH="Thường",
+    ):
 
-#         self.HoKH = HoKH
-#         self.TenKH = TenKH
-#         self.SDT = SDT
-#         self.Email = Email
-#         self.NgayMoThe = NgayMoThe
-#         self.DiemTieuDung = DiemTieuDung
-#         self.DiemTichLuy = DiemTichLuy
-#         self.idNguoiDung = idNguoiDung
-#         self.LoaiKH = LoaiKH
+        self.HoKH = HoKH
+        self.TenKH = TenKH
+        self.SDT = SDT
+        self.Email = Email
+        self.NgayMoThe = NgayMoThe
+        self.DiemTieuDung = DiemTieuDung
+        self.DiemTichLuy = DiemTichLuy
+        self.idNguoiDung = idNguoiDung
+        self.LoaiKH = LoaiKH
 
     # Getters
     def get_MaKH(self):

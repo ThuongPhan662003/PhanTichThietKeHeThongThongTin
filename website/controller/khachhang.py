@@ -49,7 +49,8 @@ def customer():
                         DiemTieuDung=form.DiemTieuDung.data,
                         DiemTichLuy=form.DiemTichLuy.data,
                         LoaiKH=form.LoaiKH.data,
-                        GioiTinh=form.GioiTinh.data
+                        GioiTinh=form.GioiTinh.data, 
+                        idNguoiDung=None
                     )
                     db.session.add(kh)
                     db.session.commit()
