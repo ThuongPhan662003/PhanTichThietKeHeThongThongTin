@@ -2,7 +2,7 @@ import datetime
 from flask import Blueprint, jsonify, render_template, request
 from flask_mail import Message
 from website.__init__ import mail_app
-from website.auth import role_required
+from website.role import role_required
 
 mail_sender = Blueprint("mail_sender", __name__)
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required
 from website import db
-from website.auth import role_required
+from website.role import role_required
 from website.webforms import  LoaiBanForm
 from unidecode import unidecode
 from website.models import LoaiBan

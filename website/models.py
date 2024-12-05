@@ -1212,13 +1212,13 @@ class LOAIVOUCHER(db.Model):
     # def validate_soluong_con_lai(self, key, value):
     #     if value < 0:
     #         raise ValueError("Số lượng còn lại phải lớn hơn hoặc bằng 0")
-    @db.validates("NgayBatDau", "NgayKetThuc")
-    def validate_ngay(self, key, value):
-        if key == "NgayBatDau" and value >= self.NgayKetThuc:
-            raise ValueError("Ngày bắt đầu phải nhỏ hơn ngày kết thúc")
-        if key == "NgayKetThuc" and value <= self.NgayBatDau:
-            raise ValueError("Ngày kết thúc phải lớn hơn ngày bắt đầu")
-        return value
+    # @db.validates("NgayBatDau", "NgayKetThuc")
+    # def validate_ngay(self, key, value):
+    #     if key == "NgayBatDau" and value >= self.NgayKetThuc:
+    #         raise ValueError("Ngày bắt đầu phải nhỏ hơn ngày kết thúc")
+    #     if key == "NgayKetThuc" and value <= self.NgayBatDau:
+    #         raise ValueError("Ngày kết thúc phải lớn hơn ngày bắt đầu")
+    #     return value
 
     
     @db.validates("GiamToiDa")

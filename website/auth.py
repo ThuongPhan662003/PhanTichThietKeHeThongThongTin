@@ -5,6 +5,7 @@ import secrets
 import string
 
 from website.controller.mail import send_email
+from website.role import role_required
 from website.webforms import SignUpForm
 from .models import KhachHang, NguoiDung, NhomNguoiDung
 from flask import (
@@ -49,30 +50,7 @@ def init_oauth(app):
     )
 
 
-def role_required(required_roles):
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            print("chưa")
-            if not current_user.is_authenticated:
-                
-                return redirect(url_for("auth.login"))  # Trang đăng nhập
 
-            if isinstance(required_roles, list):
-                print("đăng nhâp")
-                # Kiểm tra nếu người dùng có ít nhất một vai trò yêu cầu
-                if not any(current_user.has_role(role) for role in required_roles):
-                    abort(403)  # Truy cập bị cấm
-            else:
-                # Kiểm tra một vai trò duy nhất
-                if not current_user.has_role(required_roles):
-                    abort(403)
-
-            return f(*args, **kwargs)
-
-        return decorated_function
-
-    return decorator
 
 
 @auth.route("/login", methods=["GET", "POST"])
@@ -94,7 +72,7 @@ def login():
             if tenNND != "Khách hàng":
                 login_user(user, remember=True)
                 flash("Login successful!", category="success")
-                return redirect(url_for("admin.admin_home"))
+                return redirect(url_for("nguoidung.account"))
             else:
                 login_user(user, remember=True)
                 flash("Login successful!", category="success")
@@ -112,14 +90,14 @@ def google_login():
     return google.authorize_redirect(redirect_uri)
 
 
-@auth.route("/")
-def index():
-    email = session.get("email")
-    return (
-        f"Hello, {email}!"
-        if email
-        else f'Hello, Guest! <a href="{url_for("auth.login")}">Login</a>'
-    )
+# @auth.route("/")
+# def index():
+#     email = session.get("email")
+#     return (
+#         f"Hello, {email}!"
+#         if email
+#         else f'Hello, Guest! <a href="{url_for("auth.login")}">Login</a>'
+#     )
 
 
 @auth.route("/authorize")
@@ -183,7 +161,7 @@ def protected_area():
 
 
 @auth.route("/logout")
-@role_required(["Bếp", "Phục vụ & kho", "Quản lý", "Thu ngân", "Khách hàng"])
+@role_required(["Nhân viên","Nhân viên kho" "Quản lý", "Khách hàng"])
 def logout():
     logout_user()
     return redirect(url_for("auth.login"))
@@ -259,6 +237,7 @@ def sign_up():
 
 
 @auth.route("/forgot_password", methods=["GET", "POST"])
+@role_required(["Khách hàng"])
 def forgot_password():
     if request.method == "POST":
         username = request.form.get("UserName")

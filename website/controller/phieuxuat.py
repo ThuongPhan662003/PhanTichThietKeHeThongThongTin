@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from sqlalchemy import func, cast, Date, or_
 from website import db
 from datetime import datetime
-from website.auth import role_required
+from website.role import role_required
 from website.models import PHIEUXUAT, CT_PHIEUXUAT
 from website.models import *
 import json

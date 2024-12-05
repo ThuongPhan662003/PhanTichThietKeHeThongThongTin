@@ -2,7 +2,7 @@ from flask import Blueprint, make_response, render_template, request, session
 from sqlalchemy import func
 from weasyprint import HTML
 from website import db
-from website.auth import role_required
+from website.role import role_required
 from website.models import KhachHang, HoaDon
 from flask_login import login_required
 

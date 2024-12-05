@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, flash, jsonify, redirect,
 from flask_login import login_required, current_user
 from decimal import Decimal
 from website import db
-from website.auth import role_required
+from website.role import role_required
 from website.models import Ban, CT_DonDatHang, CT_MonAn, HoaDon, MonAn
 from website.models import KhachHang
 from website.models import DonDatHang

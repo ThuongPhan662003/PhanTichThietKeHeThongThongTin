@@ -3,7 +3,7 @@ from datetime import datetime
 import random
 import string
 from flask import Blueprint
-from website.auth import role_required
+from website.role import role_required
 
 from website.models import LOAIVOUCHER, VOUCHER
 from sqlalchemy.exc import SQLAlchemyError

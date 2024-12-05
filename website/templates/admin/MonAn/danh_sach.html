@@ -6,7 +6,7 @@ Quản lý loại voucher
 
 {% block content %}
 <div class="col-md-12">
-    <h1 class="mb-4">Danh sách Bàn</h1>
+    <h1 class="mb-4">Danh sách Món Ăn</h1>
     <div class="row align-items-center mb-4">
         <!-- Form tìm kiếm và nút thêm bàn cùng một hàng -->
         <div class="col-md-6">
@@ -14,11 +14,13 @@ Quản lý loại voucher
             <!-- Form tìm kiếm món ăn -->
             <form method="GET" action="{{ url_for('monan.danh_sach_mon_an') }}">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Tìm kiếm món ăn" name="ten_mon_an" value="{{ ten_mon_an }}">
+                    <input type="text" class="form-control" placeholder="Tìm kiếm món ăn" name="ten_mon_an"
+                        value="{{ ten_mon_an }}">
                     <select name="loai_mon_an" class="form-control ml-2">
                         <option value="">Chọn loại món ăn</option>
                         {% for loai in form.Loai.choices %}
-                        <option value="{{ loai[0] }}" {% if loai[0] == loai_mon_an %}selected{% endif %}>{{ loai[1] }}</option>
+                        <option value="{{ loai[0] }}" {% if loai[0]==loai_mon_an %}selected{% endif %}>{{ loai[1] }}
+                        </option>
                         {% endfor %}
                     </select>
                     <button class="btn btn-outline-secondary" type="submit">Tìm kiếm</button>
@@ -141,8 +143,8 @@ Quản lý loại voucher
                 <td>{{ mon_an.TrangThai }}</td>
                 <td>
                     {% if mon_an.HinhAnh %}
-                    <img src="{{ url_for('static', filename= mon_an.HinhAnh) }}"
-                        alt="{{ mon_an.TenMonAn }}" width="100">
+                    <img src="{{ url_for('static', filename= mon_an.HinhAnh) }}" alt="{{ mon_an.TenMonAn }}"
+                        width="100">
                     {% else %}
                     Chưa có hình
                     {% endif %}
@@ -157,9 +159,10 @@ Quản lý loại voucher
                     <!-- Nút Xóa Món Ăn -->
                     <form method="POST" action="{{ url_for('monan.xoa_mon_an', ma_ma=mon_an.MaMA) }}"
                         style="display: inline;">
-                        {{ form.hidden_tag() }} <!-- CSRF token -->
+                        {{ form.hidden_tag() }}
+                        <!-- CSRF token -->
                         <button type="submit" class="btn btn-danger btn-sm"
-                            onclick="return confirm('Bạn có chắc muốn xóa không?');">Xóa</button>
+                            onclick="confirm('Bạn có chắc muốn xóa không?');">Xóa</button>
                     </form>
 
                 </td>
@@ -261,9 +264,9 @@ Quản lý loại voucher
 
 <link rel="stylesheet" href="{{url_for('static', filename='css/style_message.css')}}">
 <!-- Thêm Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 
 <!-- Thêm Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script> -->
 
 {% endblock %}

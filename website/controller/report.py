@@ -17,7 +17,7 @@ from prompt_toolkit import HTML
 from website import db
 from sqlalchemy import func, cast, Date, text
 from datetime import datetime
-from website.auth import role_required
+from website.role import role_required
 from website.models import *
 from website.models import NguoiDung, NhomNguoiDung
 from flask import Response, render_template, request

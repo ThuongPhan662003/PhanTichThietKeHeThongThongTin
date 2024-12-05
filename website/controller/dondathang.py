@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, jsonify, request, flash, redirect,
 from flask_login import login_required, current_user
 from website import db
 from datetime import datetime, timedelta
-from website.auth import role_required
+from website.role import role_required
 from website.models import *
 from sqlalchemy import func, extract
 

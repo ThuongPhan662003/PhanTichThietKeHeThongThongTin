@@ -34,33 +34,39 @@ Quản lý nhân viên
         <div class="d-flex flex-row justify-content-end gap-1 mb-3">
             <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#formAdd"
                 aria-expanded="false" aria-controls="formAdd">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                  </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-plus-circle" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                    <path
+                        d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                </svg>
                 Thêm nhân viên
             </button>
             <button class="btn btn-dark" type="button" data-bs-toggle="collapse" data-bs-target="#formSearch"
                 aria-expanded="false" aria-controls="formSearch">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                  </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                </svg>
                 Tìm kiếm
             </button>
         </div>
 
         <!-- Add Form -->
         <div class="col">
-            <div class="accordion-collapse collapse" id="formAdd" data-error="{{ 'true' if formAdd_error else 'false' }}">
+            <div class="accordion-collapse collapse" id="formAdd"
+                data-error="{{ 'true' if formAdd_error else 'false' }}">
                 <div class="card card-body">
-                    <form id="form-add" action="{{ url_for('nhanvien.employee') }}" method="POST" >
+                    <form id="form-add" action="{{ url_for('nhanvien.employee') }}" method="POST">
                         <div class="row">
                             <div class="col-6">
                                 {{ formAdd.hidden_tag() }}
                                 <div class="row">
                                     <div class="col-8 mb-3">
                                         <label for="honv">{{ formAdd.HoNV.label }}</label>
-                                        {{ formAdd.HoNV(class="form-control mt-2", placeholder="Nhập họ và tên lót - VD: Nguyễn Văn") }}
+                                        {{ formAdd.HoNV(class="form-control mt-2", placeholder="Nhập họ và tên lót - VD:
+                                        Nguyễn Văn") }}
                                         {% if formAdd.HoNV.errors %}
                                         <span class="form-error">{{ formAdd.HoNV.errors[0] }}</span>
                                         {% endif %}
@@ -76,14 +82,16 @@ Quản lý nhân viên
                                 </div>
                                 <div class="mb-3">
                                     <label for="cccd">{{ formAdd.CCCD.label }}</label>
-                                    {{ formAdd.CCCD(class="form-control mt-2", placeholder="Nhập 12 ký tự số - VD: 050012345678") }}
+                                    {{ formAdd.CCCD(class="form-control mt-2", placeholder="Nhập 12 ký tự số - VD:
+                                    050012345678") }}
                                     {% if formAdd.CCCD.errors %}
                                     <span class="form-error">{{ formAdd.CCCD.errors[0]}}</span>
                                     {% endif %}
                                 </div>
                                 <div class="mb-3">
                                     <label for="email">{{ formAdd.Email.label }}</label>
-                                    {{ formAdd.Email(class="form-control mt-2", placeholder="Nhập email - VD: ngvana@gmail.com") }}
+                                    {{ formAdd.Email(class="form-control mt-2", placeholder="Nhập email - VD:
+                                    ngvana@gmail.com") }}
                                     {% if formAdd.Email.errors %}
                                     <span class="form-error">{{ formAdd.Email.errors[0]}}</span>
                                     {% endif %}
@@ -94,7 +102,8 @@ Quản lý nhân viên
                             <div class="col-6">
                                 <div class="mb-3">
                                     <label for="sdt">{{ formAdd.SDT.label }}</label>
-                                    {{ formAdd.SDT(class="form-control mt-2", placeholder="Nhập số điện thoại - VD: 0123456789") }}
+                                    {{ formAdd.SDT(class="form-control mt-2", placeholder="Nhập số điện thoại - VD:
+                                    0123456789") }}
                                     {% if formAdd.SDT.errors %}
                                     <span class="form-error">{{ formAdd.SDT.errors[0]}}</span>
                                     {% endif %}
@@ -102,14 +111,16 @@ Quản lý nhân viên
                                 <div class="row">
                                     <div class="col-6 mb-3">
                                         <label for="ngaysinh">{{ formAdd.NgaySinh.label }}</label>
-                                        {{ formAdd.NgaySinh(class="form-control mt-2", placeholder="Nhập ngày sinh - VD: 12/12/2003") }}
+                                        {{ formAdd.NgaySinh(class="form-control mt-2", placeholder="Nhập ngày sinh - VD:
+                                        12/12/2003") }}
                                         {% if formAdd.NgaySinh.errors %}
                                         <span class="form-error">{{ formAdd.NgaySinh.errors[0]}}</span>
                                         {% endif %}
                                     </div>
                                     <div class=" col-6 mb-3">
                                         <label for="ngayvaolam">{{ formAdd.NgayVaoLam.label }}</label>
-                                        {{ formAdd.NgayVaoLam(class="form-control mt-2", placeholder="Nhập ngày vào làm - VD: 22/11/2024") }}
+                                        {{ formAdd.NgayVaoLam(class="form-control mt-2", placeholder="Nhập ngày vào làm
+                                        - VD: 22/11/2024") }}
                                         {% if formAdd.NgayVaoLam.errors %}
                                         <span class="form-error">{{ formAdd.NgayVaoLam.errors[0]}}</span>
                                         {% endif %}
@@ -142,7 +153,8 @@ Quản lý nhân viên
 
         <!-- Search Form -->
         <div class="col">
-            <div class="accordion-collapse collapse" id="formSearch" data-error="{{ 'true' if formSearch_error else 'false' }}">
+            <div class="accordion-collapse collapse" id="formSearch"
+                data-error="{{ 'true' if formSearch_error else 'false' }}">
                 <div class="card card-body">
                     <form id="form-search" action="{{ url_for('nhanvien.search') }}" method="POST">
                         <div class="row">
@@ -178,7 +190,8 @@ Quản lý nhân viên
                                 <div class="row">
                                     <div class=" col-6 mb-3">
                                         <label for="ngayvaolam">{{ formSearch.NgayVaoLam.label }}</label>
-                                        {{ formSearch.NgayVaoLam(class="form-control mt-2", placeholder="Nhập ngày vào làm - VD: 22/11/2024") }}
+                                        {{ formSearch.NgayVaoLam(class="form-control mt-2", placeholder="Nhập ngày vào
+                                        làm - VD: 22/11/2024") }}
                                         {% if formSearch.NgayVaoLam.errors %}
                                         <span class="form-error">{{ formSearch.NgayVaoLam.errors[0]}}</span>
                                         {% endif %}
@@ -242,26 +255,26 @@ Quản lý nhân viên
 
                 {% if pagination.has_prev %}
                 <li class="pagination-item">
-                    <a href="{{ url_for('nhanvien.search', page=pagination.prev_num, **search_params) if search_params else url_for('nhanvien.employee', page=pagination.prev_num) }}" 
-                       class="btn btn-dark">Previous</a>
+                    <a href="{{ url_for('nhanvien.search', page=pagination.prev_num, **search_params) if search_params else url_for('nhanvien.employee', page=pagination.prev_num) }}"
+                        class="btn btn-dark">Previous</a>
                 </li>
                 {% endif %}
-        
+
                 {% for page_num in range(1, pagination.pages + 1) %}
                 <li class="pagination-item">
                     {% if page_num == pagination.page %}
                     <a href="#" class="btn btn-dark disabled">{{ page_num }}</a>
                     {% else %}
-                    <a href="{{ url_for('nhanvien.search', page=page_num, **search_params) if search_params else url_for('nhanvien.employee', page=page_num) }}" 
-                       class="btn btn-outline-dark">{{ page_num }}</a>
+                    <a href="{{ url_for('nhanvien.search', page=page_num, **search_params) if search_params else url_for('nhanvien.employee', page=page_num) }}"
+                        class="btn btn-outline-dark">{{ page_num }}</a>
                     {% endif %}
                 </li>
                 {% endfor %}
-        
+
                 {% if pagination.has_next %}
                 <li class="pagination-item">
-                    <a href="{{ url_for('nhanvien.search', page=pagination.next_num, **search_params) if search_params else url_for('nhanvien.employee', page=pagination.next_num) }}" 
-                       class="btn btn-dark">Next</a>
+                    <a href="{{ url_for('nhanvien.search', page=pagination.next_num, **search_params) if search_params else url_for('nhanvien.employee', page=pagination.next_num) }}"
+                        class="btn btn-dark">Next</a>
                 </li>
                 {% endif %}
             </ul>
@@ -270,7 +283,7 @@ Quản lý nhân viên
 </div>
 
 <script>
-    window.onload = function() {
+    window.onload = function () {
         // Kiểm tra nếu có lỗi và mở collapse tương ứng
         var collapse1 = document.getElementById('formAdd');
         var collapse2 = document.getElementById('formSearch');
@@ -296,7 +309,7 @@ Quản lý nhân viên
         maxDate: new Date().setFullYear(new Date().getFullYear() - 18)
     });
     flatpickr("#ngayvaolam", {
-        dateFormat: "d/m/Y",  
+        dateFormat: "d/m/Y",
         maxDate: "today"
     });
 </script>
