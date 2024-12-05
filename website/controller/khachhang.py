@@ -28,33 +28,41 @@ def customer():
         if form.validate_on_submit():
 
             # Kiểm tra trùng email
-            if KhachHang.query.filter_by(Email=form.Email.data).first():
+            existing_email = KhachHang.query.filter_by(Email=form.Email.data).first()
+            if existing_email:
                 form.Email.errors.append("Email đã tồn tại")
-
-            # Kiểm tra trùng sdt
-            if KhachHang.query.filter_by(SDT=form.SDT.data).first():
+            
+            # Kiểm tra trùng SĐT
+            existing_sdt = KhachHang.query.filter_by(SDT=form.SDT.data).first()
+            if existing_sdt:
                 form.SDT.errors.append("SĐT đã tồn tại")
 
-            else:
-                kh = KhachHang (
-                HoKH=form.HoKH.data,
-                TenKH=form.TenKH.data,
-                Email=form.Email.data,  
-                SDT=form.SDT.data,
-                NgayMoThe=datetime.strptime(form.NgayMoThe.data, '%d/%m/%Y').date(),
-                DiemTieuDung=form.DiemTieuDung.data,
-                DiemTichLuy=form.DiemTichLuy.data,
-                LoaiKH=form.LoaiKH.data,
-                GioiTinh = form.GioiTinh.data
-                )
-                db.session.add(kh)
-                db.session.commit()
+            # Nếu không có lỗi, thêm khách hàng mới
+            if not existing_email and not existing_sdt:
+                try:
+                    kh = KhachHang(
+                        HoKH=form.HoKH.data,
+                        TenKH=form.TenKH.data,
+                        Email=form.Email.data,  
+                        SDT=form.SDT.data,
+                        NgayMoThe=datetime.strptime(form.NgayMoThe.data, '%d/%m/%Y').date(),
+                        DiemTieuDung=form.DiemTieuDung.data,
+                        DiemTichLuy=form.DiemTichLuy.data,
+                        LoaiKH=form.LoaiKH.data,
+                        GioiTinh=form.GioiTinh.data
+                    )
+                    db.session.add(kh)
+                    db.session.commit()
 
-                flash('Thêm khách hàng thành công!', 'success')
-                return redirect(url_for('khachhang.customer'))
-            
-        flash('Thêm khách hàng thất bại', 'danger')
-        formAdd_error = True
+                    flash('Thêm khách hàng thành công!', 'success')
+                    return redirect(url_for('khachhang.customer'))
+                except Exception as e:
+                    db.session.rollback()  # Nếu có lỗi, rollback lại database
+                    flash(f'Lỗi không mong muốn: {str(e)}', 'danger')
+
+            else:
+                flash('Vui lòng sửa lỗi trong form trước khi gửi.', 'danger')
+                formAdd_error = True
 
     # Phân trang danh sách khách hàng
     page = request.args.get('page', 1, type=int) 
