@@ -139,17 +139,17 @@
       <h3>Đặt Lịch Hẹn</h3>
       <label for="event-name">Họ và tên:</label>
       <input type="text" id="event-name" placeholder="Họ và tên" name="event-name"
-        value="{{ khachhang.HoKH +" " +khachhang.TenKH}}" readonly />
+        value="{{ khachhang.HoKH +" " +khachhang.TenKH}}" required />
       <label for="event-sdt">SDT
-        <p class="note" >(Nếu có thay đổi vui lòng đổi ở thông tin cá nhân):</p>
+        <p class="note">(Nếu có thay đổi vui lòng đổi ở thông tin cá nhân):</p>
       </label>
       <input type="tel" id="event-phone" placeholder="Số điện thoại" name="event-phone" value="{{khachhang.SDT}}"
-        readonly />
-      <label for="event-email">Email 
-        <p class="note" >(Nếu có thay đổi vui lòng đổi ở thông tin cá nhân):</p>
+        required />
+      <label for="event-email">Email
+        <p class="note">(Nếu có thay đổi vui lòng đổi ở thông tin cá nhân):</p>
       </label>
       <input type="email" id="event-email" placeholder="Email" name="event-email" value="{{khachhang.Email}}"
-        readonly />
+        required />
       <div>
         <label for="event-date">Ngày đặt <span style="color: red;">*</span></label>
         <input type="date" id="event-date" name="event-date" required />
@@ -164,7 +164,7 @@
           required />
       </div>
       <label for="event-soluongnguoi">Số lượng người <span style="color: red;">*</span></label>
-      <input type="number" id="soluongnguoi" placeholder="Số lượng người" name="soluongnguoi" required min="1"/>
+      <input type="number" id="soluongnguoi" placeholder="Số lượng người" name="soluongnguoi" required min="1" />
 
       <div class="d-flex justify-content-between mt-4" style="display: flex;flex-direction: row;gap: 10px;">
         <button id="save-event" type="submit">Lưu sự kiện</button>
@@ -182,20 +182,20 @@
       const calendarEl = document.getElementById("calendar");
 
       // Khởi tạo lịch với các tùy chỉnh
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: "timeGridWeek",
-          headerToolbar: {
-            left: "prev,next today",
-            center: "title",
-            right: "timeGridWeek,timeGridDay",
-          },
-          editable: false,
-          selectable: true,
-          allDaySlot: false,
-          slotDuration: "00:05:00", 
-          displayEventTime: true,
-          slotMinTime: "08:00:00",
-          slotMaxTime: "22:00:00",
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "timeGridWeek",
+        headerToolbar: {
+          left: "prev,next today",
+          center: "title",
+          right: "timeGridWeek,timeGridDay",
+        },
+        editable: false,
+        selectable: true,
+        allDaySlot: false,
+        slotDuration: "00:05:00",
+        displayEventTime: true,
+        slotMinTime: "08:00:00",
+        slotMaxTime: "22:00:00",
 
         // Fetch events for calendar
         events: function (info, successCallback, failureCallback) {
@@ -226,14 +226,14 @@
         select: function (info) {
           const start = info.start;
           const end = info.end;
-          console.log("start",start)
+          console.log("start", start)
           const date = start.toISOString().split("T")[0];
-          console.log("date",date)
+          console.log("date", date)
           const hours = start.getHours().toString().padStart(2, "0");
 
           const minutes = start.getMinutes().toString().padStart(2, "0");
           const duration = (end - start) / (1000 * 60);
-          console.log("duration",duration)
+          console.log("duration", duration)
           document.getElementById("event-date").value = date;
           document.getElementById("event-arrival-time").value = `${hours}:${minutes}`;
           document.getElementById("event-duration").value = duration;
@@ -254,14 +254,14 @@
         const time = document.getElementById("event-arrival-time").value;
         const duration = parseInt(document.getElementById("event-duration").value, 10);
         const number_persons = parseInt(document.getElementById("soluongnguoi").value, 10);
-        console.log("time",time)
+        console.log("time", time)
         // Kiểm tra hợp lệ của form
         if (!name || !phone || !email || !date || !time || isNaN(duration) || isNaN(number_persons)) {
           showMessage("Vui lòng điền đầy đủ thông tin!", "error");
           return;
         }
-        console.log("phone",phone)
-        if(phone == "None"){
+        console.log("phone", phone)
+        if (phone == "None") {
           showMessage("Bạn cần cập nhật số điện thoại ở trang cá nhân!", "error");
           return;
         }
@@ -274,8 +274,16 @@
           showMessage("Email không hợp lệ!", "error");
           return;
         }
-        if (duration <30) {
+        if (duration < 30) {
           showMessage("Thời lượng cần lớn hơn 30 phút!", "error");
+          return;
+        }
+        // Kiểm tra ngày đặt phải lớn hơn ngày giờ hiện tại
+        const now = new Date(); // Lấy ngày giờ hiện tại
+        const bookingDate = new Date(NgayDat); // Chuyển đổi NgayDat thành đối tượng Date
+
+        if (bookingDate <= now) {
+          showMessage("Ngày đặt phải lớn hơn ngày giờ hiện tại!", "error");
           return;
         }
 
@@ -337,15 +345,15 @@
       }
     });
   </script>
-<style>
-  .note {
-            background-color: #fef8e4;
-            padding: 10px;
-            border-left: 4px solid #f0ad4e;
-            margin-top: 10px;
-            font-size: 13px;
-        }
-</style>
+  <style>
+    .note {
+      background-color: #fef8e4;
+      padding: 10px;
+      border-left: 4px solid #f0ad4e;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+  </style>
 </body>
 
 </html>

@@ -512,28 +512,41 @@ class DonDatHang(db.Model):
         "CT_DonDatHang", backref="don_dat_hang", lazy=True
     )
     # hoa_don = db.relationship("HoaDon", back_populates="don_dat_hang")
-    def __init__(self):
-        pass
+    # def __init__(self):
+    #     pass
     # def __init__(
     #     self,
     #     NgayDat,
-    #     SoLuongNguoi,
     #     TrangThai,
     #     Loai,
     #     GioDen,
     #     ThoiLuong=None,
+    #     SoLuongNguoi = None,
     #     idNV=None,
     #     ThanhTien=None,
+    #     GhiChu=None  # GhiChu cũng cần có giá trị mặc định nếu bạn muốn nó là tùy chọn
     # ):
     #     # Xác thực và làm sạch dữ liệu
-    #     self.NgayDat = self.validate_ngay_dat(NgayDat)
-    #     self.TrangThai = self.validate_trang_thai(TrangThai)
-    #     self.Loai = self.validate_loai(Loai)
-    #     self.GioDen = self.validate_gio_den(GioDen)
-    #     self.ThoiLuong = self.validate_thoi_luong(ThoiLuong)
+    #     self.NgayDat = NgayDat
+    #     self.TrangThai = TrangThai
+    #     self.Loai = Loai
+    #     self.GioDen = GioDen
+    #     self.ThoiLuong = ThoiLuong
     #     self.idNV = idNV
-    #     self.ThanhTien = self.validate_thanh_tien(ThanhTien)
-
+    #     self.ThanhTien = ThanhTien
+    #     self.SoLuongNguoi = SoLuongNguoi
+    #     self.GhiChu = GhiChu
+    def __init__(self, **kwargs):
+        # Kiểm tra và thiết lập các giá trị mặc định nếu tham số không được truyền vào
+        self.NgayDat = kwargs.get("NgayDat", None)
+        self.TrangThai = kwargs.get("TrangThai", "Chưa bắt đầu")
+        self.Loai = kwargs.get("Loai", 1)
+        self.GioDen = kwargs.get("GioDen", None)
+        self.ThoiLuong = kwargs.get("ThoiLuong", None)
+        self.SoLuongNguoi = kwargs.get("SoLuongNguoi", None)
+        self.idNV = kwargs.get("idNV", None)
+        self.ThanhTien = kwargs.get("ThanhTien", None)
+        self.GhiChu = kwargs.get("GhiChu", None)
     def validate_ngay_dat(self, value):
         if not value or not isinstance(value, date):
             raise ValueError(

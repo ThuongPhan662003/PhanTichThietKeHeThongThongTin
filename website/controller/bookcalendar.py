@@ -66,6 +66,7 @@ def save_event():
 
         # Commit giao dịch
         db.session.commit()
+        print("new_event",new_event)
         return jsonify({"status": "success", "message": "Sự kiện đã được lưu!"}), 200
 
     except SQLAlchemyError as e:
