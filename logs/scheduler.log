@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 2024-12-05 23:25:26,494 INFO: Scheduler startup [in D:\DOANPTTKHTTT\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
 2024-12-05 23:25:32,092 INFO: Scheduler startup [in D:\DOANPTTKHTTT\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
 2024-12-05 23:31:13,097 INFO: Scheduler startup [in D:\DOANPTTKHTTT\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
@@ -54,3 +55,16 @@
 2024-12-06 05:07:35,358 INFO: Scheduler startup [in D:\DOANPTTKHTTT\PhanTichThietKeHeThongThongTin\website\__init__.py:100]
 2024-12-06 05:12:04,678 INFO: Scheduler startup [in D:\DOANPTTKHTTT\PhanTichThietKeHeThongThongTin\website\__init__.py:100]
 2024-12-06 05:13:54,724 INFO: Scheduler startup [in D:\DOANPTTKHTTT\PhanTichThietKeHeThongThongTin\website\__init__.py:100]
+=======
+2024-12-05 16:05:42,828 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-05 16:05:47,399 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-05 19:12:07,843 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-05 19:12:18,939 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-05 19:15:37,884 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-05 19:19:33,739 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-05 19:21:01,281 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-05 19:21:28,169 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-05 19:23:26,839 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-06 04:07:10,147 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+2024-12-06 04:07:32,482 INFO: Scheduler startup [in D:\PhanTichThietKeHeThongThongTin\website\__init__.py:96]
+>>>>>>> Stashed changes

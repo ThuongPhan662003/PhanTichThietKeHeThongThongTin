@@ -41,8 +41,9 @@
                     {% endif %}
                 </td>
                 <td>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="fillBookingModal('{{ order.MaDDH }}', '{{ order.NgayDat}}', 
-                        '{{ order.GioDen}}', '{{ order.SoLuongNguoi }}', '{{ order.ThoiLuong }}', encodeURIComponent('{{order.GhiChu}}'))">
+                    <button type="button" class="btn btn-primary btn-sm"
+                        onclick="fillBookingModal('{{ order.MaDDH }}', '{{ order.NgayDat}}', 
+                        '{{ order.GioDen}}', '{{ order.SoLuongNguoi }}', '{{ order.ThoiLuong }}', '{{ order.GhiChu }}')">
                         Xác nhận
                     </button>
                 </td>
@@ -182,7 +183,7 @@
         const form = document.getElementById('bookingForm');
         form.action = `/dondathang/luu-chi-tiet-ban/${maDDH}`;
 
-         // Decode chuỗi đã được encode
+        // Decode chuỗi đã được encode
         let decodedGhiChu = decodeURIComponent(ghiChu);
         console.log(decodedGhiChu)
         document.getElementById('orderIdInput').value = maDDH;
@@ -190,7 +191,7 @@
         document.getElementById('bookingTime').value = gioDen;
         document.getElementById('soLuongNguoi').value = soLuongNguoi;
         document.getElementById('bookingDurationDisplay').value = thoiLuong;
-        document.getElementById('ghiChu').value = decodedGhiChu;
+        document.getElementById('ghiChu').value = ghiChu;
 
         selectedTables = [];
         updateSelectedTablesDisplay();
