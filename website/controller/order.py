@@ -112,6 +112,9 @@ def get_grouped_products():
     # Sắp xếp món ăn theo từng loại
     grouped_products = {}
     for product in all_products:
+        if product.An == 1 or not product.HinhAnh:
+            continue
+
         loai = product.Loai
         if loai not in grouped_products:
             grouped_products[loai] = []

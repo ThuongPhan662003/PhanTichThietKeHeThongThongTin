@@ -135,6 +135,12 @@
                 paymentProgress.innerHTML = '';
 
 
+                // Thêm nút vào Tiến trình thanh toán
+                if (order.TrangThaiHD === 'Chưa thanh toán' && order.TrangThai !== "Chưa bắt đầu") {
+                    paymentProgress.innerHTML += `
+                    <a href="${urlCheckout}" class="btn btn-primary mb-2">Checkout</a>`;
+                }
+
                 // Điều kiện trạng thái đơn đặt hàng
                 if (order.TrangThai === 'Chưa bắt đầu') {
                     if (order.Ban.length === 1) {
@@ -161,11 +167,7 @@
                     <a href="${urlCompleteOrder}" class="btn btn-outline-success mb-2 me-2">Hoàn thành đơn</a>`;
                 }
 
-                // Thêm nút vào Tiến trình thanh toán
-                if (order.TrangThaiHD === 'Chưa thanh toán') {
-                    paymentProgress.innerHTML += `
-                    <a href="${urlCheckout}" class="btn btn-primary mb-2">Checkout</a>`;
-                }
+                
 
                 if (order.TrangThaiHD === 'Đã thanh toán') {
                     paymentProgress.innerHTML += `
