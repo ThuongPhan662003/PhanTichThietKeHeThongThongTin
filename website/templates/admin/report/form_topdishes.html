@@ -1,100 +1,97 @@
-{% extends "admin/base.html" %} {% block title %} Đơn đặt hàng {% endblock %} {%
-block content %}
+{% extends "admin/base.html" %} 
+{% block title %} Đơn đặt hàng {% endblock %} 
+{% block content %}
 {% for category, message in get_flashed_messages(with_categories=True) %}
-<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" ">
-    <strong >{{ message }}</strong>
+<div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+    <strong>{{ message }}</strong>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endfor %}
-<div style="margin: auto ;">
+<div style="margin: auto;">
     <h1>Generate Top-Selling Dishes Report</h1>
-<form action="/report/dishes" method="POST">
-  <div class="mb-3">
-    <label for="start_date" class="form-label">Start Date</label>
-    <input
-      type="text"
-      class="form-control"
-      name="start_date"
-      id="start_date"
-      placeholder="dd/mm/yyyy"
-    />
-  </div>
-  <div class="mb-3">
-    <label for="end_date" class="form-label">End Date</label>
-    <input
-      type="text"
-      class="form-control"
-      name="end_date"
-      id="end_date"
-      placeholder="dd/mm/yyyy"
-    />
-  </div>
-  <div class="mb-3">
-    <label for="limit_number" class="form-label">Limit Number</label>
-    <input type="number" class="form-control" name="limit_number" value="10" />
-  </div>
-  <button type="submit" class="btn btn-primary">Generate Report</button>
-</form>
+    <form action="/report/dishes" method="POST">
+        <div class="mb-3">
+            <label for="start_date" class="form-label">Start Date</label>
+            <input type="text" class="form-control" name="start_date" id="start_date" placeholder="dd-mm-yyyy" />
+        </div>
+        <div class="mb-3">
+            <label for="end_date" class="form-label">End Date</label>
+            <input type="text" class="form-control" name="end_date" id="end_date" placeholder="dd-mm-yyyy" />
+        </div>
+        <div class="mb-3">
+            <label for="limit_number" class="form-label">Limit Number</label>
+            <input type="number" class="form-control" name="limit_number" value="10" />
+        </div>
+        <button type="submit" class="btn btn-primary">Generate Report</button>
+    </form>
 </div>
 
-{% endblock %}
-<script>
-  // Cấu hình cho datepicker
-  $("#end_date").datepicker({
-    format: "dd-mm-yyyy", // Định dạng ngày
-    autoclose: true, // Đóng cửa sổ chọn ngày khi chọn xong
-    todayHighlight: true, // Tô sáng ngày hôm nay
-    orientation: "bottom left", // Đặt vị trí hiển thị lịch
-    startView: 0, // Bắt đầu với view tháng
-  });
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
-  $("#start_date").datepicker({
-    format: "dd-mm-yyyy", // Định dạng ngày
-    autoclose: true, // Đóng cửa sổ chọn ngày khi chọn xong
-    todayHighlight: true, // Tô sáng ngày hôm nay
-    orientation: "bottom left", // Đặt vị trí hiển thị lịch
-    startView: 0, // Bắt đầu với view tháng
-  });
+<script>
+$(document).ready(function () {
+    // Cấu hình datepicker cho input bắt đầu
+    $('#start_date').datepicker({
+        dateFormat: 'dd-mm-yy', // Định dạng ngày
+        autoclose: true,      // Tự động đóng sau khi chọn ngày
+        language: 'vi',       // Ngôn ngữ
+        todayHighlight: true, // Tô sáng ngày hôm nay
+        orientation: 'bottom' // Hiển thị lịch dưới input
+    });
+
+    // Cấu hình datepicker cho input kết thúc
+    $('#end_date').datepicker({
+        dateFormat: 'dd-mm-yy', // Định dạng ngày
+        autoclose: true,      // Tự động đóng sau khi chọn ngày
+        language: 'vi',       // Ngôn ngữ
+        todayHighlight: true, // Tô sáng ngày hôm nay
+        orientation: 'bottom' // Hiển thị lịch dưới input
+    });
+    
+});
 </script>
 
 <style>
-  /* Cải tiến giao diện */
-  .datepicker {
-    border-radius: 8px; /* Bo tròn góc của datepicker */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Tạo bóng cho datepicker */
-  }
+    /* Cải tiến giao diện */
+    .datepicker {
+        border-radius: 8px; /* Bo tròn góc của datepicker */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Tạo bóng cho datepicker */
+    }
 
-  .datepicker table {
-    width: 100%;
-  }
+    .datepicker table {
+        width: 100%;
+    }
 
-  .datepicker .datepicker-days .day {
-    padding: 5px 10px;
-    font-size: 14px;
-    border-radius: 5px;
-  }
+    .datepicker .datepicker-days .day {
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 5px;
+    }
 
-  .datepicker .datepicker-days .day:hover {
-    background-color: #007bff;
-    color: white;
-  }
+    .datepicker .datepicker-days .day:hover {
+        background-color: #007bff;
+        color: white;
+    }
 
-  .datepicker .datepicker-days .day.active {
-    background-color: #007bff;
-    color: white;
-  }
+    .datepicker .datepicker-days .day.active {
+        background-color: #007bff;
+        color: white;
+    }
 
-  .datepicker .datepicker-months .month:hover,
-  .datepicker .datepicker-years .year:hover {
-    background-color: #007bff;
-    color: white;
-  }
+    .datepicker .datepicker-months .month:hover,
+    .datepicker .datepicker-years .year:hover {
+        background-color: #007bff;
+        color: white;
+    }
 
-  .form-control {
-    border-radius: 5px; /* Bo tròn góc của input */
-  }
+    .form-control {
+        border-radius: 5px; /* Bo tròn góc của input */
+    }
 
-  .btn-primary {
-    border-radius: 5px; /* Bo tròn góc của nút bấm */
-  }
+    .btn-primary {
+        border-radius: 5px; /* Bo tròn góc của nút bấm */
+    }
 </style>
+{% endblock %}

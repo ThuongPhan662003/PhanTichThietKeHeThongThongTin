@@ -16,7 +16,7 @@ block content %}
       class="form-control"
       name="start_date"
       id="start_date"
-      placeholder="dd/mm/yyyy"
+      placeholder="dd-mm-yyyy"
     />
   </div>
   <div class="mb-3">
@@ -26,33 +26,40 @@ block content %}
       class="form-control"
       name="end_date"
       id="end_date"
-      placeholder="dd/mm/yyyy"
+      placeholder="dd-mm-yyyy"
     />
   </div>
   
   <button type="submit" class="btn btn-primary">Generate Report</button>
 </form>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
-{% endblock %}
 <script>
-  // Cấu hình cho datepicker
-  $("#end_date").datepicker({
-    format: "dd-mm-yyyy", // Định dạng ngày
-    autoclose: true, // Đóng cửa sổ chọn ngày khi chọn xong
-    todayHighlight: true, // Tô sáng ngày hôm nay
-    orientation: "bottom left", // Đặt vị trí hiển thị lịch
-    startView: 0, // Bắt đầu với view tháng
-  });
+$(document).ready(function () {
+    // Cấu hình datepicker cho input bắt đầu
+    $('#start_date').datepicker({
+        dateFormat: 'dd-mm-yy', // Định dạng ngày
+        autoclose: true,      // Tự động đóng sau khi chọn ngày
+        language: 'vi',       // Ngôn ngữ
+        todayHighlight: true, // Tô sáng ngày hôm nay
+        orientation: 'bottom' // Hiển thị lịch dưới input
+    });
 
-  $("#start_date").datepicker({
-    format: "dd-mm-yyyy", // Định dạng ngày
-    autoclose: true, // Đóng cửa sổ chọn ngày khi chọn xong
-    todayHighlight: true, // Tô sáng ngày hôm nay
-    orientation: "bottom left", // Đặt vị trí hiển thị lịch
-    startView: 0, // Bắt đầu với view tháng
-  });
+    // Cấu hình datepicker cho input kết thúc
+    $('#end_date').datepicker({
+        dateFormat: 'dd-mm-yy', // Định dạng ngày
+        autoclose: true,      // Tự động đóng sau khi chọn ngày
+        language: 'vi',       // Ngôn ngữ
+        todayHighlight: true, // Tô sáng ngày hôm nay
+        orientation: 'bottom' // Hiển thị lịch dưới input
+    });
+    
+});
 </script>
+
 
 <style>
   /* Cải tiến giao diện */
@@ -95,3 +102,4 @@ block content %}
     border-radius: 5px; /* Bo tròn góc của nút bấm */
   }
 </style>
+{% endblock %}

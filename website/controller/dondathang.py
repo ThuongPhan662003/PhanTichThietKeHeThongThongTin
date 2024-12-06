@@ -22,7 +22,7 @@ def confirm():
         DonDatHang.Loai == 1,  
         DonDatHang.TrangThai != 'Đã hoàn thành'
     ).all()
-
+    print("un", unconfirmed_orders  )
     return render_template(
         "admin/dondathang/confirm.html",
         orders=unconfirmed_orders,

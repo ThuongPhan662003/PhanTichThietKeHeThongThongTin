@@ -123,6 +123,7 @@ def report_topdishes_page():
             # Chuyển đổi start_date và end_date sang định dạng datetime
             start_date_obj = datetime.strptime(start_date, "%d-%m-%Y")
             end_date_obj = datetime.strptime(end_date, "%d-%m-%Y")
+            print(start_date_obj,end_date_obj)
         except ValueError:
             flash("Ngày tháng không hợp lệ. Vui lòng nhập theo định dạng dd-mm-yyyy.", "danger")
             return render_template("/admin/report/form_topdishes.html")
@@ -477,15 +478,7 @@ def report_excel_revenue():
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
 
-    # Kiểm tra tham số đầu vào
-    if not start_date or not end_date:
-        return (
-            "Missing 'start_date' or 'end_date' parameter. Use format YYYY-MM-DD.",
-            400,
-        )
-    # Kiểm tra logic thời gian (nếu cần)
-    if start_date > end_date:
-        return "'start_date' cannot be later than 'end_date'.", 400
+
 
     # Lấy dữ liệu doanh thu
     revenue = get_revenue_data(start_date, end_date)
