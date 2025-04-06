@@ -420,7 +420,7 @@ class NhanVien(db.Model):
     NgayVaoLam = db.Column(db.Date, nullable=False)
     hoa_don = db.relationship("HoaDon", backref="nhan_vien")
     nguoi_dung = db.relationship("NguoiDung", back_populates="nhan_vien")
-    GioiTinh = db.Column(db.Integer, nullable=False)
+    GioiTinh = db.Column(db.Integer, nullable=True)
 
     
     def getHoTenNV(self):

@@ -38,7 +38,7 @@ def account():
     print("TenNhomND", TenNhomND)
 
     # Kiểm tra vai trò của người dùng (Nhân viên hoặc khách hàng)
-    if TenNhomND in "Khách hàng":
+    if TenNhomND == "Khách hàng":
         khachhang = KhachHang.query.filter_by(idNguoiDung=MaND).first()
         GioiTinh = khachhang.GioiTinh
         print(khachhang.getHoTen())
@@ -55,19 +55,32 @@ def account():
             avatar_url=avatar_url,
         )
     else:
+        print("")
         employee = NhanVien.query.filter_by(idNguoiDung=MaND).first()
+        print("employee",employee)
         GioiTinh = employee.get_GioiTinh()
-        if GioiTinh == 1:
-            random_number = random.randint(51, 100)
+        print("GioiTinh",GioiTinh)
+        if GioiTinh:
+            if GioiTinh == 1:
+                random_number = random.randint(51, 100)
+            else:
+                random_number = random.randint(0, 50)
+            avatar_url = "https://avatar.iran.liara.run/public/" + str(random_number)
+            return render_template(
+                "/admin/nguoidung/nguoidung.html",
+                user=user,
+                employee=employee,
+                avatar_url=avatar_url,
+            )
         else:
-            random_number = random.randint(0, 50)
-        avatar_url = "https://avatar.iran.liara.run/public/" + str(random_number)
-        return render_template(
-            "/admin/nguoidung/nguoidung.html",
-            user=user,
-            employee=employee,
-            avatar_url=avatar_url,
-        )
+            avatar_url = "https://avatar.iran.liara.run/public/" 
+            return render_template(
+                "/admin/nguoidung/nguoidung.html",
+                user=user,
+                employee=employee,
+                avatar_url=avatar_url,
+            )
+
     return redirect(url_for("auth.login"))
 
 

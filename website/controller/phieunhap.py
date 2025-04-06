@@ -20,8 +20,7 @@ def get_received_notes(page, start_date=None, end_date=None, min_amount=None, ma
         PHIEUNHAP.NgayNhap,
         PHIEUNHAP.TongTien, 
         func.concat(NhanVien.HoNV, ' ', NhanVien.TenNV).label("NhanVienNhap")
-    ).join(PHIEUNHAP.nhan_vien) 
-    print("fdfdfd",query.all())
+    ).outerjoin(PHIEUNHAP.nhan_vien) 
     if query_search:
         query = query.filter(func.concat(NhanVien.HoNV, ' ', NhanVien.TenNV).ilike(f'%{query_search}%'))
 
@@ -49,8 +48,9 @@ def get_received_notes(page, start_date=None, end_date=None, min_amount=None, ma
 def received_notes():
     page = request.args.get('page', 1, type=int)
     results = get_received_notes(page)
-    print("rel",results.items)
+
     return render_template('admin/phieunhap/phieunhap.html', results=results)
+    
 
 @phieunhap.route('/received_note/<int:note_id>', methods=['GET'])
 @role_required(["Quản lý","Nhân viên kho"])
